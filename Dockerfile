@@ -13,5 +13,5 @@ FROM nginx:alpine
 COPY --from=build /app/dist/vision-medical-system-front/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 80 8080
+CMD ["sh", "-c", "sed -i 's/PORT_HOLDER/'\"${PORT:-80}\"'/g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
