@@ -61,14 +61,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isEmployeesOpen.update(v => !v);
   }
 
+  private isInitialized = false;
+
   constructor() {
     effect(() => {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('vm_dashboard_role', this.activeRole());
-        localStorage.setItem('vm_manager_active_tab', this.managerActiveTab());
-        localStorage.setItem('vm_admin_active_tab', this.adminActiveTab());
-        localStorage.setItem('vm_seller_active_tab', this.sellerActiveTab());
-        localStorage.setItem('vm_accountant_active_tab', this.accountantActiveTab());
+      const role = this.activeRole();
+      const managerTab = this.managerActiveTab();
+      const adminTab = this.adminActiveTab();
+      const sellerTab = this.sellerActiveTab();
+      const accountantTab = this.accountantActiveTab();
+
+      if (typeof window !== 'undefined' && this.isInitialized) {
+        localStorage.setItem('vm_dashboard_role', role);
+        localStorage.setItem('vm_manager_active_tab', managerTab);
+        localStorage.setItem('vm_admin_active_tab', adminTab);
+        localStorage.setItem('vm_seller_active_tab', sellerTab);
+        localStorage.setItem('vm_accountant_active_tab', accountantTab);
       }
     });
   }
@@ -112,7 +120,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const savedAccountantTab = localStorage.getItem('vm_accountant_active_tab');
         if (savedAccountantTab) this.accountantActiveTab.set(savedAccountantTab);
 
+        this.isInitialized = true;
       } catch (e) {
+        console.error('Failed to parse logged user', e);
         this.router.navigate(['/login']);
       }
     }
