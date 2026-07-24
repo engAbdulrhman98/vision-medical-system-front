@@ -134,6 +134,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return 'seller';
   }
 
+  public getEffectiveRole(): 'admin' | 'manager' | 'accountant' | 'seller' {
+    const userRole = this.getUserRole();
+    if (userRole === 'admin') return this.activeRole();
+    const currentActive = this.activeRole();
+    if (currentActive === userRole) return currentActive;
+    return userRole;
+  }
+
   public hasPermission(permission: string): boolean {
     const user = this.loggedUser();
     if (!user) return false;

@@ -128,32 +128,21 @@
     <!-- Main Workspace body -->
     <main class="p-4 sm:p-6 lg:p-8 flex-grow">
       @if (loggedUser()) {
-        @if (getUserRole() === 'admin') {
-          <!-- Admin has master access and can switch activeRole dynamically -->
-          @switch (activeRole()) {
-            @case ('admin') {
-              <app-admin-view [activeSubTab]="adminActiveTab()" (activeSubTabChange)="adminActiveTab.set($any($event))"></app-admin-view>
-            }
-            @case ('manager') {
-              <app-manager-view [activeSubTab]="managerActiveTab()" (activeSubTabChange)="managerActiveTab.set($any($event))"></app-manager-view>
-            }
-            @case ('accountant') {
-              <app-accountant-view [activeSubTab]="accountantActiveTab()" (activeSubTabChange)="accountantActiveTab.set($any($event))"></app-accountant-view>
-            }
-            @case ('seller') {
-              <app-seller-view [activeSubTab]="sellerActiveTab()" (activeSubTabChange)="sellerActiveTab.set($any($event))"></app-seller-view>
-            }
+        @switch (getEffectiveRole()) {
+          @case ('admin') {
+            <app-admin-view [activeSubTab]="adminActiveTab()" (activeSubTabChange)="adminActiveTab.set($any($event))"></app-admin-view>
           }
-        } @else {
-          <!-- Non-admin roles: dynamically render views based on activeRole to support extra permissions -->
-          @if (activeRole() === 'manager') {
+          @case ('manager') {
             <app-manager-view [activeSubTab]="managerActiveTab()" (activeSubTabChange)="managerActiveTab.set($any($event))"></app-manager-view>
           }
-          @if (activeRole() === 'accountant') {
+          @case ('accountant') {
             <app-accountant-view [activeSubTab]="accountantActiveTab()" (activeSubTabChange)="accountantActiveTab.set($any($event))"></app-accountant-view>
           }
-          @if (activeRole() === 'seller') {
+          @case ('seller') {
             <app-seller-view [activeSubTab]="sellerActiveTab()" (activeSubTabChange)="sellerActiveTab.set($any($event))"></app-seller-view>
+          }
+          @default {
+            <app-admin-view [activeSubTab]="adminActiveTab()" (activeSubTabChange)="adminActiveTab.set($any($event))"></app-admin-view>
           }
         }
       }
