@@ -1,4 +1,4 @@
-import { Component, inject, signal, model, OnInit } from '@angular/core';
+import { Component, inject, signal, model, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../services/language.service';
@@ -36,6 +36,13 @@ export class ManagerViewComponent implements OnInit {
   // Edit Area Form state
   public showEditAreaModal = signal<boolean>(false);
   public editArea = { id: 0, name: '', type: 'city', parentId: null as number | null };
+
+  constructor() {
+    effect(() => {
+      const tab = this.activeSubTab();
+      this.loadActiveTabData();
+    });
+  }
 
   ngOnInit() {
     this.loadActiveTabData();

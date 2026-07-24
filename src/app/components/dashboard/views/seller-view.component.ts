@@ -1,4 +1,4 @@
-import { Component, inject, signal, model, OnInit } from '@angular/core';
+import { Component, inject, signal, model, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../services/language.service';
@@ -18,6 +18,15 @@ export class SellerViewComponent implements OnInit {
   private toastService = inject(ToastService);
 
   public activeSubTab = model<string>('clients');
+
+  constructor() {
+    effect(() => {
+      const tab = this.activeSubTab();
+      if (tab === 'clients' && this.clients().length === 0) {
+        this.loadClients();
+      }
+    });
+  }
 
   // State Signals
   public clients = signal<Client[]>([]);
