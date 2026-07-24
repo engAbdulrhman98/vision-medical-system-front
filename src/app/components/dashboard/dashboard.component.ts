@@ -100,11 +100,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
 
         // Restore role from local storage if saved
+        const userRole = this.getUserRole();
         const savedRole = localStorage.getItem('vm_dashboard_role') as any;
-        if (savedRole) {
+        if (savedRole && (userRole === 'admin' || savedRole === userRole)) {
           this.activeRole.set(savedRole);
         } else {
-          this.activeRole.set(this.getUserRole());
+          this.activeRole.set(userRole);
         }
 
         // Restore tabs

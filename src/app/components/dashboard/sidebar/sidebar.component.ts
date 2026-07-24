@@ -538,7 +538,9 @@ export class SidebarComponent {
   }
 
   public isActive(role: 'admin' | 'manager' | 'accountant' | 'seller', tab: string): boolean {
-    if (this.activeRole() !== role) return false;
+    const userRole = this.getUserRole();
+    const effectiveRole = userRole === 'admin' ? this.activeRole() : userRole;
+    if (effectiveRole !== role) return false;
     switch (role) {
       case 'admin':
         return this.adminActiveTab() === tab;
@@ -551,7 +553,11 @@ export class SidebarComponent {
     }
   }
 
-  public onNavigate(role: 'admin' | 'manager' | 'accountant' | 'seller', tab: string) {
+  public onNavigate(role: 'admin' | 'manager' | 'accountant' | 'seller', tab: string, event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.navigateTab.emit({ role, tab });
   }
 
