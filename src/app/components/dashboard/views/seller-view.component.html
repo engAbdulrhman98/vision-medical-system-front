@@ -433,6 +433,9 @@
 
   <!-- DAILY TASKS & FIELD VISITS FOR SALES/FIELD ENGINEER -->
   @if (activeSubTab() === 'tasks') {
-    <app-tasks [role]="'seller'"></app-tasks>
+    <app-tasks [role]="'seller'" [taskType]="'all'"></app-tasks>
+  }
+  @if (activeSubTab() === 'external-tasks') {
+    <app-tasks [role]="'seller'" [taskType]="'external'"></app-tasks>
   }
 </div>
