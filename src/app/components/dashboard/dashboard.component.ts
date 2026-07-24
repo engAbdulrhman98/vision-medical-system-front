@@ -166,11 +166,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public navigateTab(role: 'admin' | 'manager' | 'accountant' | 'seller', tab: string) {
-    this.activeRole.set(role);
-    if (role === 'admin') this.adminActiveTab.set(tab);
-    else if (role === 'manager') this.managerActiveTab.set(tab);
-    else if (role === 'accountant') this.accountantActiveTab.set(tab);
-    else if (role === 'seller') this.sellerActiveTab.set(tab);
+    const userRole = this.getUserRole();
+    const effectiveRole = userRole === 'admin' ? role : userRole;
+    this.activeRole.set(effectiveRole);
+
+    if (effectiveRole === 'admin') this.adminActiveTab.set(tab);
+    else if (effectiveRole === 'manager') this.managerActiveTab.set(tab);
+    else if (effectiveRole === 'accountant') this.accountantActiveTab.set(tab);
+    else if (effectiveRole === 'seller') this.sellerActiveTab.set(tab);
     this.isSidebarOpen.set(false);
   }
 

@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, signal, input, output, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../../services/language.service';
@@ -503,6 +503,26 @@ export class SidebarComponent {
   public isCatalogOpen = signal<boolean>(false);
   public isEmployeesOpen = signal<boolean>(false);
   public isSettingsOpen = signal<boolean>(false);
+
+  constructor() {
+    effect(() => {
+      const role = this.activeRole();
+      const adminTab = this.adminActiveTab();
+      const managerTab = this.managerActiveTab();
+
+      untracked(() => {
+        if (role === 'manager' && ['products', 'categories', 'brands'].includes(managerTab)) {
+          this.isCatalogOpen.set(true);
+        }
+        if (role === 'admin' && ['permissions', 'followup'].includes(adminTab)) {
+          this.isEmployeesOpen.set(true);
+        }
+        if (role === 'admin' && adminTab === 'settings') {
+          this.isSettingsOpen.set(true);
+        }
+      });
+    });
+  }
 
   public toggleCatalog() {
     this.isCatalogOpen.update(v => !v);
