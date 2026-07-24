@@ -214,10 +214,10 @@ export interface NavigateTabEvent {
                       <span class="text-xs font-bold">{{ langService.currentLang() === 'ar' ? 'كتالوج المنتجات الطبية' : 'Medical Products Catalog' }}</span>
                     </div>
                     <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"
-                       [class.rotate-180]="isCatalogOpen()" [class.text-amber-400]="isCatalogOpen()"></i>
+                       [class.rotate-180]="isCatalogExpanded()" [class.text-amber-400]="isCatalogExpanded()"></i>
                   </button>
 
-                  @if (isCatalogOpen()) {
+                  @if (isCatalogExpanded()) {
                     <div class="space-y-1 p-1.5 pt-0 bg-slate-950/70 border-t border-slate-800/80">
                       <!-- Medical Products -->
                       <button (click)="onNavigate('manager', 'products')"
@@ -393,10 +393,10 @@ export interface NavigateTabEvent {
                       <span class="text-xs font-bold">{{ langService.currentLang() === 'ar' ? 'إعدادات وصلاحيات النظام' : 'System & Location Settings' }}</span>
                     </div>
                     <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"
-                       [class.rotate-180]="isSettingsOpen()" [class.text-indigo-400]="isSettingsOpen()"></i>
+                       [class.rotate-180]="isSettingsExpanded()" [class.text-indigo-400]="isSettingsExpanded()"></i>
                   </button>
 
-                  @if (isSettingsOpen()) {
+                  @if (isSettingsExpanded()) {
                     <div class="space-y-1 p-1.5 pt-0 bg-slate-950/70 border-t border-slate-800/80">
                       <!-- Roles & Permissions -->
                       <button (click)="onNavigate('admin', 'permissions')"
@@ -504,24 +504,25 @@ export class SidebarComponent {
   public isEmployeesOpen = signal<boolean>(false);
   public isSettingsOpen = signal<boolean>(false);
 
-  constructor() {
-    effect(() => {
-      const role = this.activeRole();
-      const adminTab = this.adminActiveTab();
-      const managerTab = this.managerActiveTab();
+  public isCatalogExpanded(): boolean {
+    if (this.isCatalogOpen()) return true;
+    const role = this.activeRole();
+    const tab = this.managerActiveTab();
+    return role === 'manager' && ['products', 'categories', 'brands'].includes(tab);
+  }
 
-      untracked(() => {
-        if (role === 'manager' && ['products', 'categories', 'brands'].includes(managerTab)) {
-          this.isCatalogOpen.set(true);
-        }
-        if (role === 'admin' && ['permissions', 'followup'].includes(adminTab)) {
-          this.isEmployeesOpen.set(true);
-        }
-        if (role === 'admin' && adminTab === 'settings') {
-          this.isSettingsOpen.set(true);
-        }
-      });
-    });
+  public isEmployeesExpanded(): boolean {
+    if (this.isEmployeesOpen()) return true;
+    const role = this.activeRole();
+    const tab = this.adminActiveTab();
+    return role === 'admin' && ['permissions', 'followup'].includes(tab);
+  }
+
+  public isSettingsExpanded(): boolean {
+    if (this.isSettingsOpen()) return true;
+    const role = this.activeRole();
+    const tab = this.adminActiveTab();
+    return (role === 'admin' && (tab === 'settings' || tab === 'permissions')) || (role === 'manager' && this.managerActiveTab() === 'areas');
   }
 
   public toggleCatalog() {
