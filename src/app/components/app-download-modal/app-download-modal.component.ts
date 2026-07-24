@@ -41,7 +41,7 @@ export class AppDownloadModalComponent implements OnInit {
           app_name: { ar: 'تطبيق فيجن ميديكال الذكي', en: 'Vision Medical Mobile App' },
           version: 'v2.4.0',
           file_size: '28.4 MB',
-          android_download_url: 'http://localhost:8000/api/app/download/apk',
+          android_download_url: 'https://vision-medical-system-back-production.up.railway.app/api/app/download/apk',
           ios_download_url: 'https://apps.apple.com',
           features: [
             { icon: 'fa-screwdriver-wrench', title: { ar: 'متابعة المهام الميدانية', en: 'Field Tasks' }, description: { ar: 'استلام وتحديث مهام الصيانة والمبيعات بجميع المواقع.', en: 'Receive and update visits on site.' } },
@@ -55,7 +55,7 @@ export class AppDownloadModalComponent implements OnInit {
   }
 
   public downloadAndroidApk() {
-    const url = this.appInfo()?.android_download_url || 'http://localhost:8000/api/app/download/apk';
+    const url = this.appInfo()?.android_download_url || 'https://vision-medical-system-back-production.up.railway.app/api/app/download/apk';
     window.open(url, '_blank');
     this.toastService.success({
       ar: 'جاري بدأ تنزيل تطبيق أندرويد (Vision Medical APK)...',
