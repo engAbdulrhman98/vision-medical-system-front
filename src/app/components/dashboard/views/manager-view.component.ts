@@ -1,4 +1,4 @@
-import { Component, inject, signal, model, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, model, OnInit, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../services/language.service';
@@ -40,7 +40,9 @@ export class ManagerViewComponent implements OnInit {
   constructor() {
     effect(() => {
       const tab = this.activeSubTab();
-      this.loadActiveTabData();
+      untracked(() => {
+        this.loadActiveTabData();
+      });
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, inject, signal, model, effect } from '@angular/core';
+import { Component, inject, signal, model, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../services/language.service';
@@ -195,11 +195,13 @@ export class AdminViewComponent {
     this.refreshData();
     effect(() => {
       const tab = this.activeSubTab();
-      if (tab === 'settings') {
-        this.loadSettings();
-      } else if (tab === 'permissions' && this.systemRoles().length === 0) {
-        this.loadRolesAndUsers();
-      }
+      untracked(() => {
+        if (tab === 'settings') {
+          this.loadSettings();
+        } else if (tab === 'permissions' && this.systemRoles().length === 0) {
+          this.loadRolesAndUsers();
+        }
+      });
     });
   }
 
