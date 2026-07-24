@@ -19,7 +19,7 @@ export class AppComponent {
 
   // States
   public isMobileMenuOpen = signal<boolean>(false);
-  public currentUrl = signal<string>('');
+  public currentUrl = signal<string>(typeof window !== 'undefined' ? window.location.pathname : '');
 
   // computed check to determine if the public layout should be rendered
   public isDashboardRoute = computed(() => {
