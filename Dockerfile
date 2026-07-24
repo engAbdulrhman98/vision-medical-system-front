@@ -10,8 +10,11 @@ RUN npm run build -- --configuration production
 
 # Stage 2: Serve using Nginx
 FROM nginx:alpine
-COPY --from=build /app/dist/vision-medical-system-front/browser /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+ENV PORT=80
 
-EXPOSE 80 8080 3000
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=build /app/dist/vision-medical-system-front/browser /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+
+EXPOSE 80 8080
+
+CMD ["sh", "-c", "envsubst '$$PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
