@@ -23,10 +23,19 @@ export class AppComponent {
 
   // computed check to determine if the public layout should be rendered
   public isDashboardRoute = computed(() => {
-    return this.currentUrl().startsWith('/dashboard');
+    const url = this.currentUrl();
+    if (url && url.startsWith('/dashboard')) return true;
+    if (typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/dashboard')) {
+      return true;
+    }
+    return false;
   });
 
   constructor() {
+    if (typeof window !== 'undefined') {
+      this.currentUrl.set(window.location.pathname);
+    }
+
     // Monitor route changes to hide/show header/footer and close mobile menu
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
