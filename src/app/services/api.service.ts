@@ -238,13 +238,15 @@ export class ApiService {
     if (categorySlug) params = params.set('category', categorySlug);
     if (brandSlug) params = params.set('brand', brandSlug);
     return this.http.get<any>(`${this.apiUrl}/products`, { headers: this.getHeaders(), params }).pipe(
-      map(res => this.extractArray<Product>(res))
+      map(res => this.extractArray<Product>(res)),
+      catchError(() => of([]))
     );
   }
 
   getProductBySlug(slug: string): Observable<Product> {
     return this.http.get<any>(`${this.apiUrl}/products/${slug}`, { headers: this.getHeaders() }).pipe(
-      map(res => this.extractSingle<Product>(res))
+      map(res => this.extractSingle<Product>(res)),
+      catchError(() => of({} as Product))
     );
   }
 
@@ -273,7 +275,8 @@ export class ApiService {
   // ── Categories ───────────────────────────────────────────────────────
   getCategories(): Observable<Category[]> {
     return this.http.get<any>(`${this.apiUrl}/categories`, { headers: this.getHeaders() }).pipe(
-      map(res => this.extractArray<Category>(res))
+      map(res => this.extractArray<Category>(res)),
+      catchError(() => of([]))
     );
   }
 
