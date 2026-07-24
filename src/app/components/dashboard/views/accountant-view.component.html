@@ -1,0 +1,683 @@
+<!-- Accountant Dashboard -->
+<div class="space-y-6 animate-fade-in-up">
+
+  <!-- KPI Summary Cards (Quotations & Overall) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 bg-sky-50 rounded-xl flex items-center justify-center">
+          <i class="fa-solid fa-file-invoice text-sky-600"></i>
+        </div>
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'إجمالي العروض' : 'Total Quotations' }}</span>
+      </div>
+      <span class="text-2xl font-black text-slate-900">{{ quotations().length }}</span>
+    </div>
+    <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+          <i class="fa-solid fa-clock text-amber-600"></i>
+        </div>
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'عروض قيد الانتظار' : 'Pending Quotations' }}</span>
+      </div>
+      <span class="text-2xl font-black text-slate-900">{{ getPendingCount() }}</span>
+    </div>
+    <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+          <i class="fa-solid fa-receipt text-emerald-600"></i>
+        </div>
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'الفواتير النشطة' : 'Total Invoices' }}</span>
+      </div>
+      <span class="text-2xl font-black text-slate-900">{{ invoices().length }}</span>
+    </div>
+    <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center">
+          <i class="fa-solid fa-percent text-violet-600"></i>
+        </div>
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'نسبة نجاح العروض' : 'Quotation Success' }}</span>
+      </div>
+      <span class="text-2xl font-black text-slate-900">{{ getQuotationSuccessRate() }}%</span>
+    </div>
+  </div>
+
+
+  <!-- Success Banner -->
+  @if (showSuccessMsg()) {
+    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-xs font-bold flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-emerald-600"></i>
+      <span>{{ showSuccessMsg() }}</span>
+    </div>
+  }
+
+  <!-- ===== 1. QUOTATIONS TAB ===== -->
+  @if (activeSubTab() === 'quotations') {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+          <span>{{ langService.currentLang() === 'ar' ? 'قائمة عروض الأسعار' : 'Quotations Directory' }}</span>
+        </h3>
+        <button (click)="activeSubTab.set('new')"
+                class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-5 py-3 rounded-xl border-0 cursor-pointer flex items-center gap-2 transition">
+          <i class="fa-solid fa-plus"></i>
+          <span>{{ langService.currentLang() === 'ar' ? 'إنشاء عرض سعر' : 'Create Quotation' }}</span>
+        </button>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="flex flex-col sm:flex-row gap-3 mb-6">
+        <div class="flex-1 relative">
+          <i class="fa-solid fa-search absolute top-1/2 -translate-y-1/2 start-4 text-slate-400 text-xs"></i>
+          <input type="text" [(ngModel)]="searchText" (keyup.enter)="handleSearch()"
+                 [placeholder]="langService.currentLang() === 'ar' ? 'البحث بالرقم أو العميل أو الملاحظات...' : 'Search by number, client or notes...'"
+                 class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs ps-9 pe-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition font-sans">
+        </div>
+        <select [(ngModel)]="selectedStatus" (change)="handleSearch()"
+                class="bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition cursor-pointer">
+          <option value="">{{ langService.currentLang() === 'ar' ? 'جميع الحالات' : 'All Statuses' }}</option>
+          <option value="pending">{{ langService.currentLang() === 'ar' ? 'قيد المراجعة' : 'Pending' }}</option>
+          <option value="sent">{{ langService.currentLang() === 'ar' ? 'تم الإرسال' : 'Sent' }}</option>
+          <option value="approved">{{ langService.currentLang() === 'ar' ? 'موافق عليه' : 'Approved' }}</option>
+          <option value="accepted">{{ langService.currentLang() === 'ar' ? 'مقبول' : 'Accepted' }}</option>
+          <option value="completed">{{ langService.currentLang() === 'ar' ? 'مكتمل' : 'Completed' }}</option>
+          <option value="rejected">{{ langService.currentLang() === 'ar' ? 'مرفوض' : 'Rejected' }}</option>
+        </select>
+        <button (click)="handleSearch()"
+                class="bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs px-5 py-3 rounded-xl cursor-pointer border-0 transition shrink-0">
+          {{ langService.currentLang() === 'ar' ? 'بحث' : 'Search' }}
+        </button>
+      </div>
+
+      @if (quotations().length === 0) {
+        <div class="text-center py-16 text-slate-400 text-sm">
+          <i class="fa-solid fa-file-invoice text-4xl mb-3 block text-slate-200"></i>
+          {{ langService.currentLang() === 'ar' ? 'لا توجد عروض أسعار مسجلة.' : 'No quotations found.' }}
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-start border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-[10px] uppercase tracking-wider text-start">
+                <th class="p-4 text-start">#</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'رقم العرض' : 'Quotation No' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'العميل' : 'Client' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'البنود' : 'Items' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'صالح لغاية' : 'Valid Until' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'القيمة الإجمالية' : 'Total Amount' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'الحالة' : 'Status' }}</th>
+                <th class="p-4 text-center">{{ langService.currentLang() === 'ar' ? 'خيارات' : 'Actions' }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              @for (q of quotations(); track q.id; let idx = $index) {
+                <tr class="hover:bg-slate-50/40 transition">
+                  <td class="p-4 font-bold text-slate-400">{{ idx + 1 }}</td>
+                  <td class="p-4 font-black text-slate-900">{{ q.quotation_number || 'N/A' }}</td>
+                  <td class="p-4">
+                    <div class="font-bold text-slate-800">{{ q.client?.name || q.client_name }}</div>
+                    <div class="text-[10px] text-slate-400 font-medium">{{ q.client?.company_name || q.client_hospital || 'N/A' }}</div>
+                  </td>
+                  <td class="p-4 max-w-xs truncate">
+                    @if (q.items && q.items.length > 0) {
+                      <div class="flex flex-wrap gap-1">
+                        @for (item of q.items; track item.name) {
+                          <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded-md font-medium">
+                            {{ item.name }} (x{{ item.quantity }})
+                          </span>
+                        }
+                      </div>
+                    } @else {
+                      <span class="text-slate-400 italic">{{ langService.currentLang() === 'ar' ? 'لا يوجد بنود' : 'No items' }}</span>
+                    }
+                  </td>
+                  <td class="p-4 font-mono text-slate-500">{{ q.valid_until || 'N/A' }}</td>
+                  <td class="p-4 font-extrabold text-slate-900">{{ q.total_amount | number }} EGP</td>
+                  <td class="p-4">
+                    <select [value]="q.status" (change)="handleUpdateStatus(q, $any($event.target).value)"
+                            class="bg-slate-50 border border-slate-200 text-slate-800 text-[10px] font-bold px-2.5 py-1.5 rounded-lg cursor-pointer focus:outline-none transition">
+                      <option value="pending">{{ langService.currentLang() === 'ar' ? 'قيد المراجعة' : 'Pending' }}</option>
+                      <option value="sent">{{ langService.currentLang() === 'ar' ? 'تم الإرسال' : 'Sent' }}</option>
+                      <option value="approved">{{ langService.currentLang() === 'ar' ? 'موافق عليه' : 'Approved' }}</option>
+                      <option value="accepted">{{ langService.currentLang() === 'ar' ? 'مقبول' : 'Accepted' }}</option>
+                      <option value="completed">{{ langService.currentLang() === 'ar' ? 'مكتمل' : 'Completed' }}</option>
+                      <option value="rejected">{{ langService.currentLang() === 'ar' ? 'مرفوض' : 'Rejected' }}</option>
+                      <option value="expired">{{ langService.currentLang() === 'ar' ? 'منتهي الصلاحية' : 'Expired' }}</option>
+                    </select>
+                  </td>
+                  <td class="p-4 text-center">
+                    <button (click)="handleDeleteQuotation(q.id)"
+                            class="bg-rose-50 hover:bg-rose-500 hover:text-white border-0 text-rose-600 font-bold p-2.5 rounded-xl cursor-pointer transition">
+                      <i class="fa-solid fa-trash text-xs"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ===== 2. CREATE QUOTATION FORM ===== -->
+  @if (activeSubTab() === 'new') {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
+      <h3 class="font-bold text-slate-950 text-base mb-5 flex items-center gap-2 border-b border-slate-100 pb-3">
+        <i class="fa-solid fa-file-circle-plus text-sky-600"></i>
+        <span>{{ langService.currentLang() === 'ar' ? 'إنشاء عرض سعر جديد' : 'Create New Quotation' }}</span>
+      </h3>
+
+      <form (submit)="handleCreateQuotation($event)">
+        <!-- Client Selection -->
+        <div class="mb-6">
+          <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-user text-sky-500"></i>
+            {{ langService.currentLang() === 'ar' ? 'اختيار العميل' : 'Select Client' }}
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-2">{{ langService.currentLang() === 'ar' ? 'العميل*' : 'Client*' }}</label>
+              <select [(ngModel)]="newQuotation.client_id" name="clientId" required
+                      class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition cursor-pointer">
+                <option value="0" disabled>{{ langService.currentLang() === 'ar' ? 'اختر العميل...' : 'Select client...' }}</option>
+                @for (c of clients(); track c.id) {
+                  <option [value]="c.id">{{ c.name }} ({{ c.company_name || 'N/A' }})</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-2">{{ langService.currentLang() === 'ar' ? 'رقم العرض (اختياري)' : 'Quotation Number (Optional)' }}</label>
+              <input type="text" [(ngModel)]="newQuotation.quotation_number" name="qNo"
+                     [placeholder]="langService.currentLang() === 'ar' ? 'توليد تلقائي إن ترك فارغاً' : 'Auto-generated if left blank'"
+                     class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition font-sans">
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Items Section -->
+        <div class="mb-6 border-t border-slate-100 pt-6">
+          <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-list text-emerald-500"></i>
+            {{ langService.currentLang() === 'ar' ? 'بنود عرض السعر' : 'Quotation Line Items' }}
+          </h4>
+
+          <!-- Add Item Row Form -->
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4 bg-slate-50/50 p-4 rounded-xl border border-slate-150">
+            <div class="sm:col-span-2">
+              <label class="block text-[10px] font-bold text-slate-500 mb-1">{{ langService.currentLang() === 'ar' ? 'اسم البند / الخدمة' : 'Item / Service Name' }}</label>
+              <input type="text" [(ngModel)]="newItem.name" name="itemName"
+                     [placeholder]="langService.currentLang() === 'ar' ? 'مثال: صيانة جهاز التخدير' : 'e.g. Anesthesia machine service'"
+                     class="w-full bg-white border border-slate-200 text-slate-800 text-xs px-3 py-2.5 rounded-lg focus:border-sky-500 focus:outline-none transition font-sans">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 mb-1">{{ langService.currentLang() === 'ar' ? 'الكمية' : 'Quantity' }}</label>
+              <input type="number" [(ngModel)]="newItem.quantity" name="itemQty" min="1"
+                     class="w-full bg-white border border-slate-200 text-slate-800 text-xs px-3 py-2.5 rounded-lg focus:border-sky-500 focus:outline-none transition">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 mb-1">{{ langService.currentLang() === 'ar' ? 'سعر الوحدة (جنيه)' : 'Unit Price (EGP)' }}</label>
+              <div class="flex gap-2 items-center">
+                <input type="number" [(ngModel)]="newItem.unit_price" name="itemPrice" min="0" placeholder="0.00"
+                       class="w-full bg-white border border-slate-200 text-slate-800 text-xs px-3 py-2.5 rounded-lg focus:border-sky-500 focus:outline-none transition">
+                <button type="button" (click)="addItem()"
+                        class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-lg cursor-pointer border-0 transition">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          @if (newQuotation.items.length > 0) {
+            <div class="border border-slate-200 rounded-xl overflow-hidden mb-4">
+              <table class="w-full text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3 text-start">#</th>
+                    <th class="p-3 text-start">{{ langService.currentLang() === 'ar' ? 'البند' : 'Item Description' }}</th>
+                    <th class="p-3 text-start">{{ langService.currentLang() === 'ar' ? 'الكمية' : 'Qty' }}</th>
+                    <th class="p-3 text-start">{{ langService.currentLang() === 'ar' ? 'سعر الوحدة' : 'Unit Price' }}</th>
+                    <th class="p-3 text-start">{{ langService.currentLang() === 'ar' ? 'المجموع' : 'Total' }}</th>
+                    <th class="p-3 text-center w-12"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                  @for (item of newQuotation.items; track item.name; let idx = $index) {
+                    <tr>
+                      <td class="p-3 font-bold text-slate-400">{{ idx + 1 }}</td>
+                      <td class="p-3 font-black text-slate-900">{{ item.name }}</td>
+                      <td class="p-3 font-medium">{{ item.quantity }}</td>
+                      <td class="p-3">{{ item.unit_price | number }} EGP</td>
+                      <td class="p-3 font-extrabold text-emerald-700">{{ item.total_price | number }} EGP</td>
+                      <td class="p-3 text-center">
+                        <button type="button" (click)="removeItem(idx)"
+                                class="bg-rose-50 hover:bg-rose-500 hover:text-white border-0 text-rose-600 p-2 rounded-lg cursor-pointer transition">
+                          <i class="fa-solid fa-times"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                  <tr class="bg-slate-50/50 font-black text-slate-900 border-t border-slate-200">
+                    <td colspan="4" class="p-3 text-end">{{ langService.currentLang() === 'ar' ? 'المجموع الإجمالي:' : 'Grand Total:' }}</td>
+                    <td colspan="2" class="p-3 text-emerald-800 text-sm">{{ newQuotation.total_amount | number }} EGP</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+
+        <!-- Date & Notes -->
+        <div class="mb-6 border-t border-slate-100 pt-6">
+          <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-file-pen text-sky-500"></i>
+            {{ langService.currentLang() === 'ar' ? 'معلومات وتواريخ' : 'Dates & Notes' }}
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-2">{{ langService.currentLang() === 'ar' ? 'صالح لغاية*' : 'Valid Until*' }}</label>
+              <input type="date" [(ngModel)]="newQuotation.valid_until" name="validUntil" required
+                     class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-2">{{ langService.currentLang() === 'ar' ? 'شروط أو ملاحظات' : 'Terms & Notes' }}</label>
+              <textarea [(ngModel)]="newQuotation.notes" name="notes" rows="2"
+                        [placeholder]="langService.currentLang() === 'ar' ? 'شروط الدفع والتوصيل...' : 'Payment terms, delivery details...'"
+                        class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition resize-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 border-t border-slate-100 pt-5">
+          <button type="button" (click)="activeSubTab.set('quotations')"
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-6 py-3 rounded-xl cursor-pointer border-0 transition">
+            {{ langService.currentLang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+          </button>
+          <button type="submit"
+                  class="bg-sky-500 hover:bg-sky-600 text-white font-black text-xs px-8 py-3 rounded-xl cursor-pointer border-0 transition">
+            <i class="fa-solid fa-floppy-disk me-2"></i>
+            {{ langService.currentLang() === 'ar' ? 'حفظ عرض السعر' : 'Save Quotation' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- ===== 3. INVOICES TAB ===== -->
+  @if (activeSubTab() === 'invoices') {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-receipt text-emerald-600"></i>
+          <span>{{ langService.currentLang() === 'ar' ? 'إدارة فواتير المبيعات' : 'Invoices Directory' }}</span>
+        </h3>
+        <button (click)="activeSubTab.set('new_invoice')"
+                class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-5 py-3 rounded-xl border-0 cursor-pointer flex items-center gap-2 transition">
+          <i class="fa-solid fa-plus"></i>
+          <span>{{ langService.currentLang() === 'ar' ? 'إنشاء فاتورة جديدة' : 'Create Invoice' }}</span>
+        </button>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="flex flex-col sm:flex-row gap-3 mb-6">
+        <div class="flex-1 relative">
+          <i class="fa-solid fa-search absolute top-1/2 -translate-y-1/2 start-4 text-slate-400 text-xs"></i>
+          <input type="text" [(ngModel)]="invoiceSearchText" (keyup.enter)="handleSearchInvoices()"
+                 [placeholder]="langService.currentLang() === 'ar' ? 'البحث برقم الفاتورة أو العميل...' : 'Search by invoice number or client...'"
+                 class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs ps-9 pe-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition font-sans">
+        </div>
+        <select [(ngModel)]="invoiceSelectedStatus" (change)="handleSearchInvoices()"
+                class="bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition cursor-pointer">
+          <option value="">{{ langService.currentLang() === 'ar' ? 'جميع الحالات' : 'All Statuses' }}</option>
+          <option value="unpaid">{{ langService.currentLang() === 'ar' ? 'غير مدفوعة' : 'Unpaid' }}</option>
+          <option value="paid">{{ langService.currentLang() === 'ar' ? 'مدفوعة بالكامل' : 'Paid' }}</option>
+          <option value="partially_paid">{{ langService.currentLang() === 'ar' ? 'مدفوعة جزئياً' : 'Partially Paid' }}</option>
+        </select>
+        <button (click)="handleSearchInvoices()"
+                class="bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs px-5 py-3 rounded-xl cursor-pointer border-0 transition shrink-0">
+          {{ langService.currentLang() === 'ar' ? 'بحث' : 'Search' }}
+        </button>
+      </div>
+
+      @if (invoices().length === 0) {
+        <div class="text-center py-16 text-slate-400 text-sm">
+          <i class="fa-solid fa-receipt text-4xl mb-3 block text-slate-200"></i>
+          {{ langService.currentLang() === 'ar' ? 'لا توجد فواتير مسجلة.' : 'No invoices found.' }}
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-start border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-[10px] uppercase tracking-wider text-start">
+                <th class="p-4 text-start">#</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'رقم الفاتورة' : 'Invoice No' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'العميل' : 'Client' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'عرض السعر المرتبط' : 'Linked Quotation' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'تاريخ الاستحقاق' : 'Due Date' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'المبلغ' : 'Amount' }}</th>
+                <th class="p-4 text-start">{{ langService.currentLang() === 'ar' ? 'حالة السداد' : 'Payment Status' }}</th>
+                <th class="p-4 text-center">{{ langService.currentLang() === 'ar' ? 'خيارات' : 'Actions' }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              @for (inv of invoices(); track inv.id; let idx = $index) {
+                <tr class="hover:bg-slate-50/40 transition">
+                  <td class="p-4 font-bold text-slate-400">{{ idx + 1 }}</td>
+                  <td class="p-4 font-black text-slate-900">{{ inv.invoice_number }}</td>
+                  <td class="p-4">
+                    <div class="font-bold text-slate-800">{{ inv.client?.name }}</div>
+                    <div class="text-[10px] text-slate-400 font-medium">{{ inv.client?.company_name || 'N/A' }}</div>
+                  </td>
+                  <td class="p-4 font-bold text-slate-500">{{ inv.quotation?.quotation_number || '-' }}</td>
+                  <td class="p-4 font-mono text-slate-500">{{ inv.due_date || 'N/A' }}</td>
+                  <td class="p-4 font-extrabold text-slate-900">{{ inv.amount | number }} EGP</td>
+                  <td class="p-4">
+                    <select [value]="inv.status" (change)="handleUpdateInvoiceStatus(inv, $any($event.target).value)"
+                            class="bg-slate-50 border border-slate-200 text-slate-800 text-[10px] font-bold px-2.5 py-1.5 rounded-lg cursor-pointer focus:outline-none transition">
+                      <option value="unpaid">{{ langService.currentLang() === 'ar' ? 'غير مدفوعة' : 'Unpaid' }}</option>
+                      <option value="partially_paid">{{ langService.currentLang() === 'ar' ? 'مدفوعة جزئياً' : 'Partially Paid' }}</option>
+                      <option value="paid">{{ langService.currentLang() === 'ar' ? 'مدفوعة بالكامل' : 'Paid' }}</option>
+                    </select>
+                  </td>
+                  <td class="p-4 text-center">
+                    <button (click)="handleDeleteInvoice(inv.id)"
+                            class="bg-rose-50 hover:bg-rose-500 hover:text-white border-0 text-rose-600 font-bold p-2.5 rounded-xl cursor-pointer transition">
+                      <i class="fa-solid fa-trash text-xs"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ===== 4. CREATE INVOICE FORM ===== -->
+  @if (activeSubTab() === 'new_invoice') {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
+      <h3 class="font-bold text-slate-950 text-base mb-5 flex items-center gap-2 border-b border-slate-100 pb-3">
+        <i class="fa-solid fa-receipt text-sky-600"></i>
+        <span>{{ langService.currentLang() === 'ar' ? 'إنشاء فاتورة مبيعات جديدة' : 'Create New Sales Invoice' }}</span>
+      </h3>
+
+      <form (submit)="handleCreateInvoice($event)">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <!-- Link to Quotation -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-2">
+              {{ langService.currentLang() === 'ar' ? 'ربط بعرض سعر (اختياري)' : 'Link to Quotation (Optional)' }}
+            </label>
+            <select [(ngModel)]="newInvoice.quotation_id" name="qId" (change)="handleQuotationSelectionChange()"
+                    class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition cursor-pointer font-sans">
+              <option [value]="null">{{ langService.currentLang() === 'ar' ? 'فاتورة مباشرة بدون عرض سعر' : 'Direct Invoice (No Quotation)' }}</option>
+              @for (q of quotations(); track q.id) {
+                <option [value]="q.id">{{ q.quotation_number }} - {{ q.client?.name }} ({{ q.total_amount | number }} EGP)</option>
+              }
+            </select>
+          </div>
+
+          <!-- Select Client -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-2">
+              {{ langService.currentLang() === 'ar' ? 'العميل المستهدف*' : 'Target Client*' }}
+            </label>
+            <select [(ngModel)]="newInvoice.client_id" name="cId" required [disabled]="!!newInvoice.quotation_id"
+                    class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition cursor-pointer">
+              <option value="0" disabled>{{ langService.currentLang() === 'ar' ? 'اختر العميل...' : 'Select client...' }}</option>
+              @for (c of clients(); track c.id) {
+                <option [value]="c.id">{{ c.name }} ({{ c.company_name || 'N/A' }})</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <!-- Invoice Number -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-2">
+              {{ langService.currentLang() === 'ar' ? 'رقم الفاتورة (اختياري)' : 'Invoice Number (Optional)' }}
+            </label>
+            <input type="text" [(ngModel)]="newInvoice.invoice_number" name="invNo"
+                   [placeholder]="langService.currentLang() === 'ar' ? 'توليد تلقائي إن ترك فارغاً' : 'Auto-generated if left blank'"
+                   class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition font-sans">
+          </div>
+
+          <!-- Amount -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-2">
+              {{ langService.currentLang() === 'ar' ? 'المبلغ الإجمالي (جنيه)*' : 'Total Amount (EGP)*' }}
+            </label>
+            <input type="number" [(ngModel)]="newInvoice.amount" name="invAmount" required min="1"
+                   placeholder="0.00" [readonly]="!!newInvoice.quotation_id"
+                   class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition">
+          </div>
+
+          <!-- Due Date -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-2">
+              {{ langService.currentLang() === 'ar' ? 'تاريخ الاستحقاق' : 'Due Date' }}
+            </label>
+            <input type="date" [(ngModel)]="newInvoice.due_date" name="dueDate"
+                   class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <!-- Status -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-2">
+              {{ langService.currentLang() === 'ar' ? 'حالة السداد الأولية' : 'Initial Payment Status' }}
+            </label>
+            <select [(ngModel)]="newInvoice.status" name="invStatus"
+                    class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition cursor-pointer">
+              <option value="unpaid">{{ langService.currentLang() === 'ar' ? 'غير مدفوعة' : 'Unpaid' }}</option>
+              <option value="partially_paid">{{ langService.currentLang() === 'ar' ? 'مدفوعة جزئياً' : 'Partially Paid' }}</option>
+              <option value="paid">{{ langService.currentLang() === 'ar' ? 'مدفوعة بالكامل' : 'Paid' }}</option>
+            </select>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-2">
+              {{ langService.currentLang() === 'ar' ? 'تفاصيل وملاحظات' : 'Details & Notes' }}
+            </label>
+            <textarea [(ngModel)]="newInvoice.notes" name="invNotes" rows="2"
+                      [placeholder]="langService.currentLang() === 'ar' ? 'شروط السداد أو تفاصيل البنود...' : 'Payment conditions, item details...'"
+                      class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-sky-500 focus:outline-none transition resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 border-t border-slate-100 pt-5">
+          <button type="button" (click)="activeSubTab.set('invoices')"
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-6 py-3 rounded-xl cursor-pointer border-0 transition">
+            {{ langService.currentLang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+          </button>
+          <button type="submit"
+                  class="bg-sky-500 hover:bg-sky-600 text-white font-black text-xs px-8 py-3 rounded-xl cursor-pointer border-0 transition">
+            <i class="fa-solid fa-floppy-disk me-2"></i>
+            {{ langService.currentLang() === 'ar' ? 'حفظ الفاتورة' : 'Save Invoice' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- ===== 5. FINANCIAL REPORTS TAB ===== -->
+  @if (activeSubTab() === 'reports') {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-8">
+      <h3 class="text-base font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4">
+        <i class="fa-solid fa-chart-pie text-emerald-600"></i>
+        <span>{{ langService.currentLang() === 'ar' ? 'لوحة التحليلات والتقارير المالية' : 'Financial Reports & Analytics' }}</span>
+      </h3>
+
+      <!-- Secondary KPIs Panel -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <!-- Revenue Card -->
+        <div class="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 rounded-2xl p-6 relative overflow-hidden">
+          <div class="absolute top-4 end-4 text-emerald-600 text-xl opacity-20">
+            <i class="fa-solid fa-vault"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">
+            {{ langService.currentLang() === 'ar' ? 'الإيرادات المحصلة (الفواتير المدفوعة)' : 'Collected Revenue (Paid)' }}
+          </div>
+          <div class="text-3xl font-black text-emerald-800 font-mono">
+            {{ getPaidInvoicesTotal() | number }} <span class="text-xs font-bold">EGP</span>
+          </div>
+        </div>
+
+        <!-- Pending Revenue Card -->
+        <div class="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden">
+          <div class="absolute top-4 end-4 text-amber-600 text-xl opacity-20">
+            <i class="fa-solid fa-hourglass-half"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">
+            {{ langService.currentLang() === 'ar' ? 'المستحقات المعلقة (الفواتير غير المدفوعة)' : 'Outstanding Receivables (Unpaid)' }}
+          </div>
+          <div class="text-3xl font-black text-amber-800 font-mono">
+            {{ getUnpaidInvoicesTotal() | number }} <span class="text-xs font-bold">EGP</span>
+          </div>
+        </div>
+
+        <!-- Total Invoiced Card -->
+        <div class="bg-gradient-to-br from-sky-500/10 to-blue-500/5 border border-sky-500/20 rounded-2xl p-6 relative overflow-hidden">
+          <div class="absolute top-4 end-4 text-sky-600 text-xl opacity-20">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">
+            {{ langService.currentLang() === 'ar' ? 'إجمالي قيمة الفواتير المصدرة' : 'Total Invoiced Value' }}
+          </div>
+          <div class="text-3xl font-black text-sky-800 font-mono">
+            {{ getInvoicesTotalSum() | number }} <span class="text-xs font-bold">EGP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Status Distribution Progress bars -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Invoice Stats Breakdown -->
+        <div class="border border-slate-150 rounded-2xl p-6 space-y-4">
+          <h4 class="text-xs font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+            <i class="fa-solid fa-chart-bar text-sky-500"></i>
+            {{ langService.currentLang() === 'ar' ? 'توزيع الفواتير حسب حالة الدفع' : 'Invoices by Payment Status' }}
+          </h4>
+          <div class="space-y-3 pt-2">
+            <!-- Paid Invoices Progress -->
+            <div>
+              <div class="flex justify-between text-xs text-slate-600 font-semibold mb-1">
+                <span>{{ langService.currentLang() === 'ar' ? 'مدفوعة بالكامل' : 'Paid Invoices' }}</span>
+                <span>{{ getPaidInvoicesTotal() | number }} EGP</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-emerald-500 h-full rounded-full"
+                     [style.width.%]="getInvoicesTotalSum() > 0 ? (getPaidInvoicesTotal() / getInvoicesTotalSum()) * 100 : 0"></div>
+              </div>
+            </div>
+
+            <!-- Partially Paid Progress -->
+            <div>
+              <div class="flex justify-between text-xs text-slate-600 font-semibold mb-1">
+                <span>{{ langService.currentLang() === 'ar' ? 'مدفوعة جزئياً' : 'Partially Paid' }}</span>
+                <span>{{ getPartiallyPaidInvoicesTotal() | number }} EGP</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-amber-400 h-full rounded-full"
+                     [style.width.%]="getInvoicesTotalSum() > 0 ? (getPartiallyPaidInvoicesTotal() / getInvoicesTotalSum()) * 100 : 0"></div>
+              </div>
+            </div>
+
+            <!-- Unpaid Progress -->
+            <div>
+              <div class="flex justify-between text-xs text-slate-600 font-semibold mb-1">
+                <span>{{ langService.currentLang() === 'ar' ? 'غير مدفوعة' : 'Unpaid Invoices' }}</span>
+                <span>{{ getUnpaidInvoicesTotal() | number }} EGP</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-rose-500 h-full rounded-full"
+                     [style.width.%]="getInvoicesTotalSum() > 0 ? (getUnpaidInvoicesTotal() / getInvoicesTotalSum()) * 100 : 0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quotations Conversion Success Metrics -->
+        <div class="border border-slate-150 rounded-2xl p-6 space-y-4">
+          <h4 class="text-xs font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-check text-sky-500"></i>
+            {{ langService.currentLang() === 'ar' ? 'أداء عروض الأسعار ونسب التحويل' : 'Quotations Performance & Conversion' }}
+          </h4>
+          <div class="flex items-center gap-6 pt-2">
+            <!-- Progress Circle placeholder with tailwind -->
+            <div class="relative w-28 h-28 flex items-center justify-center shrink-0">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                <path class="text-slate-100" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="text-emerald-500" [attr.stroke-dasharray]="getQuotationSuccessRate() + ', 100'" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="absolute text-center">
+                <div class="text-xl font-black text-slate-900">{{ getQuotationSuccessRate() }}%</div>
+                <div class="text-[8px] text-slate-400 font-bold uppercase">{{ langService.currentLang() === 'ar' ? 'نسبة التحويل' : 'Success Rate' }}</div>
+              </div>
+            </div>
+
+            <!-- Quotation metrics info list -->
+            <div class="flex-grow space-y-2 text-xs">
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">{{ langService.currentLang() === 'ar' ? 'إجمالي العروض المرسلة:' : 'Total Quotations:' }}</span>
+                <span class="font-bold text-slate-800">{{ quotations().length }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">{{ langService.currentLang() === 'ar' ? 'العروض المقبولة والمكتملة:' : 'Approved/Accepted:' }}</span>
+                <span class="font-bold text-emerald-600">{{ getApprovedQuotationsCount() }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">{{ langService.currentLang() === 'ar' ? 'قيد المراجعة والانتظار:' : 'Pending Review:' }}</span>
+                <span class="font-bold text-amber-600">{{ getPendingCount() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Client Invoices Breakdown -->
+      <div class="border border-slate-150 rounded-2xl p-6">
+        <h4 class="text-xs font-black text-slate-700 uppercase tracking-widest mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-users text-sky-500"></i>
+          {{ langService.currentLang() === 'ar' ? 'أكبر العملاء تعاملاً بالماليات والتقارير' : 'Top Clients & Accounts Overview' }}
+        </h4>
+        @if (clients().length === 0) {
+          <div class="text-center text-slate-400 py-6">{{ langService.currentLang() === 'ar' ? 'لا يوجد عملاء مضافون.' : 'No clients found.' }}</div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-start text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-150">
+                <tr>
+                  <th class="p-3 text-start">{{ langService.currentLang() === 'ar' ? 'العميل' : 'Client' }}</th>
+                  <th class="p-3 text-start">{{ langService.currentLang() === 'ar' ? 'المستشفى / الجهة' : 'Hospital / Corporate' }}</th>
+                  <th class="p-3 text-start">{{ langService.currentLang() === 'ar' ? 'الهاتف' : 'Phone' }}</th>
+                  <th class="p-3 text-start">{{ langService.currentLang() === 'ar' ? 'العنوان' : 'Address' }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                @for (c of clients() | slice:0:5; track c.id) {
+                  <tr class="hover:bg-slate-50/40 transition">
+                    <td class="p-3 font-bold text-slate-900">{{ c.name }}</td>
+                    <td class="p-3">{{ c.company_name || 'N/A' }}</td>
+                    <td class="p-3 font-mono text-slate-500">{{ c.phone || 'N/A' }}</td>
+                    <td class="p-3 text-slate-500">{{ c.address || 'N/A' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TASKS & INVOICE REQUESTS FOR ACCOUNTANT -->
+  @if (activeSubTab() === 'tasks') {
+    <app-tasks [role]="'accountant'"></app-tasks>
+  }
+</div>

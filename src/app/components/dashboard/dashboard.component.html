@@ -1,0 +1,168 @@
+<div class="flex min-h-screen text-slate-800 antialiased bg-slate-100 overflow-x-hidden w-full relative items-stretch">
+  <!-- Standalone Sidebar Component -->
+  <app-sidebar
+    [loggedUser]="loggedUser()"
+    [activeRole]="activeRole()"
+    [adminActiveTab]="adminActiveTab()"
+    [managerActiveTab]="managerActiveTab()"
+    [sellerActiveTab]="sellerActiveTab()"
+    [accountantActiveTab]="accountantActiveTab()"
+    [isSidebarOpen]="isSidebarOpen()"
+    (navigateTab)="navigateTab($event.role, $event.tab)"
+    (toggleSidebar)="toggleSidebar()"
+    (openAppDownload)="showAppDownloadModal.set(true)"
+    (logout)="logout()">
+  </app-sidebar>
+
+  <!-- Main Content Area -->
+  <div class="flex-grow flex flex-col min-h-screen min-w-0 w-full">
+    
+    <!-- Dashboard Top Header -->
+    <header class="bg-white border-b border-slate-100 px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-40 w-full">
+      <div class="flex items-center gap-3 sm:gap-6 min-w-0">
+        <!-- Hamburger (mobile only) -->
+        <button (click)="toggleSidebar()" class="md:hidden w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all shrink-0 border-0 cursor-pointer">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <h1 class="text-base sm:text-xl font-black text-slate-900 truncate">
+          {{ langService.t('admin_dashboard_title') }}
+        </h1>
+        
+        <!-- Language Switcher -->
+        <div class="border-s border-slate-150 ps-3 sm:ps-4 flex items-center gap-2 shrink-0">
+          <button (click)="toggleLanguage()" 
+             class="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-emerald-600 transition px-2.5 py-2 sm:px-3 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200/50 cursor-pointer">
+            <i class="fa-solid fa-language text-emerald-600 text-sm"></i>
+            <span class="hidden sm:inline">{{ langService.currentLang() === 'ar' ? 'English' : 'العربية' }}</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Header Actions (Right) -->
+      <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+
+        <!-- Download Mobile App Button -->
+        <button (click)="showAppDownloadModal.set(true)"
+                class="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-black px-3.5 py-2 rounded-xl shadow-xs transition cursor-pointer border-0">
+          <i class="fa-solid fa-mobile-screen-button text-sm animate-pulse"></i>
+          <span class="hidden md:inline">{{ langService.currentLang() === 'ar' ? 'تحميل تطبيق الموبايل' : 'Mobile App' }}</span>
+          <span class="bg-white/20 text-white text-[9px] px-1.5 py-0.5 rounded-md font-mono font-bold">APK</span>
+        </button>
+
+        <!-- Notifications Bell Icon -->
+        <div class="relative shrink-0">
+          <button (click)="toggleNotifications()" 
+                  class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl border border-slate-200/50 transition cursor-pointer relative">
+            <i class="fa-solid fa-bell text-sm sm:text-base"></i>
+            @if (unreadNotificationsCount() > 0) {
+              <span class="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center animate-bounce">
+                {{ unreadNotificationsCount() }}
+              </span>
+            }
+          </button>
+
+          <!-- Dropdown Card -->
+          @if (isNotificationsOpen()) {
+            <div class="absolute mt-2 w-72 sm:w-80 bg-white border border-slate-150 rounded-2xl shadow-xl z-50 p-4 space-y-3"
+                 [ngClass]="langService.currentLang() === 'ar' ? 'left-0 right-auto origin-top-left' : 'right-0 left-auto origin-top-right'">
+              <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <span class="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
+                  <i class="fa-solid fa-bell text-emerald-600"></i>
+                  <span>{{ langService.currentLang() === 'ar' ? 'الإشعارات التنبيهية' : 'Notifications' }}</span>
+                </span>
+                @if (unreadNotificationsCount() > 0) {
+                  <button (click)="markAllAsRead()" class="text-emerald-600 hover:text-emerald-700 text-[10px] font-bold border-0 bg-transparent cursor-pointer">
+                    {{ langService.currentLang() === 'ar' ? 'تحديد الكل كمقروء' : 'Mark all as read' }}
+                  </button>
+                }
+              </div>
+
+              <div class="max-h-64 overflow-y-auto space-y-4 pr-1">
+                @for (group of notificationGroups(); track group.type) {
+                  <div>
+                    <!-- Group Header -->
+                    <div class="flex items-center gap-2 mb-1.5 px-2 py-1 rounded-lg bg-slate-50/70 border border-slate-100/50">
+                      <span class="w-5 h-5 flex items-center justify-center rounded-md text-[10px]" [ngClass]="group.bg">
+                        <i [ngClass]="group.icon"></i>
+                      </span>
+                      <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                        {{ group.label }}
+                      </span>
+                    </div>
+
+                    <!-- Notification Items inside Group -->
+                    <div class="space-y-1 pl-1">
+                      @for (notif of group.items; track notif.id) {
+                        <div (click)="markAsRead(notif.id)" 
+                             class="py-2 flex gap-2.5 items-start hover:bg-slate-50 rounded-lg px-2 transition cursor-pointer border border-transparent hover:border-slate-100">
+                          <span class="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" 
+                                [ngClass]="notif.unread ? 'bg-emerald-500' : 'bg-slate-200'"></span>
+                          <div class="flex-1 min-w-0">
+                            <p class="text-[11px] leading-relaxed" 
+                               [ngClass]="notif.unread ? 'font-bold text-slate-800' : 'font-medium text-slate-400'">
+                              {{ notif.text }}
+                            </p>
+                            <span class="text-[9px] text-slate-400 block mt-0.5 font-sans font-semibold">{{ notif.time }} ago</span>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- No notifications fallback -->
+                @if (notifications().length === 0) {
+                  <div class="text-center py-8 text-slate-400 text-xs">
+                    <i class="fa-solid fa-bell-slash text-2xl mb-2 block text-slate-200"></i>
+                    {{ langService.currentLang() === 'ar' ? 'لا توجد إشعارات حالية.' : 'No notifications.' }}
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace body -->
+    <main class="p-4 sm:p-6 lg:p-8 flex-grow">
+      @if (loggedUser()) {
+        @if (getUserRole() === 'admin') {
+          <!-- Admin has master access and can switch activeRole dynamically -->
+          @switch (activeRole()) {
+            @case ('admin') {
+              <app-admin-view [activeSubTab]="adminActiveTab()" (activeSubTabChange)="adminActiveTab.set($any($event))"></app-admin-view>
+            }
+            @case ('manager') {
+              <app-manager-view [activeSubTab]="managerActiveTab()" (activeSubTabChange)="managerActiveTab.set($any($event))"></app-manager-view>
+            }
+            @case ('accountant') {
+              <app-accountant-view [activeSubTab]="accountantActiveTab()" (activeSubTabChange)="accountantActiveTab.set($any($event))"></app-accountant-view>
+            }
+            @case ('seller') {
+              <app-seller-view [activeSubTab]="sellerActiveTab()" (activeSubTabChange)="sellerActiveTab.set($any($event))"></app-seller-view>
+            }
+          }
+        } @else {
+          <!-- Non-admin roles: dynamically render views based on activeRole to support extra permissions -->
+          @if (activeRole() === 'manager') {
+            <app-manager-view [activeSubTab]="managerActiveTab()" (activeSubTabChange)="managerActiveTab.set($any($event))"></app-manager-view>
+          }
+          @if (activeRole() === 'accountant') {
+            <app-accountant-view [activeSubTab]="accountantActiveTab()" (activeSubTabChange)="accountantActiveTab.set($any($event))"></app-accountant-view>
+          }
+          @if (activeRole() === 'seller') {
+            <app-seller-view [activeSubTab]="sellerActiveTab()" (activeSubTabChange)="sellerActiveTab.set($any($event))"></app-seller-view>
+          }
+        }
+      }
+    </main>
+    <app-chat></app-chat>
+
+    <!-- App Download Modal Component -->
+    @if (showAppDownloadModal()) {
+      <app-download-modal (close)="showAppDownloadModal.set(false)"></app-download-modal>
+    }
+  </div>
+</div>

@@ -1,0 +1,674 @@
+<div class="space-y-5">
+
+  <!-- Success Alert -->
+  @if (successMessage()) {
+    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-xs font-bold flex items-center gap-2.5 animate-fade-in">
+      <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+
+  <!-- ─── HEADER ─── -->
+  <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-sm">
+        <i class="fa-solid fa-users text-white text-sm"></i>
+      </div>
+      <div>
+        <h2 class="text-base font-black text-slate-900">{{ lang === 'ar' ? 'قائمة الموظفين والفريق' : 'Employees Directory' }}</h2>
+        <p class="text-[11px] text-slate-400 font-medium mt-0.5">
+          {{ lang === 'ar' ? 'إجمالي الموظفين: ' : 'Total: ' }}<span class="font-black text-violet-600">{{ employees().length }}</span>
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0 flex-wrap">
+      <button (click)="exportEmployeesToCSV()"
+              class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+        <i class="fa-solid fa-file-excel text-emerald-600"></i>
+        <span>{{ lang === 'ar' ? 'تصدير إكسيل' : 'Export Excel' }}</span>
+      </button>
+
+      <button (click)="openCreateForm()"
+              class="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer shadow-sm transition">
+        <i class="fa-solid fa-user-plus"></i>
+        {{ lang === 'ar' ? 'إضافة موظف جديد' : 'Add Employee' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── SEARCH & FILTER BAR ─── -->
+  <div class="flex flex-col sm:flex-row gap-3">
+    <div class="relative flex-1">
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+      <input type="text"
+             [(ngModel)]="searchText"
+             (ngModelChange)="applyFilter()"
+             [placeholder]="lang === 'ar' ? 'بحث بالاسم أو البريد الإلكتروني...' : 'Search by name or email...'"
+             class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-violet-500 transition text-slate-800">
+    </div>
+    <select [(ngModel)]="filterRole" (ngModelChange)="applyFilter()"
+            class="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-violet-500 transition text-slate-800 cursor-pointer min-w-[180px]">
+      <option value="">{{ lang === 'ar' ? 'جميع الأدوار' : 'All Roles' }}</option>
+      @for (role of roles(); track role) {
+        <option [value]="role">{{ role }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- ─── CREATE / EDIT FORM ─── -->
+  @if (showForm()) {
+    <div class="bg-white border border-violet-200 rounded-2xl p-6 shadow-xs animate-slide-up">
+      <h3 class="font-bold text-slate-900 text-sm mb-5 flex items-center gap-2 border-b border-slate-100 pb-4">
+        <i class="fa-solid {{ editingEmployee() ? 'fa-pen-to-square text-blue-600' : 'fa-user-plus text-violet-600' }} text-sm"></i>
+        <span>{{ editingEmployee()
+          ? (lang === 'ar' ? 'تعديل بيانات الموظف' : 'Edit Employee')
+          : (lang === 'ar' ? 'إضافة موظف جديد للنظام' : 'Add New Employee') }}</span>
+      </h3>
+
+      @if (errorMessage()) {
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-3 text-xs font-bold flex items-center gap-2 mb-4">
+          <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form (submit)="handleSubmit($event)">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 block mb-1.5">{{ lang === 'ar' ? 'الاسم الكامل *' : 'Full Name *' }}</label>
+            <input type="text" [(ngModel)]="formName" name="formName" required
+                   [placeholder]="lang === 'ar' ? 'مثال: أحمد محمد' : 'e.g. Ahmed Mohamed'"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-violet-500 focus:bg-white text-slate-800 transition">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 block mb-1.5">{{ lang === 'ar' ? 'البريد الإلكتروني *' : 'Email *' }}</label>
+            <input type="email" [(ngModel)]="formEmail" name="formEmail" required
+                   placeholder="employee@vision-medical.com"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-violet-500 focus:bg-white text-slate-800 transition" dir="ltr">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 block mb-1.5">{{ lang === 'ar' ? 'الدور الوظيفي *' : 'Role *' }}</label>
+            <select [(ngModel)]="formRole" name="formRole" required
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-violet-500 focus:bg-white text-slate-800 transition cursor-pointer">
+              @for (role of roles(); track role) {
+                <option [value]="role">{{ role }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 block mb-1.5">
+              {{ editingEmployee() ? (lang === 'ar' ? 'كلمة مرور جديدة (اختياري)' : 'New Password (optional)') : (lang === 'ar' ? 'كلمة المرور *' : 'Password *') }}
+            </label>
+            <div class="relative">
+              <input [type]="showPassword ? 'text' : 'password'"
+                     [(ngModel)]="formPassword" name="formPassword"
+                     [required]="!editingEmployee()"
+                     [placeholder]="lang === 'ar' ? '8+ أحرف' : '8+ characters'"
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-9 py-2.5 text-xs focus:outline-none focus:border-violet-500 focus:bg-white text-slate-800 transition" dir="ltr">
+              <button type="button" (click)="showPassword = !showPassword"
+                      class="absolute top-1/2 -translate-y-1/2 right-2.5 text-slate-400 hover:text-slate-600 border-0 bg-transparent cursor-pointer text-xs">
+                <i [class]="'fa-solid ' + (showPassword ? 'fa-eye-slash' : 'fa-eye')"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" (click)="cancelForm()"
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-5 py-2 rounded-xl border-0 cursor-pointer transition">
+            {{ lang === 'ar' ? 'إلغاء' : 'Cancel' }}
+          </button>
+          <button type="submit" [disabled]="isLoading()"
+                  class="bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 text-white disabled:text-slate-400 font-bold text-xs px-6 py-2 rounded-xl border-0 cursor-pointer shadow-sm transition">
+            @if (isLoading()) { <i class="fa-solid fa-circle-notch fa-spin me-1"></i> }
+            {{ editingEmployee() ? (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes') : (lang === 'ar' ? 'إضافة الموظف' : 'Add Employee') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- ─── EMPLOYEES TABLE ─── -->
+  @if (isLoading() && employees().length === 0) {
+    <div class="flex flex-col items-center justify-center py-20 gap-3 bg-white rounded-2xl border border-slate-150">
+      <i class="fa-solid fa-circle-notch text-3xl text-violet-500 animate-spin"></i>
+      <span class="text-xs font-bold text-slate-400">{{ lang === 'ar' ? 'جاري تحميل قائمة الموظفين...' : 'Loading employees...' }}</span>
+    </div>
+  } @else {
+    <div class="bg-white border border-slate-150 rounded-2xl shadow-xs overflow-hidden">
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <!-- Head -->
+          <thead>
+            <tr class="border-b border-slate-100 bg-slate-50">
+              <th class="text-start px-5 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">#</th>
+              <th class="text-start px-5 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                {{ lang === 'ar' ? 'الموظف' : 'Employee' }}
+              </th>
+              <th class="text-start px-5 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                {{ lang === 'ar' ? 'البريد الإلكتروني' : 'Email' }}
+              </th>
+              <th class="text-start px-5 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                {{ lang === 'ar' ? 'الدور الوظيفي' : 'Role' }}
+              </th>
+              <th class="text-start px-5 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                {{ lang === 'ar' ? 'تقدم العمل (المهام)' : 'Progress (Tasks)' }}
+              </th>
+              <th class="text-start px-5 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                {{ lang === 'ar' ? 'تاريخ الإضافة' : 'Since' }}
+              </th>
+              <th class="text-center px-5 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                {{ lang === 'ar' ? 'الإجراءات' : 'Actions' }}
+              </th>
+            </tr>
+          </thead>
+
+          <!-- Body -->
+          <tbody>
+            @if (filteredEmployees().length === 0) {
+              <tr>
+                <td colspan="7" class="text-center py-16 text-slate-400">
+                  <i class="fa-solid fa-users-slash text-4xl text-slate-200 block mb-3"></i>
+                  <p class="font-bold text-sm">{{ lang === 'ar' ? 'لا يوجد موظفون مطابقون' : 'No employees found' }}</p>
+                  <p class="text-xs mt-1 text-slate-300">{{ lang === 'ar' ? 'جرب تغيير بحثك أو الفلتر' : 'Try adjusting your search or filter' }}</p>
+                </td>
+              </tr>
+            }
+            @for (emp of filteredEmployees(); track emp.id; let i = $index) {
+              <tr class="border-b border-slate-50 hover:bg-violet-50/30 transition-colors group">
+
+                <!-- # -->
+                <td class="px-5 py-3.5">
+                  <span class="text-xs font-bold text-slate-400">{{ i + 1 }}</span>
+                </td>
+
+                <!-- Employee Avatar + Name -->
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br {{ getAvatarGradient(emp.id) }} flex items-center justify-center text-white font-black text-xs shrink-0 shadow-sm">
+                      {{ getInitials(emp.name) }}
+                    </div>
+                    <span class="font-bold text-slate-800 text-xs">{{ emp.name }}</span>
+                  </div>
+                </td>
+
+                <!-- Email -->
+                <td class="px-5 py-3.5">
+                  <span class="text-xs text-slate-500 font-mono" dir="ltr">{{ emp.email }}</span>
+                </td>
+
+                <!-- Role Badge -->
+                <td class="px-5 py-3.5">
+                  <span class="inline-flex items-center gap-1.5 border text-[10px] font-bold px-2.5 py-1 rounded-lg"
+                        [ngClass]="getRoleColor(emp.role)">
+                    <i [class]="'fa-solid ' + getRoleIcon(emp.role) + ' text-[9px]'"></i>
+                    {{ emp.role }}
+                  </span>
+                </td>
+
+                <!-- Progress / Task metrics -->
+                <td class="px-5 py-3.5 max-w-[200px]">
+                  @if (emp.role === 'Service Engineer outdoor' || emp.role === 'Service Engineer indoor' || emp.role === 'Operations Manager' || emp.role === 'Admin' || emp.role === 'CEO') {
+                    <div class="space-y-1.5">
+                      <div class="flex items-center justify-between text-[10px] font-bold text-slate-500">
+                        <span>{{ emp.completed_tasks }}/{{ emp.total_tasks }} {{ lang === 'ar' ? 'منجزة' : 'done' }}</span>
+                        <span class="text-emerald-600">{{ emp.completion_rate }}%</span>
+                      </div>
+                      <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                             [style.width.%]="emp.completion_rate"></div>
+                      </div>
+                    </div>
+                  } @else {
+                    <span class="text-xs text-slate-400 italic">—</span>
+                  }
+                </td>
+
+                <!-- Date -->
+                <td class="px-5 py-3.5">
+                  <span class="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
+                    <i class="fa-regular fa-calendar text-slate-300 text-xs"></i>
+                    {{ emp.created_at }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <!-- Track Progress (for engineers/techs) -->
+                    @if (emp.role === 'Service Engineer outdoor' || emp.role === 'Service Engineer indoor' || emp.role === 'Operations Manager' || emp.role === 'Admin' || emp.role === 'CEO') {
+                      <button (click)="openProgressModal(emp)"
+                              class="inline-flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] px-3 py-1.5 rounded-lg border-0 cursor-pointer transition whitespace-nowrap"
+                              [title]="lang === 'ar' ? 'متابعة المهام والأداء' : 'Track Tasks & Progress'">
+                        <i class="fa-solid fa-chart-line text-[9px]"></i>
+                        {{ lang === 'ar' ? 'متابعة' : 'Track' }}
+                      </button>
+                    }
+
+                    <!-- Permissions -->
+                    <button (click)="openPermissionsModal(emp)"
+                            class="inline-flex items-center gap-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 font-bold text-[10px] px-3 py-1.5 rounded-lg border-0 cursor-pointer transition whitespace-nowrap"
+                            [title]="lang === 'ar' ? 'صلاحيات إضافية' : 'Extra Permissions'">
+                      <i class="fa-solid fa-key text-[9px]"></i>
+                      {{ lang === 'ar' ? 'صلاحيات' : 'Permissions' }}
+                    </button>
+                    <!-- Edit -->
+                    <button (click)="openEditForm(emp)"
+                            class="w-7 h-7 flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg border-0 cursor-pointer transition"
+                            [title]="lang === 'ar' ? 'تعديل' : 'Edit'">
+                      <i class="fa-solid fa-pen text-[10px]"></i>
+                    </button>
+                    <!-- Delete -->
+                    <button (click)="handleDelete(emp)"
+                            class="w-7 h-7 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg border-0 cursor-pointer transition"
+                            [title]="lang === 'ar' ? 'حذف' : 'Delete'">
+                      <i class="fa-solid fa-trash-can text-[10px]"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table Footer -->
+      <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400 font-semibold">
+          {{ lang === 'ar'
+            ? `عرض ${filteredEmployees().length} من أصل ${employees().length} موظف`
+            : `Showing ${filteredEmployees().length} of ${employees().length} employees` }}
+        </span>
+        <div class="flex items-center gap-3 text-[10px] font-bold text-slate-500">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+            {{ countByRole('Service Engineer') }} {{ lang === 'ar' ? 'مهندس' : 'Engineer' }}
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+            {{ countByRole('Workshop Tech') }} {{ lang === 'ar' ? 'فني' : 'Tech' }}
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
+            {{ countByRole('Operations Mgr') }} {{ lang === 'ar' ? 'مدير' : 'Manager' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- ─── PERMISSIONS INLINE SECTION ─────────────── -->
+<!-- ═════════════════════════════════════════════ -->
+@if (showPermissionsModal()) {
+  <div id="permissions-inline-section" class="bg-white border border-violet-200 rounded-2xl shadow-sm overflow-hidden animate-fade-in-up">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-700">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+          <i class="fa-solid fa-key text-white text-sm"></i>
+        </div>
+        <div>
+          <h3 class="font-black text-white text-sm">{{ lang === 'ar' ? 'الصلاحيات الإضافية' : 'Extra Permissions' }}</h3>
+          @if (permissionsEmployee()) {
+            <p class="text-violet-200 text-[11px] font-semibold mt-0.5">{{ permissionsEmployee().name }} — {{ permissionsEmployee().role }}</p>
+          }
+        </div>
+      </div>
+      <button (click)="closePermissionsModal()"
+              class="w-8 h-8 flex items-center justify-center bg-white/15 hover:bg-white/25 text-white rounded-lg border-0 cursor-pointer transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Legend + Info Bar -->
+    <div class="px-6 py-3 bg-violet-50 border-b border-violet-100 flex flex-wrap items-center gap-x-6 gap-y-2">
+      <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+        <span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span>
+        {{ lang === 'ar' ? 'من الدور (ثابتة)' : 'Via Role (fixed)' }}
+      </span>
+      <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+        <span class="w-3 h-3 rounded bg-violet-500 inline-block"></span>
+        {{ lang === 'ar' ? 'إضافية (قابلة للتعديل)' : 'Extra (editable)' }}
+      </span>
+      <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+        <span class="w-3 h-3 rounded border border-slate-300 bg-white inline-block"></span>
+        {{ lang === 'ar' ? 'غير مفعّلة' : 'Not granted' }}
+      </span>
+      <span class="flex-1 text-[10px] text-violet-600 font-medium text-end hidden sm:block">
+        {{ lang === 'ar'
+          ? 'الصلاحيات الخضراء ثابتة من الدور. البنفسجية إضافية خاصة بالموظف.'
+          : 'Green = fixed from role. Purple = extra for this employee only.' }}
+      </span>
+    </div>
+
+    <!-- Loading -->
+    @if (permLoading()) {
+      <div class="flex flex-col items-center justify-center gap-3 py-16">
+        <i class="fa-solid fa-circle-notch text-3xl text-violet-500 animate-spin"></i>
+        <span class="text-xs font-bold text-slate-400">{{ lang === 'ar' ? 'جاري تحميل الصلاحيات...' : 'Loading permissions...' }}</span>
+      </div>
+    } @else {
+
+      <!-- Success Banner -->
+      @if (permSuccess()) {
+        <div class="mx-6 mt-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3.5 text-xs font-bold flex items-center gap-2 animate-fade-in">
+          <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+          {{ permSuccess() }}
+        </div>
+      }
+
+      <!-- Permissions Grid of Tables -->
+      <div class="p-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+        @for (group of permGroups; track group.labelEn) {
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-xs">
+
+            <!-- Group Header -->
+            <div class="flex items-center gap-2.5 px-4 py-3 bg-slate-50 border-b border-slate-100">
+              <span class="w-6 h-6 rounded-lg {{ group.color }} flex items-center justify-center shrink-0">
+                <i [class]="'fa-solid ' + group.icon + ' text-[10px]'"></i>
+              </span>
+              <span class="text-xs font-black text-slate-700">{{ lang === 'ar' ? group.labelAr : group.labelEn }}</span>
+              <!-- count badge -->
+              <span class="ms-auto text-[9px] font-black px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
+                {{ group.perms.length }}
+              </span>
+            </div>
+
+            <!-- Permissions Table -->
+            <table class="w-full border-collapse">
+              <thead>
+                <tr class="bg-white border-b border-slate-50">
+                  <th class="px-4 py-2 text-start text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                    {{ lang === 'ar' ? 'الصلاحية' : 'Permission' }}
+                  </th>
+                  <th class="px-3 py-2 text-center text-[9px] font-black text-slate-400 uppercase tracking-wider w-16">
+                    {{ lang === 'ar' ? 'المصدر' : 'Source' }}
+                  </th>
+                  <th class="px-3 py-2 text-center text-[9px] font-black text-slate-400 uppercase tracking-wider w-14">
+                    {{ lang === 'ar' ? 'تفعيل' : 'Toggle' }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50">
+                @for (perm of group.perms; track perm) {
+                  <tr class="transition-colors"
+                      [class.hover:bg-violet-50]="!isRolePerm(perm)"
+                      [class.cursor-pointer]="!isRolePerm(perm)"
+                      [class.cursor-not-allowed]="isRolePerm(perm)"
+                      [class.bg-emerald-50]="isRolePerm(perm)"
+                      (click)="!isRolePerm(perm) && toggleDirectPerm(perm)">
+
+                    <!-- Permission Name -->
+                    <td class="px-4 py-2.5">
+                      <span class="text-[11px] font-semibold"
+                            [ngClass]="{
+                              'text-emerald-700': isRolePerm(perm),
+                              'text-violet-700': !isRolePerm(perm) && isDirectPerm(perm),
+                              'text-slate-400': !isEffectivePerm(perm)
+                            }">
+                        {{ formatPermName(perm) }}
+                      </span>
+                    </td>
+
+                    <!-- Source Badge -->
+                    <td class="px-3 py-2.5 text-center">
+                      @if (isRolePerm(perm)) {
+                        <span class="text-[8px] font-black px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded border border-emerald-200">
+                          {{ lang === 'ar' ? 'دور' : 'ROLE' }}
+                        </span>
+                      } @else if (isDirectPerm(perm)) {
+                        <span class="text-[8px] font-black px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded border border-violet-200">
+                          {{ lang === 'ar' ? 'إضافي' : 'EXTRA' }}
+                        </span>
+                      } @else {
+                        <span class="text-[8px] font-black px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded border border-slate-200">
+                          —
+                        </span>
+                      }
+                    </td>
+
+                    <!-- Toggle Button -->
+                    <td class="px-3 py-2.5 text-center">
+                      <button (click)="$event.stopPropagation(); !isRolePerm(perm) && toggleDirectPerm(perm)"
+                              [disabled]="isRolePerm(perm)"
+                              class="w-7 h-7 mx-auto flex items-center justify-center rounded-lg border-0 transition-all"
+                              [ngClass]="{
+                                'bg-emerald-100 text-emerald-500 cursor-not-allowed': isRolePerm(perm),
+                                'bg-violet-500 text-white hover:bg-violet-600 shadow-sm cursor-pointer': !isRolePerm(perm) && isDirectPerm(perm),
+                                'bg-slate-100 hover:bg-violet-100 text-slate-400 hover:text-violet-600 cursor-pointer': !isRolePerm(perm) && !isDirectPerm(perm)
+                              }">
+                        <i class="fa-solid text-[9px]"
+                           [ngClass]="isEffectivePerm(perm) ? 'fa-check' : 'fa-plus'"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+          </div>
+        }
+      </div>
+
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-[11px] text-slate-500 font-medium">
+          <span class="font-black text-violet-600">{{ countDirectPerms() }}</span>
+          {{ lang === 'ar' ? ' صلاحية إضافية محددة' : ' extra permissions selected' }}
+        </p>
+        <div class="flex gap-2.5">
+          <button (click)="closePermissionsModal()"
+                  class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-xl border-0 cursor-pointer transition">
+            {{ lang === 'ar' ? 'إغلاق' : 'Close' }}
+          </button>
+          <button (click)="savePermissions()" [disabled]="permSaving()"
+                  class="bg-violet-600 hover:bg-violet-700 disabled:bg-slate-200 text-white disabled:text-slate-400 font-bold text-xs px-6 py-2.5 rounded-xl border-0 cursor-pointer shadow-sm transition flex items-center gap-2">
+            @if (permSaving()) {
+              <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
+            } @else {
+              <i class="fa-solid fa-floppy-disk text-xs"></i>
+            }
+            {{ lang === 'ar' ? 'حفظ الصلاحيات' : 'Save Permissions' }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- ─── PROGRESS MONITORING MODAL (Slide-over) ────── -->
+<!-- ══════════════════════════════════════════════════ -->
+@if (showProgressModal()) {
+  <!-- Backdrop -->
+  <div class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
+       (click)="closeProgressModal()"></div>
+
+  <!-- Panel -->
+  <div class="fixed inset-y-0 right-0 z-50 w-full max-w-xl bg-slate-50 shadow-2xl flex flex-col animate-slide-in-right">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-150 shrink-0 bg-gradient-to-r from-emerald-600 to-teal-700">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+          <i class="fa-solid fa-chart-line text-white text-sm"></i>
+        </div>
+        <div>
+          <h3 class="font-black text-white text-sm">{{ lang === 'ar' ? 'متابعة المهام والأداء للعمل الميداني' : 'Task Progress & Performance Audit' }}</h3>
+          @if (selectedEmployeeForProgress()) {
+            <p class="text-emerald-100 text-[11px] font-semibold mt-0.5">{{ selectedEmployeeForProgress().name }}</p>
+          }
+        </div>
+      </div>
+      <button (click)="closeProgressModal()"
+              class="w-8 h-8 flex items-center justify-center bg-white/15 hover:bg-white/25 text-white rounded-lg border-0 cursor-pointer transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    @if (selectedEmployeeForProgress()) {
+      <!-- Scrollable content -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        
+        <!-- Stats Dashboard Cards -->
+        <div class="grid grid-cols-4 gap-2.5">
+          <!-- Total Tasks -->
+          <div class="bg-white border border-slate-200/60 p-3 rounded-2xl flex flex-col justify-between shadow-xs">
+            <span class="text-[9px] font-black text-slate-400 uppercase">{{ lang === 'ar' ? 'إجمالي المهام' : 'Total' }}</span>
+            <span class="text-lg font-black text-slate-800 mt-2">{{ selectedEmployeeForProgress().total_tasks }}</span>
+          </div>
+
+          <!-- Pending Tasks -->
+          <div class="bg-white border border-slate-200/60 p-3 rounded-2xl flex flex-col justify-between shadow-xs border-l-4 border-l-amber-500">
+            <span class="text-[9px] font-black text-slate-400 uppercase">{{ lang === 'ar' ? 'قيد الانتظار' : 'Pending' }}</span>
+            <span class="text-lg font-black text-amber-600 mt-2">{{ selectedEmployeeForProgress().pending_tasks }}</span>
+          </div>
+
+          <!-- In Progress Tasks -->
+          <div class="bg-white border border-slate-200/60 p-3 rounded-2xl flex flex-col justify-between shadow-xs border-l-4 border-l-blue-500">
+            <span class="text-[9px] font-black text-slate-400 uppercase">{{ lang === 'ar' ? 'قيد التنفيذ' : 'Active' }}</span>
+            <span class="text-lg font-black text-blue-600 mt-2">{{ selectedEmployeeForProgress().in_progress_tasks }}</span>
+          </div>
+
+          <!-- Completed Tasks -->
+          <div class="bg-white border border-slate-200/60 p-3 rounded-2xl flex flex-col justify-between shadow-xs border-l-4 border-l-emerald-500">
+            <span class="text-[9px] font-black text-slate-400 uppercase">{{ lang === 'ar' ? 'المنجزة' : 'Done' }}</span>
+            <span class="text-lg font-black text-emerald-600 mt-2">{{ selectedEmployeeForProgress().completed_tasks }}</span>
+          </div>
+        </div>
+
+        <!-- Performance / Completion meter -->
+        <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-gauge-high text-emerald-600"></i>
+              <span>{{ lang === 'ar' ? 'معدل إنجاز المهام' : 'Task Completion Efficiency' }}</span>
+            </span>
+            <span class="text-sm font-black text-emerald-600">{{ selectedEmployeeForProgress().completion_rate }}%</span>
+          </div>
+          <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden mb-3">
+            <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-700"
+                 [style.width.%]="selectedEmployeeForProgress().completion_rate"></div>
+          </div>
+          <p class="text-[10px] text-slate-400 leading-relaxed font-semibold">
+            {{ lang === 'ar'
+              ? 'ملاحظة: يتم احتساب معدل الإنجاز بناءً على النسبة المئوية للمهام المكتملة بنجاح من إجمالي التكليفات الموجهة.'
+              : 'Completion rate represents the percentage of completed tasks out of the total scheduled jobs.' }}
+          </p>
+        </div>
+
+        <!-- Section: Active Assignments -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-200 pb-2">
+            <i class="fa-solid fa-hourglass-half text-amber-500"></i>
+            <span>{{ lang === 'ar' ? 'المهام والتكليفات النشطة حالياً' : 'Active & Current Assignments' }}</span>
+            <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full ml-auto">
+              {{ selectedEmployeeForProgress().active_tasks.length }}
+            </span>
+          </h4>
+
+          <div class="space-y-2.5">
+            @for (task of selectedEmployeeForProgress().active_tasks; track task.id) {
+              <div class="bg-white border border-slate-150 rounded-2xl p-4 shadow-2xs hover:shadow-xs transition">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-800">{{ (task.title && task.title[lang]) || task.title }}</h5>
+                    <div class="flex flex-wrap gap-2.5 items-center mt-2.5 text-[9px] text-slate-400 font-semibold">
+                      <span class="flex items-center gap-1">
+                        <i class="fa-solid fa-hospital text-slate-300"></i>
+                        {{ task.client_name ? task.client_name[lang] : 'N/A' }}
+                      </span>
+                      <span>•</span>
+                      <span class="flex items-center gap-1">
+                        <i class="fa-solid fa-clock text-slate-300"></i>
+                        {{ task.scheduled_at | date:'yyyy-MM-dd HH:mm' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Badges -->
+                  <div class="flex flex-col items-end gap-1.5 shrink-0">
+                    <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-full"
+                          [ngClass]="task.status === 'in_progress' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-amber-50 text-amber-800 border border-amber-200'">
+                      {{ task.status === 'in_progress' ? (lang === 'ar' ? 'قيد التنفيذ' : 'IN PROGRESS') : (lang === 'ar' ? 'قيد الانتظار' : 'PENDING') }}
+                    </span>
+                    <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                      {{ task.priority }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (selectedEmployeeForProgress().active_tasks.length === 0) {
+              <div class="bg-white border border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-400">
+                <i class="fa-solid fa-circle-check text-2xl text-slate-200 block mb-2"></i>
+                <p class="text-xs font-bold">{{ lang === 'ar' ? 'لا توجد مهام نشطة حالياً.' : 'No active assignments currently.' }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Section: Recently Completed -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-200 pb-2">
+            <i class="fa-solid fa-square-check text-emerald-600"></i>
+            <span>{{ lang === 'ar' ? 'المهام المنجزة مؤخراً' : 'Recently Completed Tasks' }}</span>
+            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full ml-auto">
+              {{ selectedEmployeeForProgress().completed_tasks_list.length }}
+            </span>
+          </h4>
+
+          <div class="space-y-2.5">
+            @for (task of selectedEmployeeForProgress().completed_tasks_list; track task.id) {
+              <div class="bg-white/80 border border-slate-150 rounded-2xl p-4 shadow-2xs hover:shadow-xs transition">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-700 line-through decoration-slate-300">{{ (task.title && task.title[lang]) || task.title }}</h5>
+                    <div class="flex flex-wrap gap-2.5 items-center mt-2.5 text-[9px] text-slate-400 font-semibold">
+                      <span class="flex items-center gap-1">
+                        <i class="fa-solid fa-hospital text-slate-300"></i>
+                        {{ task.client_name ? task.client_name[lang] : 'N/A' }}
+                      </span>
+                      <span>•</span>
+                      <span class="flex items-center gap-1">
+                        <i class="fa-solid fa-calendar-check text-emerald-500"></i>
+                        {{ lang === 'ar' ? 'أنجزت في: ' : 'Completed: ' }} {{ task.completed_at | date:'yyyy-MM-dd HH:mm' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                    {{ lang === 'ar' ? 'مكتملة' : 'COMPLETED' }}
+                  </span>
+                </div>
+              </div>
+            }
+            @if (selectedEmployeeForProgress().completed_tasks_list.length === 0) {
+              <div class="bg-white border border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-400">
+                <i class="fa-solid fa-clipboard-list text-2xl text-slate-200 block mb-2"></i>
+                <p class="text-xs font-bold">{{ lang === 'ar' ? 'لا توجد مهام منجزة مؤخراً.' : 'No completed tasks yet.' }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-slate-150 bg-white shrink-0">
+        <button (click)="closeProgressModal()"
+                class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl border-0 cursor-pointer transition">
+          {{ lang === 'ar' ? 'إغلاق نافذة المتابعة' : 'Close Audit View' }}
+        </button>
+      </div>
+    }
+  </div>
+}

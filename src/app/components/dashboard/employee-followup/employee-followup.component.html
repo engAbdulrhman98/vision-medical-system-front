@@ -1,0 +1,402 @@
+<div class="space-y-6 animate-slide-up">
+  
+  <!-- Header & KPI Section -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-150 shadow-xs">
+    <div>
+      <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+        <i class="fa-solid fa-chart-line text-emerald-600"></i>
+        <span>{{ getLocale() === 'ar' ? 'متابعة أداء وإنجازات الموظفين' : 'Employee Performance & Progress Follow-up' }}</span>
+      </h2>
+      <p class="text-xs text-slate-500 mt-1 font-medium">
+        {{ getLocale() === 'ar' ? 'مراقبة مستوى إنجاز الفنيين للمهام، ونسب إتمام طلبات الصيانة بالتقارير التفاعلية.' : 'Monitor technician task completion rates and progress statistics via interactive reports.' }}
+      </p>
+    </div>
+
+    <!-- Mini KPI counters -->
+    <div class="flex gap-4 shrink-0">
+      <div class="bg-slate-50 border border-slate-200/60 rounded-xl px-4 py-2.5 text-center">
+        <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{{ getLocale() === 'ar' ? 'إجمالي المهام الموزعة' : 'Distributed Tasks' }}</div>
+        <div class="text-lg font-black text-slate-900 font-mono">{{ totalTasksCount() }}</div>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2.5 text-center">
+        <div class="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">{{ getLocale() === 'ar' ? 'متوسط إنجاز الفريق' : 'Team Avg Progress' }}</div>
+        <div class="text-lg font-black text-emerald-800 font-mono">{{ overallAverageProgress() }}%</div>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center py-20 text-slate-400 gap-3 bg-white rounded-2xl border border-slate-150">
+      <i class="fa-solid fa-circle-notch text-3xl text-emerald-600 animate-spin"></i>
+      <span class="text-xs font-bold">{{ getLocale() === 'ar' ? 'جاري تجميع إحصائيات الأداء...' : 'Gathering performance statistics...' }}</span>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      
+      <!-- Left Column: Charts and Employee Cards Grid (Col Span 2) -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- ===== 1. GRAPHICAL PROGRESS CHART PANEL ===== -->
+        <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-4">
+          <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-square-poll-vertical text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'مخطط مقارنة متوسط تقدم الموظفين' : 'Employee Average Progress Comparison Chart' }}</span>
+          </h3>
+          
+          <!-- Interactive SVG/Bar Chart -->
+          <div class="pt-6 pb-2">
+            <div class="h-64 flex items-end gap-3 sm:gap-6 border-b border-s border-slate-200 ps-4 pb-2">
+              
+              @for (emp of employeeStatsList(); track emp.id) {
+                <!-- Single bar container -->
+                <div class="flex-1 flex flex-col items-center h-full justify-end cursor-pointer group" (click)="selectEmployee(emp)">
+                  <!-- Tooltip value on hover -->
+                  <div class="bg-slate-900 text-white text-[10px] font-black px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity mb-2 font-mono shadow-md scale-95 group-hover:scale-100">
+                    {{ emp.averageProgress }}%
+                  </div>
+
+                  <!-- Visual vertical bar fill -->
+                  <div class="w-full sm:w-12 rounded-t-lg transition-all duration-350 bar-anim hover:brightness-105 shadow-sm"
+                       [style.height.%]="emp.averageProgress"
+                       [ngClass]="emp.averageProgress >= 70 ? 'bg-gradient-to-t from-emerald-600 to-emerald-400' : (emp.averageProgress >= 40 ? 'bg-gradient-to-t from-amber-500 to-amber-300' : 'bg-gradient-to-t from-rose-500 to-rose-350')">
+                  </div>
+
+                  <!-- Employee First name below graph -->
+                  <span class="text-[9px] sm:text-[10px] font-black text-slate-600 mt-2 text-center truncate max-w-16 sm:max-w-20 group-hover:text-emerald-600">
+                    {{ emp.name.split(' ')[0] }}
+                  </span>
+                </div>
+              }
+              @if (employeeStatsList().length === 0) {
+                <div class="w-full text-center py-20 text-slate-400 text-xs italic">{{ getLocale() === 'ar' ? 'لا يوجد فنيين مسجلين لحساب نسب الأداء.' : 'No technicians registered to compute stats.' }}</div>
+              }
+
+            </div>
+          </div>
+          
+          <!-- Chart Legend indicator -->
+          <div class="flex justify-center gap-6 text-[10px] font-bold text-slate-500 pt-2 flex-wrap">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 bg-emerald-500 rounded-full"></span>
+              <span>{{ getLocale() === 'ar' ? 'أداء ممتاز (>= 70%)' : 'Excellent (>= 70%)' }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 bg-amber-400 rounded-full"></span>
+              <span>{{ getLocale() === 'ar' ? 'أداء متوسط (40% - 69%)' : 'Average (40% - 69%)' }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 bg-rose-500 rounded-full"></span>
+              <span>{{ getLocale() === 'ar' ? 'أداء يحتاج تحسين (< 40%)' : 'Needs Improvement (< 40%)' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 2. EMPLOYEES GRID OVERVIEW WITH FILTER CONTROLS ===== -->
+        <div class="space-y-4">
+          <!-- Filter Controls Bar -->
+          <div class="bg-white border border-slate-150 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <!-- Search Box -->
+            <div class="relative flex-1">
+              <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text"
+                     [ngModel]="empSearchQuery()"
+                     (ngModelChange)="empSearchQuery.set($event)"
+                     [placeholder]="getLocale() === 'ar' ? 'البحث باسم الموظف أو المسمى الوظيفي...' : 'Search employee by name or role...'"
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-9 pl-4 py-2 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+            </div>
+
+            <!-- Performance Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              <button (click)="empPerformanceFilter.set('all')"
+                      class="px-3 py-1.5 rounded-lg text-[10px] font-black transition cursor-pointer shrink-0"
+                      [ngClass]="empPerformanceFilter() === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                {{ getLocale() === 'ar' ? 'الكل' : 'All' }}
+              </button>
+              <button (click)="empPerformanceFilter.set('high')"
+                      class="px-3 py-1.5 rounded-lg text-[10px] font-black transition cursor-pointer shrink-0"
+                      [ngClass]="empPerformanceFilter() === 'high' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'">
+                {{ getLocale() === 'ar' ? 'ممتاز (>=70%)' : 'High (>=70%)' }}
+              </button>
+              <button (click)="empPerformanceFilter.set('avg')"
+                      class="px-3 py-1.5 rounded-lg text-[10px] font-black transition cursor-pointer shrink-0"
+                      [ngClass]="empPerformanceFilter() === 'avg' ? 'bg-amber-500 text-white shadow-xs' : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'">
+                {{ getLocale() === 'ar' ? 'متوسط (40-69%)' : 'Avg (40-69%)' }}
+              </button>
+              <button (click)="empPerformanceFilter.set('low')"
+                      class="px-3 py-1.5 rounded-lg text-[10px] font-black transition cursor-pointer shrink-0"
+                      [ngClass]="empPerformanceFilter() === 'low' ? 'bg-rose-600 text-white shadow-xs' : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200'">
+                {{ getLocale() === 'ar' ? 'يحتاج تحسين' : 'Needs Work' }}
+              </button>
+            </div>
+
+            <!-- Active Count & Reset -->
+            @if (empSearchQuery() || empPerformanceFilter() !== 'all') {
+              <button (click)="resetEmpFilters()"
+                      class="text-[10px] font-black text-rose-600 hover:text-rose-800 underline shrink-0 cursor-pointer">
+                {{ getLocale() === 'ar' ? 'إلغاء الفلتر' : 'Reset' }}
+              </button>
+            }
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (emp of getFilteredEmployees(); track emp.id) {
+              <div class="bg-white border rounded-2xl p-5 shadow-xs hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+                   [ngClass]="selectedEmployee()?.id === emp.id ? 'border-emerald-500 ring-2 ring-emerald-500/10' : 'border-slate-150 hover:border-slate-300'"
+                   (click)="selectEmployee(emp)">
+                
+                <div class="space-y-3">
+                  <div class="flex justify-between items-start gap-2">
+                    <div>
+                      <h4 class="font-black text-slate-900 text-sm leading-snug">{{ emp.name }}</h4>
+                      <span class="text-[10px] text-slate-400 font-bold block">{{ emp.role }}</span>
+                    </div>
+                    <span class="text-[9px] font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md font-mono shrink-0">
+                      {{ emp.averageProgress }}% {{ getLocale() === 'ar' ? 'متوسط إنجاز' : 'Avg Progress' }}
+                    </span>
+                  </div>
+
+                  <!-- Stats parameters counters -->
+                  <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-center text-xs">
+                    <div>
+                      <div class="text-[8px] font-bold text-slate-400 uppercase">{{ getLocale() === 'ar' ? 'مكتملة' : 'Completed' }}</div>
+                      <div class="font-extrabold text-emerald-600 mt-0.5">{{ emp.completedTasks }}</div>
+                    </div>
+                    <div>
+                      <div class="text-[8px] font-bold text-slate-400 uppercase">{{ getLocale() === 'ar' ? 'قيد التنفيذ' : 'Active' }}</div>
+                      <div class="font-extrabold text-blue-600 mt-0.5">{{ emp.inProgressTasks }}</div>
+                    </div>
+                    <div>
+                      <div class="text-[8px] font-bold text-slate-400 uppercase">{{ getLocale() === 'ar' ? 'إجمالي المهام' : 'Total' }}</div>
+                      <div class="font-extrabold text-slate-700 mt-0.5">{{ emp.totalTasks }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Individual Progress bar -->
+                  <div class="space-y-1 pt-1">
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden border border-slate-200/50">
+                      <div class="h-full rounded-full transition-all duration-350"
+                           [style.width.%]="emp.averageProgress"
+                           [ngClass]="emp.averageProgress >= 70 ? 'bg-emerald-500' : (emp.averageProgress >= 40 ? 'bg-amber-400' : 'bg-rose-500')"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-slate-400">
+                  <span>{{ emp.email }}</span>
+                  <span class="text-sky-600 hover:underline flex items-center gap-1">
+                    {{ getLocale() === 'ar' ? 'عرض تفاصيل المهام' : 'View tasks' }}
+                    <i class="fa-solid" [ngClass]="getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right'"></i>
+                  </span>
+                </div>
+
+              </div>
+            }
+            @if (getFilteredEmployees().length === 0) {
+              <div class="md:col-span-2 bg-white rounded-2xl border border-slate-150 p-8 text-center text-slate-400 text-xs font-bold space-y-2">
+                <i class="fa-solid fa-user-slash text-2xl text-slate-300"></i>
+                <p>{{ getLocale() === 'ar' ? 'لا توجد نتائج مطابقة للفلاتر المحددة.' : 'No employee records matching selected filters.' }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- ===== 3. SELECTED EMPLOYEE DETAILED BREAKDOWN ===== -->
+        @if (selectedEmployee(); as selectedEmp) {
+          <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-6 animate-slide-up">
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+                  <i class="fa-solid fa-list-check text-sky-600"></i>
+                  <span>{{ getLocale() === 'ar' ? 'قائمة مهام الموظف:' : 'Tasks List for Employee:' }} {{ selectedEmp.name }}</span>
+                </h3>
+                <p class="text-[10px] text-slate-400 font-bold block mt-1">
+                  {{ selectedEmp.role }} • {{ selectedEmp.totalTasks }} {{ getLocale() === 'ar' ? 'مهمة مخصصة إجمالاً' : 'tasks assigned overall' }}
+                </p>
+              </div>
+              <button (click)="selectedEmployee.set(null)"
+                      class="bg-slate-100 hover:bg-slate-200 text-slate-650 font-bold text-[10px] px-3.5 py-1.5 rounded-lg border-0 cursor-pointer transition">
+                {{ getLocale() === 'ar' ? 'إغلاق التفاصيل' : 'Close Details' }}
+              </button>
+            </div>
+
+            @if (selectedEmp.tasks.length === 0) {
+              <div class="text-center py-12 text-slate-400 text-xs italic">
+                {{ getLocale() === 'ar' ? 'لا توجد مهام حالية مخصصة لهذا الموظف.' : 'No active tasks currently assigned to this employee.' }}
+              </div>
+            } @else {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                @for (task of selectedEmp.tasks; track task.id) {
+                  <div class="border border-slate-150 rounded-xl p-4 space-y-3 hover:border-slate-350 transition relative overflow-hidden">
+                    
+                    <!-- Status & Priority Badge -->
+                    <div class="flex justify-between items-center gap-2">
+                      <span class="text-[9px] border px-2 py-0.5 rounded-md font-bold"
+                            [ngClass]="getStatusClass(task.status)">
+                        {{ translateStatus(task.status) }}
+                      </span>
+                      
+                      <span class="text-[8px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-md font-mono">
+                        {{ task.type === 'external' ? (getLocale() === 'ar' ? 'مهمة خارجية' : 'External') : (getLocale() === 'ar' ? 'مهمة ورشة' : 'Workshop') }}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h5 class="font-bold text-slate-900 text-xs leading-snug">{{ (task.title && task.title[getLocale()]) || task.title }}</h5>
+                      @if (task.description) {
+                        <p class="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">{{ task.description }}</p>
+                      }
+                    </div>
+
+                    <!-- Client details -->
+                    <div class="text-[10px] text-slate-500 flex items-center gap-1.5">
+                      <i class="fa-solid fa-hospital text-slate-300"></i>
+                      <span>{{ task.client_name ? task.client_name[getLocale()] : 'N/A' }}</span>
+                    </div>
+
+                    <!-- Progress bar inside details -->
+                    <div class="space-y-1 border-t border-slate-100 pt-3">
+                      <div class="flex justify-between text-[9px] font-bold text-slate-500">
+                        <span>{{ getLocale() === 'ar' ? 'مستوى الإنجاز:' : 'Completion Progress:' }}</span>
+                        <span class="text-emerald-700 font-extrabold">{{ task.progress || 0 }}%</span>
+                      </div>
+                      <div class="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                        <div class="bg-emerald-500 h-full rounded-full transition-all duration-300" [style.width.%]="task.progress || 0"></div>
+                      </div>
+                    </div>
+
+                    <!-- Date display -->
+                    <div class="text-[9px] text-slate-400 font-mono flex justify-between items-center pt-1">
+                      <span>{{ task.scheduled_at | date:'yyyy-MM-dd HH:mm' }}</span>
+                    </div>
+
+                  </div>
+                }
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+
+      <!-- Right Column: Unified Live News Feed (Facebook News Feed style) with Interactive Filters -->
+      <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs flex flex-col h-[750px] space-y-4">
+        <div class="border-b border-slate-100 pb-4 space-y-3">
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-rss text-emerald-600 animate-pulse"></i>
+                <span>{{ getLocale() === 'ar' ? 'سجل النشاط وتحديثات الموظفين' : 'Live Activity & Update Feed' }}</span>
+              </h3>
+              <p class="text-[10px] text-slate-400 mt-1 font-bold">
+                {{ getLocale() === 'ar' ? 'متابعة لايف لجميع تعليقات وإنجازات الفنيين بالمهام.' : 'Real-time updates stream of all task progress comments.' }}
+              </p>
+            </div>
+            <span class="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2.5 py-1 rounded-lg border border-emerald-200 shrink-0 font-mono">
+              {{ getFilteredActivityFeed().length }} {{ getLocale() === 'ar' ? 'تحديث' : 'updates' }}
+            </span>
+          </div>
+
+          <!-- Feed Filter controls bar -->
+          <div class="space-y-2 pt-1">
+            <!-- Feed Search input -->
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text"
+                     [ngModel]="feedSearchQuery()"
+                     (ngModelChange)="feedSearchQuery.set($event)"
+                     [placeholder]="getLocale() === 'ar' ? 'بحث بالتحديثات أو الفني أو المهمة...' : 'Search updates, engineer, task...'"
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-8 pl-3 py-1.5 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+            </div>
+
+            <!-- Date Range Selector & Selected Employee Indicator -->
+            <div class="flex items-center justify-between gap-2">
+              <select [ngModel]="feedDateRangeFilter()"
+                      (ngModelChange)="feedDateRangeFilter.set($event)"
+                      class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-[10px] font-black text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+                <option value="all">{{ getLocale() === 'ar' ? 'جميع الفترات' : 'All Time' }}</option>
+                <option value="today">{{ getLocale() === 'ar' ? 'تحديثات اليوم' : 'Today' }}</option>
+                <option value="week">{{ getLocale() === 'ar' ? 'آخر 7 أيام' : 'Last 7 Days' }}</option>
+                <option value="month">{{ getLocale() === 'ar' ? 'هذا الشهر' : 'This Month' }}</option>
+              </select>
+
+              @if (selectedEmployee(); as emp) {
+                <div class="bg-sky-50 text-sky-800 text-[9px] font-black px-2 py-0.5 rounded-lg border border-sky-200 flex items-center gap-1.5">
+                  <span>{{ emp.name.split(' ')[0] }}</span>
+                  <i (click)="selectedEmployee.set(null)" class="fa-solid fa-xmark text-sky-600 hover:text-sky-900 cursor-pointer"></i>
+                </div>
+              }
+
+              @if (feedSearchQuery() || feedDateRangeFilter() !== 'all') {
+                <button (click)="resetFeedFilters()" class="text-[9px] font-black text-rose-600 hover:underline">
+                  {{ getLocale() === 'ar' ? 'مسح الفلتر' : 'Clear' }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Scrollable Feed -->
+        <div class="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin">
+          @for (item of getFilteredActivityFeed(); track item.id) {
+            <!-- Single Post / Comment Card -->
+            <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/45 hover:bg-slate-50 transition space-y-2.5">
+              
+              <!-- Author Header -->
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-600/10 text-emerald-800 text-xs font-black flex items-center justify-center border border-emerald-200">
+                  {{ item.employeeName.substring(0, 2).toUpperCase() }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[11px] font-black text-slate-950 flex items-center flex-wrap gap-1 leading-snug">
+                    <span class="text-slate-900 font-extrabold">{{ item.employeeName }}</span>
+                    <span class="text-slate-400 font-medium">{{ getLocale() === 'ar' ? 'قام بتحديث' : 'updated' }}</span>
+                    <span class="text-emerald-700 hover:underline cursor-pointer truncate max-w-[150px] font-extrabold">
+                      {{ typeof item.taskTitle === 'object' ? (item.taskTitle[getLocale()] || item.taskTitle.ar || item.taskTitle.en) : item.taskTitle }}
+                    </span>
+                  </div>
+                  <!-- Timestamp -->
+                  <div class="text-[8px] text-slate-400 font-mono mt-0.5">
+                    {{ item.created_at | date:'yyyy-MM-dd HH:mm' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Post Content / Comment bubble -->
+              <div class="bg-white border border-slate-100 rounded-2xl p-3 shadow-3xs relative">
+                <!-- Tail pointer for speech bubble -->
+                <div class="absolute -top-1.5 left-3.5 w-3 h-3 bg-white border-t border-l border-slate-100 rotate-45"></div>
+                
+                <p class="text-xs text-slate-700 leading-relaxed font-semibold relative z-10">
+                  {{ item.note }}
+                </p>
+              </div>
+
+              <!-- Metrics (Progress Update Indicator) -->
+              <div class="flex justify-between items-center text-[9px] font-bold text-slate-500 pt-1">
+                <span class="flex items-center gap-1">
+                  <i class="fa-solid fa-hospital text-slate-350"></i>
+                  {{ typeof item.clientName === 'object' ? (item.clientName[getLocale()] || item.clientName.ar || item.clientName.en) : (item.clientName || 'N/A') }}
+                </span>
+                
+                <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-extrabold flex items-center gap-1 font-mono">
+                  <i class="fa-solid fa-circle-arrow-up text-[8px]"></i>
+                  {{ item.progress }}%
+                </span>
+              </div>
+
+            </div>
+          }
+          @if (getFilteredActivityFeed().length === 0) {
+            <div class="flex flex-col items-center justify-center py-20 text-slate-450 gap-2 h-full text-center">
+              <i class="fa-solid fa-inbox text-3xl text-slate-200 mb-2"></i>
+              <p class="text-xs font-bold italic">{{ getLocale() === 'ar' ? 'لا توجد تحديثات مطابقة للفلاتر الحالية.' : 'No task updates matching current filters.' }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

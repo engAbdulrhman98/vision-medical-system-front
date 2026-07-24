@@ -1,0 +1,493 @@
+<div class="space-y-6 relative overflow-hidden">
+  
+  @if (successMessage()) {
+    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-xs font-bold flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-emerald-600"></i>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+
+  <!-- Header Panel -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-150 shadow-xs">
+    <div>
+      <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+        <i class="fa-solid text-emerald-600" [ngClass]="taskType === 'external' ? 'fa-screwdriver-wrench' : 'fa-list-check'"></i>
+        <span>{{ taskType === 'external' ? (getLocale() === 'ar' ? 'مهام الصيانة الخارجية والزيارات الميدانية' : 'External Maintenance Tasks') : (getLocale() === 'ar' ? 'مهام وتكليفات الصيانة ورش العمل' : 'Tasks & Maintenance Assignment') }}</span>
+      </h2>
+      <p class="text-xs text-slate-500 mt-1 font-medium">
+        {{ getLocale() === 'ar' ? 'إدارة وتكليف مهندسي الصيانة والمبيعات بطلبات الفحص الخارجية ومواقع العملاء.' : 'Manage and assign tasks to service engineers and sales team.' }}
+      </p>
+    </div>
+
+    @if (role === 'admin' || role === 'manager') {
+      <button (click)="showCreateForm.set(!showCreateForm())"
+              class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer shadow-xs shrink-0">
+        <i class="fa-solid" [ngClass]="showCreateForm() ? 'fa-minus' : 'fa-plus'"></i>
+        <span>{{ getLocale() === 'ar' ? 'جدولة مهمة جديدة' : 'Schedule New Task' }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- CREATE TASK FORM -->
+  @if (showCreateForm() && (role === 'admin' || role === 'manager')) {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-4">
+      <h3 class="font-bold text-slate-950 text-base mb-3 flex items-center gap-2 border-b border-slate-100 pb-3">
+        <i class="fa-solid fa-file-circle-plus text-emerald-600"></i>
+        <span>{{ getLocale() === 'ar' ? 'تفاصيل المهمة الجديدة' : 'New Task Details' }}</span>
+      </h3>
+      
+      <form (submit)="handleCreateTask($event)" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">{{ getLocale() === 'ar' ? 'عنوان المهمة *' : 'Task Title *' }}</label>
+            <input type="text" [(ngModel)]="title" name="title" required placeholder="مثال: فحص صيانة جهاز التخدير / عرض سعر جهاز سونار"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">{{ getLocale() === 'ar' ? 'تصنيف ونوع المهمة *' : 'Task Category *' }}</label>
+            <select [(ngModel)]="taskTypeForm" name="taskTypeForm" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold">
+              <option value="external">{{ getLocale() === 'ar' ? '🛠️ صيانة خارجية ميدانية (موقع العميل / المستشفى)' : 'External Maintenance Visit' }}</option>
+              <option value="sales">{{ getLocale() === 'ar' ? '💼 زيارة مبيعات وعرض سعر ميداني' : 'Sales & Quotation Visit' }}</option>
+              <option value="internal">{{ getLocale() === 'ar' ? '🏢 صيانة داخلية بالورشة / المستودع' : 'Internal Workshop Maintenance' }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Location Selection -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5 flex items-center gap-1">
+              <i class="fa-solid fa-map-location-dot text-emerald-600"></i>
+              <span>{{ getLocale() === 'ar' ? '1. حدد المحافظة / المكان' : '1. Select Governorate' }}</span>
+            </label>
+            <select [(ngModel)]="governorateId" name="governorateId" (change)="onGovernorateChange()"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold">
+              <option [value]="0">-- {{ getLocale() === 'ar' ? 'جميع المحافظات' : 'All Governorates' }} --</option>
+              @for (gov of governorates(); track gov.id) {
+                <option [value]="gov.id">{{ getAreaName(gov) }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5 flex items-center gap-1">
+              <i class="fa-solid fa-city text-indigo-600"></i>
+              <span>{{ getLocale() === 'ar' ? '2. حدد المدينة / المركز' : '2. Select City' }}</span>
+            </label>
+            <select [(ngModel)]="cityId" name="cityId" (change)="onCityChange()" [disabled]="!governorateId"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold disabled:opacity-50">
+              <option [value]="0">-- {{ getLocale() === 'ar' ? 'جميع المدن' : 'All Cities' }} --</option>
+              @for (city of cities(); track city.id) {
+                <option [value]="city.id">{{ getAreaName(city) }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5 flex items-center justify-between">
+              <span>{{ getLocale() === 'ar' ? '3. حدد العميل / المستشفى *' : '3. Select Client *' }}</span>
+              @if (cityId || governorateId) {
+                <span class="text-[9px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">{{ getLocale() === 'ar' ? 'مفلتر بالمدينة' : 'Filtered' }}</span>
+              }
+            </label>
+            <select [(ngModel)]="clientId" name="clientId" required (change)="onClientSelectChange()"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold">
+              <option [value]="0">-- {{ getLocale() === 'ar' ? 'اختر العميل / المستشفى' : 'Select Client' }} --</option>
+              @for (client of getFilteredClients(); track client.id) {
+                <option [value]="client.id">{{ getClientName(client.name) }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">{{ getLocale() === 'ar' ? '4. المكلف بالمهمة (المهندس/الفني/المبيعات) *' : 'Assigned Person *' }}</label>
+            <select [(ngModel)]="userId" name="userId" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold">
+              <option [value]="0">-- {{ getLocale() === 'ar' ? 'تعيين مسؤول' : 'Assign Person' }} --</option>
+              @for (tech of technicians(); track tech.id) {
+                <option [value]="tech.id">{{ tech.name }} - {{ getRoleNameAr(tech.role) }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5">{{ getLocale() === 'ar' ? '5. تاريخ ووقت الموعد *' : 'Scheduled Date *' }}</label>
+            <input type="datetime-local" [(ngModel)]="scheduledAt" name="scheduledAt" required
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold">
+          </div>
+        </div>
+
+        <!-- Optional Device & Contact Person Fields -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50 p-3.5 rounded-xl border border-slate-200">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5 flex items-center gap-1">
+              <i class="fa-solid fa-laptop-medical text-sky-600"></i>
+              <span>{{ getLocale() === 'ar' ? 'الجهاز الطبي المعني (اختياري)' : 'Medical Device (Optional)' }}</span>
+            </label>
+            <select [(ngModel)]="deviceId" name="deviceId" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold">
+              <option [value]="0">-- {{ getLocale() === 'ar' ? 'بدون جهاز / زيارة عامة' : 'No specific device' }} --</option>
+              @for (dev of devices(); track dev.id) {
+                <option [value]="dev.id">{{ dev.serial_number }} - {{ dev.product?.name?.ar || dev.product?.name?.en || dev.model }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1.5 flex items-center gap-1">
+              <i class="fa-solid fa-address-book text-amber-600"></i>
+              <span>{{ getLocale() === 'ar' ? 'مسؤول التواصل بالجهة (اختياري)' : 'Contact Person (Optional)' }}</span>
+            </label>
+            <select [(ngModel)]="clientContactId" name="clientContactId" [disabled]="!clientId"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold disabled:opacity-50">
+              <option [value]="0">-- {{ getLocale() === 'ar' ? 'اختر مسئول المستشفى' : 'Select Hospital Contact' }} --</option>
+              @for (contact of clientContacts(); track contact.id) {
+                <option [value]="contact.id">{{ contact.name }} ({{ contact.job_title || 'مسؤول' }} - {{ contact.phone || '' }})</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" (click)="showCreateForm.set(false)" class="bg-slate-100 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-xl border-0 cursor-pointer">{{ getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+          <button type="submit" class="bg-emerald-600 text-white font-bold text-xs px-7 py-2.5 rounded-xl border-0 cursor-pointer hover:bg-emerald-700">{{ getLocale() === 'ar' ? 'حفظ وتكليف' : 'Save & Assign' }}</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- TASKS TABLE LISTING WITH INTERACTIVE FILTERS & EXPORT -->
+  <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-4">
+    <!-- Filter Controls & Export Bar -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+      <!-- Search Input -->
+      <div class="relative flex-grow max-w-md">
+        <i class="fa-solid fa-magnifying-glass absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 text-slate-400 text-xs"></i>
+        <input type="text"
+               [ngModel]="searchQuery()"
+               (ngModelChange)="searchQuery.set($event)"
+               [placeholder]="getLocale() === 'ar' ? 'بحث باسم المهمة، العميل، المهندس، أو الوصف...' : 'Search task title, client, engineer...'"
+               class="w-full bg-white border border-slate-200 rounded-xl rtl:pr-9 ltr:pl-9 rtl:pl-4 ltr:pr-4 py-2 text-xs font-bold focus:border-emerald-500 transition">
+      </div>
+
+      <!-- Select Filters & Buttons -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Status Filter -->
+        <select [ngModel]="statusFilter()"
+                (ngModelChange)="statusFilter.set($event)"
+                class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+          <option value="all">{{ getLocale() === 'ar' ? 'جميع الحالات' : 'All Statuses' }}</option>
+          <option value="pending">{{ getLocale() === 'ar' ? 'قيد الانتظار' : 'Pending' }}</option>
+          <option value="in_progress">{{ getLocale() === 'ar' ? 'قيد التنفيذ' : 'In Progress' }}</option>
+          <option value="completed">{{ getLocale() === 'ar' ? 'مكتملة' : 'Completed' }}</option>
+          <option value="cancelled">{{ getLocale() === 'ar' ? 'ملغاة' : 'Cancelled' }}</option>
+        </select>
+
+        <!-- Priority Filter -->
+        <select [ngModel]="priorityFilter()"
+                (ngModelChange)="priorityFilter.set($event)"
+                class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+          <option value="all">{{ getLocale() === 'ar' ? 'جميع الأولويات' : 'All Priorities' }}</option>
+          <option value="high">{{ getLocale() === 'ar' ? 'عالية (High)' : 'High' }}</option>
+          <option value="medium">{{ getLocale() === 'ar' ? 'متوسطة (Medium)' : 'Medium' }}</option>
+          <option value="low">{{ getLocale() === 'ar' ? 'منخفضة (Low)' : 'Low' }}</option>
+        </select>
+
+        <!-- Engineer Filter -->
+        <select [ngModel]="engineerFilter()"
+                (ngModelChange)="engineerFilter.set($event)"
+                class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+          <option [value]="0">{{ getLocale() === 'ar' ? 'جميع المهندسين' : 'All Engineers' }}</option>
+          @for (tech of technicians(); track tech.id) {
+            <option [value]="tech.id">{{ tech.name }}</option>
+          }
+        </select>
+
+        <!-- Count Badge -->
+        <span class="bg-emerald-100 text-emerald-900 font-extrabold text-[10px] px-2.5 py-1.5 rounded-lg border border-emerald-200 font-mono shrink-0">
+          {{ getFilteredTasks().length }} / {{ tasks().length }}
+        </span>
+
+        <!-- Export CSV Button -->
+        <button (click)="exportTasksToCSV()"
+                class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2 rounded-xl border border-slate-200 cursor-pointer transition shrink-0">
+          <i class="fa-solid fa-file-excel text-emerald-600"></i>
+          <span>{{ getLocale() === 'ar' ? 'تصدير إكسيل' : 'Export CSV' }}</span>
+        </button>
+
+        @if (searchQuery() || statusFilter() !== 'all' || priorityFilter() !== 'all' || engineerFilter() !== 0) {
+          <button (click)="resetTaskFilters()" class="text-[10px] font-black text-rose-600 hover:underline cursor-pointer shrink-0">
+            {{ getLocale() === 'ar' ? 'إعادة ضبط' : 'Reset' }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="overflow-x-auto rounded-xl border border-slate-200">
+      <table class="w-full text-right text-xs">
+        <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+          <tr>
+            <th class="p-3">#</th>
+            <th class="p-3">{{ getLocale() === 'ar' ? 'عنوان المهمة' : 'Task Title' }}</th>
+            <th class="p-3">{{ getLocale() === 'ar' ? 'العميل' : 'Client' }}</th>
+            <th class="p-3">{{ getLocale() === 'ar' ? 'المكلف بالمهمة' : 'Assigned To' }}</th>
+            <th class="p-3 text-center">{{ getLocale() === 'ar' ? 'نسبة الإنجاز' : 'Progress' }}</th>
+            <th class="p-3 text-center">{{ getLocale() === 'ar' ? 'حالة المسار' : 'Status' }}</th>
+            <th class="p-3 text-center">{{ getLocale() === 'ar' ? 'إجراءات ومتابعة المهمة' : 'Actions & Workflow' }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (task of getFilteredTasks(); track task.id; let idx = $index) {
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3 font-bold text-slate-400">#{{ task.id }}</td>
+              <td class="p-3 font-black text-slate-900">{{ task.title }}</td>
+              <td class="p-3 font-semibold text-slate-700">{{ task.client ? getClientName(task.client.name) : '-' }}</td>
+              <td class="p-3 font-semibold text-slate-700">{{ task.user ? task.user.name : '-' }}</td>
+              <td class="p-3 text-center font-bold text-emerald-600 font-sans">{{ task.progress }}%</td>
+              <td class="p-3 text-center">
+                @switch (task.status) {
+                  @case ('pending') {
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                      {{ getLocale() === 'ar' ? 'قيد الانتظار' : 'Pending' }}
+                    </span>
+                  }
+                  @case ('in_progress') {
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      {{ getLocale() === 'ar' ? 'جاري التواصل / الزيارة' : 'In Progress' }}
+                    </span>
+                  }
+                  @case ('awaiting_accountant') {
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 animate-pulse">
+                      🟡 {{ getLocale() === 'ar' ? 'تم القبول - بانتظار المحاسب' : 'Pending Accountant' }}
+                    </span>
+                  }
+                  @case ('accountant_ready') {
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                      🟣 {{ getLocale() === 'ar' ? 'الفاتورة جاهزة - للتسليم' : 'Invoice Ready' }}
+                    </span>
+                  }
+                  @case ('rejected') {
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                      🔴 {{ getLocale() === 'ar' ? 'مرفوضة من المسئول' : 'Rejected' }}
+                    </span>
+                  }
+                  @case ('completed') {
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      🟢 {{ getLocale() === 'ar' ? 'مكتملة وموثقة' : 'Completed' }}
+                    </span>
+                  }
+                  @default {
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
+                      {{ task.status }}
+                    </span>
+                  }
+                }
+              </td>
+              <td class="p-3 text-center">
+                <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                  <!-- Visit Outcome Button (For Field Rep / Sales Engineer) -->
+                  @if (task.status === 'pending' || task.status === 'in_progress') {
+                    <button (click)="openOutcomeModal(task)"
+                            class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-[10px] border-0 cursor-pointer shadow-xs transition">
+                      <i class="fa-solid fa-clipboard-check me-1"></i> {{ getLocale() === 'ar' ? 'تسجيل نتيجة الزيارة' : 'Record Outcome' }}
+                    </button>
+                  }
+
+                  <!-- Accountant Action Button (For Accountant) -->
+                  @if (task.status === 'awaiting_accountant' && (role === 'accountant' || role === 'admin' || role === 'manager')) {
+                    <button (click)="openAccountantModal(task)"
+                            class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[10px] border-0 cursor-pointer shadow-xs transition animate-pulse">
+                      <i class="fa-solid fa-file-invoice-dollar me-1"></i> {{ getLocale() === 'ar' ? 'إصدار الفاتورة / الطلب' : 'Issue Invoice' }}
+                    </button>
+                  }
+
+                  <!-- Direct Delivery Confirmation Button -->
+                  @if (task.status === 'accountant_ready') {
+                    <button (click)="handleConfirmDelivery(task)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[10px] border-0 cursor-pointer transition shadow-xs">
+                      <i class="fa-solid fa-truck-ramp-box me-1"></i> {{ getLocale() === 'ar' ? 'تأكيد التسليم للعميل وإغلاق المهمة' : 'Confirm Delivery & Close' }}
+                    </button>
+                  }
+
+                  <!-- Timeline / Follow Up -->
+                  <button (click)="openFollowUpDrawer(task)" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border-0 cursor-pointer transition" [title]="getLocale() === 'ar' ? 'متابعة المسار والخطوات' : 'Timeline'">
+                    <i class="fa-solid fa-timeline text-xs"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="p-6 text-center text-slate-400 font-bold">
+                {{ getLocale() === 'ar' ? 'لا توجد مهام مسجلة حالياً' : 'No tasks scheduled' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VISIT OUTCOME MODAL -->
+  @if (showOutcomeModal()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
+          <i class="fa-solid fa-clipboard-check text-indigo-600"></i>
+          <span>{{ getLocale() === 'ar' ? 'تسجيل نتيجة الزيارة والتواصل مع المسئول' : 'Record Visit Outcome' }}</span>
+        </h3>
+
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-2">{{ getLocale() === 'ar' ? 'يدوّن المهندس/الموظف الميداني رد مسئول العميل:' : 'Engineer logs client response:' }}</label>
+            <div class="grid grid-cols-2 gap-3">
+              <button type="button" (click)="selectedOutcome = 'accepted'"
+                      class="p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 cursor-pointer transition"
+                      [ngClass]="selectedOutcome === 'accepted' ? 'bg-emerald-50 border-emerald-500 text-emerald-800 shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-600'">
+                <i class="fa-solid fa-circle-check text-lg text-emerald-600"></i>
+                <span>{{ getLocale() === 'ar' ? 'تمت موافقة المسئول ✅' : 'Accepted' }}</span>
+              </button>
+
+              <button type="button" (click)="selectedOutcome = 'rejected'"
+                      class="p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 cursor-pointer transition"
+                      [ngClass]="selectedOutcome === 'rejected' ? 'bg-rose-50 border-rose-500 text-rose-800 shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-600'">
+                <i class="fa-solid fa-circle-xmark text-lg text-rose-600"></i>
+                <span>{{ getLocale() === 'ar' ? 'تم رفض المسئول ❌' : 'Rejected' }}</span>
+              </button>
+            </div>
+          </div>
+
+          @if (selectedOutcome === 'accepted') {
+            <div class="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-2 animate-fade-in">
+              <label class="text-xs font-bold text-indigo-900 block mb-1">{{ getLocale() === 'ar' ? 'المطلوب تحويله للمحاسب:' : 'Request to Accountant:' }}</label>
+              <div class="space-y-1.5">
+                <label class="flex items-center gap-2 text-xs font-bold text-slate-800 cursor-pointer">
+                  <input type="radio" [(ngModel)]="actionTypeOption" value="invoice_request" name="actionTypeOpt" class="text-indigo-600">
+                  <span>{{ getLocale() === 'ar' ? '📄 طلب إصدار فاتورة (موافقة على عرض السعر)' : 'Invoice Request' }}</span>
+                </label>
+                <label class="flex items-center gap-2 text-xs font-bold text-slate-800 cursor-pointer">
+                  <input type="radio" [(ngModel)]="actionTypeOption" value="maintenance_request" name="actionTypeOpt" class="text-indigo-600">
+                  <span>{{ getLocale() === 'ar' ? '🛠️ طلب أمر صيانة وتشغيل' : 'Maintenance Order Request' }}</span>
+                </label>
+              </div>
+            </div>
+          }
+
+          @if (selectedOutcome === 'rejected') {
+            <div class="p-3.5 bg-rose-50/70 border border-rose-200 rounded-xl space-y-2 animate-fade-in">
+              <label class="text-xs font-bold text-rose-900 block mb-1">{{ getLocale() === 'ar' ? 'سبب الرفض من المسئول *' : 'Rejection Reason *' }}</label>
+              <input type="text" [(ngModel)]="rejectionReasonInput" placeholder="مثال: السعر عالي، تفضيل منافس، عدم توفر الميزانية..."
+                     class="w-full bg-white border border-rose-200 rounded-xl px-3.5 py-2 text-xs font-bold text-rose-900">
+            </div>
+          }
+
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'ملاحظات وتفاصيل الحوار:' : 'Discussion Notes:' }}</label>
+            <textarea [(ngModel)]="outcomeNoteInput" rows="2" placeholder="أي تفاصيل إضافية دارت مع مسئول المستشفى..."
+                      class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button (click)="showOutcomeModal.set(false)" class="bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer">{{ getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+          <button (click)="handleSubmitOutcome()" class="bg-indigo-600 text-white font-bold text-xs px-6 py-2 rounded-xl border-0 cursor-pointer hover:bg-indigo-700">{{ getLocale() === 'ar' ? 'حفظ وإرسال الإشعار' : 'Submit & Notify' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ACCOUNTANT ACTION MODAL -->
+  @if (showAccountantModal()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
+          <i class="fa-solid fa-file-invoice-dollar text-amber-600"></i>
+          <span>{{ getLocale() === 'ar' ? 'إجراء المحاسب - إصدار الفاتورة / الطلب' : 'Accountant Processing' }}</span>
+        </h3>
+
+        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs font-medium text-amber-900 space-y-1">
+          <span class="font-bold block">{{ getLocale() === 'ar' ? 'تمت موافقة العميل على الطلب!' : 'Client Accepted!' }}</span>
+          <p>{{ getLocale() === 'ar' ? 'يرجى تدوين رقم الفاتورة الصادرة أو بيان تجهيز طلب الصيانة لإرسال الإشعار وتوجيهه للمهندس لتسليمه:' : 'Please enter invoice number or processing note:' }}</p>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-slate-700 block mb-1.5">{{ getLocale() === 'ar' ? 'رقم الفاتورة / بيان المحاسب *' : 'Invoice Ref / Accountant Note *' }}</label>
+          <textarea [(ngModel)]="accountantNoteInput" rows="3" placeholder="مثال: تم إصدار فاتورة مبيعات رقم INV-2026-940 وجاهزة للتسليم للمهندس."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button (click)="showAccountantModal.set(false)" class="bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer">{{ getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+          <button (click)="handleProcessAccountantAction()" class="bg-amber-600 text-white font-bold text-xs px-6 py-2 rounded-xl border-0 cursor-pointer hover:bg-amber-700">{{ getLocale() === 'ar' ? 'إصدار وتنبيه المهندس' : 'Issue & Notify Engineer' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+
+  <!-- FOLLOW UP & TIMELINE DRAWER -->
+  @if (showFollowUpDrawer() && selectedTask()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex justify-end z-50 animate-fade-in">
+      <div class="bg-white w-full max-w-lg h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto space-y-4">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-timeline text-indigo-600"></i>
+                <span>{{ getLocale() === 'ar' ? 'سجل المتابعة والتحديثات اليومية' : 'Follow-up Timeline' }}</span>
+              </h3>
+              <p class="text-xs text-slate-500 font-medium mt-1">#{{ selectedTask().id }} - {{ selectedTask().title }}</p>
+            </div>
+            <button (click)="showFollowUpDrawer.set(false)" class="text-slate-400 hover:text-slate-600 border-0 bg-transparent cursor-pointer">
+              <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+
+          <!-- Add Note Form -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mb-4">
+            <label class="text-xs font-bold text-slate-800 block">{{ getLocale() === 'ar' ? 'إضافة تحديث أو ملاحظة متابعة جديدة:' : 'Add New Follow-up Note:' }}</label>
+            <textarea [(ngModel)]="newFollowUpNote" rows="3" placeholder="مثال: تم التوجه للمستشفى ومقابلة د. أحمد، ووعد بالرد النهائي يوم الخميس القادم..."
+                      class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold focus:outline-none focus:border-indigo-500"></textarea>
+            
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-600">{{ getLocale() === 'ar' ? 'نسبة التقدم:' : 'Progress:' }}</span>
+                <input type="number" [(ngModel)]="newFollowUpProgress" min="0" max="100" class="w-16 bg-white border border-slate-200 rounded-lg p-1.5 text-xs font-bold text-center">
+                <span class="text-xs font-bold text-slate-500">%</span>
+              </div>
+              <button (click)="handleAddFollowUpNote()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2 rounded-xl border-0 cursor-pointer transition">
+                <i class="fa-solid fa-paper-plane me-1"></i> {{ getLocale() === 'ar' ? 'إضافة الملاحظة' : 'Add Note' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Updates History List -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">{{ getLocale() === 'ar' ? 'سجل الملاحظات والخطوات السابقة:' : 'Timeline Log:' }}</h4>
+            <div class="space-y-2 max-h-96 overflow-y-auto pe-1">
+              @for (up of selectedTask().updates; track up.id) {
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-150 space-y-1">
+                  <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                    <span class="text-indigo-700 font-bold"><i class="fa-solid fa-user-circle me-1"></i> {{ up.user_name || 'الموظف' }}</span>
+                    <span class="font-mono">{{ up.created_at }}</span>
+                  </div>
+                  <p class="text-xs text-slate-800 font-bold leading-relaxed">{{ up.note }}</p>
+                  <div class="text-[10px] text-emerald-700 font-bold">الإنجاز: {{ up.progress }}%</div>
+                </div>
+              } @empty {
+                <div class="text-center py-8 text-slate-400 text-xs font-bold">
+                  {{ getLocale() === 'ar' ? 'لا توجد ملاحظات متابعة مسجلة بعد' : 'No follow-up notes recorded yet' }}
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex justify-end">
+          <button (click)="showFollowUpDrawer.set(false)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-xl border-0 cursor-pointer transition">
+            {{ getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }

@@ -1,0 +1,397 @@
+<div class="space-y-6">
+  
+  @if (activeSubTab() === 'areas') {
+    <!-- AREAS & CITIES MANAGEMENT (3 DEDICATED TABLES) -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-map-location-dot text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'إدارة المناطق والمدن والتقسيمات الجغرافية' : 'Areas & Cities Directory' }}</span>
+          </h3>
+          <p class="text-xs text-slate-500 font-medium mt-1">
+            {{ getLocale() === 'ar' ? 'تقسيم جرافي مفصل وحصري للمحافظات، والمدن، والقرى والمراكز' : 'Detailed geographical index for governorates, cities, and towns' }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 flex-wrap">
+          <button (click)="exportAreas()"
+                  class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'تصدير المناطق' : 'Export Excel' }}</span>
+          </button>
+
+          <label class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-import text-blue-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'استيراد المناطق' : 'Import Excel' }}</span>
+            <input type="file" (change)="importAreas($event)" accept=".xlsx, .xls, .csv" class="hidden">
+          </label>
+
+          <button (click)="showAddAreaModal.set(true)"
+                  class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer shadow-xs transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>{{ getLocale() === 'ar' ? 'إضافة منطقة / مدينة جديدة' : 'Add New Area' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 DEDICATED TABLE TABS -->
+      <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+        <button (click)="areaFilterType.set('governorate')"
+                class="px-4 py-2 rounded-xl text-xs font-bold transition border cursor-pointer"
+                [ngClass]="areaFilterType() === 'governorate' ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'">
+          <i class="fa-solid fa-map me-1.5"></i>
+          <span>{{ getLocale() === 'ar' ? '1. جدول المحافظات 🗺️' : '1. Governorates Table' }}</span>
+          <span class="ms-2 px-1.5 py-0.5 rounded-full text-[10px] bg-white/20 font-sans">{{ getGovernoratesList().length }}</span>
+        </button>
+
+        <button (click)="areaFilterType.set('city')"
+                class="px-4 py-2 rounded-xl text-xs font-bold transition border cursor-pointer"
+                [ngClass]="areaFilterType() === 'city' ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'">
+          <i class="fa-solid fa-city me-1.5"></i>
+          <span>{{ getLocale() === 'ar' ? '2. جدول المدن 🏙️' : '2. Cities Table' }}</span>
+          <span class="ms-2 px-1.5 py-0.5 rounded-full text-[10px] bg-white/20 font-sans">{{ getCitiesList().length }}</span>
+        </button>
+
+        <button (click)="areaFilterType.set('town')"
+                class="px-4 py-2 rounded-xl text-xs font-bold transition border cursor-pointer"
+                [ngClass]="areaFilterType() === 'town' ? 'bg-amber-600 text-white border-amber-600 shadow-xs' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'">
+          <i class="fa-solid fa-house-village me-1.5"></i>
+          <span>{{ getLocale() === 'ar' ? '3. جدول القرى والبلدات والمراكز 🏡' : '3. Towns & Villages Table' }}</span>
+          <span class="ms-2 px-1.5 py-0.5 rounded-full text-[10px] bg-white/20 font-sans">{{ getTownsAndVillagesList().length }}</span>
+        </button>
+      </div>
+
+      <!-- TABLE VIEW -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200">
+        <table class="w-full text-right text-xs">
+          <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+            <tr>
+              <th class="p-3">#</th>
+              <th class="p-3">{{ getLocale() === 'ar' ? 'اسم المنطقة' : 'Area Name' }}</th>
+              <th class="p-3">{{ getLocale() === 'ar' ? 'النوع / التصنيف' : 'Type' }}</th>
+              <th class="p-3">{{ getLocale() === 'ar' ? 'التابعة لـ (المحافظة / المدينة)' : 'Parent Area' }}</th>
+              <th class="p-3 text-center">{{ getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @let activeList = areaFilterType() === 'governorate' ? getGovernoratesList() : (areaFilterType() === 'city' ? getCitiesList() : getTownsAndVillagesList());
+            @for (area of activeList; track area.id; let idx = $index) {
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="p-3 font-bold text-slate-400">{{ idx + 1 }}</td>
+                <td class="p-3 font-black text-slate-900">{{ getAreaName(area) }}</td>
+                <td class="p-3">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                        [ngClass]="area.type === 'governorate' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : (area.type === 'city' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-amber-50 text-amber-700 border border-amber-200')">
+                    {{ area.type === 'governorate' ? (getLocale() === 'ar' ? 'محافظة' : 'Governorate') : (area.type === 'city' ? (getLocale() === 'ar' ? 'مدينة' : 'City') : (getLocale() === 'ar' ? 'قرية / مركز' : 'Town')) }}
+                  </span>
+                </td>
+                <td class="p-3 font-semibold text-slate-600">
+                  {{ area.parent ? getAreaName(area.parent) : '-' }}
+                </td>
+                <td class="p-3 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button (click)="startEditArea(area)" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition border-0 bg-transparent cursor-pointer" title="تعديل">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button (click)="handleDeleteArea(area.id)" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition border-0 bg-transparent cursor-pointer" title="حذف">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="p-6 text-center text-slate-400 font-bold">
+                  {{ getLocale() === 'ar' ? 'لا توجد مناطق مسجلة في هذا التصنيف حالياً' : 'No areas found in this category' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- PRODUCTS CATALOG VIEW -->
+  @if (activeSubTab() === 'products') {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'إدارة المنتجات والأجهزة الطبية' : 'Medical Products Catalog' }}</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-1 font-medium">
+            {{ getLocale() === 'ar' ? 'عرض الكتالوج والمنتجات والأجهزة المتاحة بالمستودع' : 'View products catalog and inventory stock' }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 flex-wrap">
+          <button (click)="exportProducts()"
+                  class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'تصدير إكسيل' : 'Export Excel' }}</span>
+          </button>
+
+          <label class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-import text-blue-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'استيراد إكسيل' : 'Import Excel' }}</span>
+            <input type="file" (change)="importProducts($event)" accept=".xlsx, .xls, .csv" class="hidden">
+          </label>
+        </div>
+      </div>
+
+      <!-- Products Filter Controls -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text"
+                 [ngModel]="productSearchQuery()"
+                 (ngModelChange)="productSearchQuery.set($event)"
+                 [placeholder]="getLocale() === 'ar' ? 'بحث باسم المنتج أو الكود...' : 'Search by product name or SKU...'"
+                 class="w-full bg-white border border-slate-200 rounded-xl pr-9 pl-4 py-2 text-xs font-bold focus:border-emerald-500 transition">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Category Filter -->
+          <select [ngModel]="productCategoryFilter()"
+                  (ngModelChange)="productCategoryFilter.set($event)"
+                  class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+            <option value="all">{{ getLocale() === 'ar' ? 'جميع الأقسام' : 'All Categories' }}</option>
+            @for (cat of categories(); track cat.id) {
+              <option [value]="cat.id">{{ typeof cat.name === 'object' ? (cat.name.ar || cat.name.en) : cat.name }}</option>
+            }
+          </select>
+
+          <!-- Brand Filter -->
+          <select [ngModel]="productBrandFilter()"
+                  (ngModelChange)="productBrandFilter.set($event)"
+                  class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+            <option value="all">{{ getLocale() === 'ar' ? 'جميع الماركات' : 'All Brands' }}</option>
+            @for (b of brands(); track b.id) {
+              <option [value]="b.id">{{ typeof b.name === 'object' ? (b.name.ar || b.name.en) : b.name }}</option>
+            }
+          </select>
+
+          <span class="bg-emerald-100 text-emerald-900 font-extrabold text-[10px] px-2.5 py-1.5 rounded-lg border border-emerald-200 font-mono shrink-0">
+            {{ getFilteredProducts().length }} / {{ products().length }}
+          </span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200">
+        <table class="w-full text-right text-xs">
+          <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+            <tr>
+              <th class="p-3">#</th>
+              <th class="p-3">{{ getLocale() === 'ar' ? 'اسم المنتج' : 'Product Name' }}</th>
+              <th class="p-3">{{ getLocale() === 'ar' ? 'السعر' : 'Price' }}</th>
+              <th class="p-3">{{ getLocale() === 'ar' ? 'حالة التوفر' : 'Stock Status' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (prod of getFilteredProducts(); track prod.id; let idx = $index) {
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="p-3 font-bold text-slate-400">#{{ idx + 1 }}</td>
+                <td class="p-3 font-black text-slate-900">{{ typeof prod.name === 'object' ? (prod.name.ar || prod.name.en) : prod.name }}</td>
+                <td class="p-3 font-mono font-bold text-emerald-600">{{ prod.price | number }} ج.م</td>
+                <td class="p-3">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {{ getLocale() === 'ar' ? 'متوفر بالمخزن' : 'In Stock' }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="p-6 text-center text-slate-400 font-bold">
+                  {{ getLocale() === 'ar' ? 'لا توجد منتجات مطابقة للفلاتر حالياً' : 'No products available matching filters' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- CATEGORIES VIEW -->
+  @if (activeSubTab() === 'categories') {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-folder-open text-sky-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'أقسام وتصنيفات الأجهزة الطبية' : 'Medical Categories' }}</span>
+          </h3>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 flex-wrap">
+          <button (click)="exportCategories()"
+                  class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'تصدير إكسيل' : 'Export Excel' }}</span>
+          </button>
+
+          <label class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-import text-blue-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'استيراد إكسيل' : 'Import Excel' }}</span>
+            <input type="file" (change)="importCategories($event)" accept=".xlsx, .xls, .csv" class="hidden">
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (cat of categories(); track cat.id) {
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-slate-900 text-sm block">{{ typeof cat.name === 'object' ? (cat.name.ar || cat.name.en) : cat.name }}</span>
+              <span class="text-[10px] text-slate-400 font-mono">{{ cat.slug }}</span>
+            </div>
+            <i class="fa-solid fa-folder-tree text-sky-500 text-xl"></i>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- BRANDS VIEW -->
+  @if (activeSubTab() === 'brands') {
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-tag text-amber-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'الماركات والعلامات التجارية' : 'Medical Brands' }}</span>
+          </h3>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 flex-wrap">
+          <button (click)="exportBrands()"
+                  class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'تصدير إكسيل' : 'Export Excel' }}</span>
+          </button>
+
+          <label class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-import text-blue-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'استيراد إكسيل' : 'Import Excel' }}</span>
+            <input type="file" (change)="importBrands($event)" accept=".xlsx, .xls, .csv" class="hidden">
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        @for (brand of brands(); track brand.id) {
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-slate-900 text-sm block">{{ typeof brand.name === 'object' ? (brand.name.ar || brand.name.en) : brand.name }}</span>
+              <span class="text-[10px] text-slate-400 font-mono">{{ brand.slug }}</span>
+            </div>
+            <i class="fa-solid fa-copyright text-amber-500 text-xl"></i>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- EMPLOYEE FOLLOW-UP VIEW -->
+  @if (activeSubTab() === 'employee-followup') {
+    <app-employee-followup></app-employee-followup>
+  }
+
+  <!-- EMPLOYEES DIRECTORY VIEW -->
+  @if (activeSubTab() === 'employees') {
+    <app-employees></app-employees>
+  }
+
+  <!-- TASKS & OTHER MANAGEMENT VIEWS -->
+  @if (activeSubTab() === 'tasks' || activeSubTab() === 'external-tasks') {
+    <app-tasks [role]="'manager'" [taskType]="activeSubTab() === 'external-tasks' ? 'external' : 'all'"></app-tasks>
+  }
+
+  <!-- ADD AREA MODAL -->
+  @if (showAddAreaModal()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
+          <i class="fa-solid fa-plus-circle text-emerald-600"></i>
+          <span>{{ getLocale() === 'ar' ? 'إضافة منطقة جديدة' : 'Add New Area' }}</span>
+        </h3>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'اسم المنطقة / المدينة *' : 'Area Name *' }}</label>
+            <input type="text" [(ngModel)]="newArea.name" placeholder="مثال: القاهرة / مدينة نصر"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'تصنيف المنطقة *' : 'Type *' }}</label>
+            <select [(ngModel)]="newArea.type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+              <option value="governorate">{{ getLocale() === 'ar' ? 'محافظة' : 'Governorate' }}</option>
+              <option value="city">{{ getLocale() === 'ar' ? 'مدينة' : 'City' }}</option>
+              <option value="town">{{ getLocale() === 'ar' ? 'قرية / مركز / بلدة' : 'Town / Village' }}</option>
+            </select>
+          </div>
+          @if (newArea.type !== 'governorate') {
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'التابعة لـ (المحافظة)' : 'Belongs to Governorate' }}</label>
+              <select [(ngModel)]="newArea.parentId" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+                <option [value]="null">-- {{ getLocale() === 'ar' ? 'بدون' : 'None' }} --</option>
+                @for (gov of getGovernoratesList(); track gov.id) {
+                  <option [value]="gov.id">{{ getAreaName(gov) }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button (click)="showAddAreaModal.set(false)" class="bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer">{{ getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+          <button (click)="handleAddArea()" class="bg-emerald-600 text-white font-bold text-xs px-5 py-2 rounded-xl border-0 cursor-pointer hover:bg-emerald-700">{{ getLocale() === 'ar' ? 'حفظ' : 'Save' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- EDIT AREA MODAL -->
+  @if (showEditAreaModal()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
+          <i class="fa-solid fa-pen-to-square text-amber-600"></i>
+          <span>{{ getLocale() === 'ar' ? 'تعديل بيانات المنطقة' : 'Edit Area' }}</span>
+        </h3>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'اسم المنطقة / المدينة *' : 'Area Name *' }}</label>
+            <input type="text" [(ngModel)]="editArea.name"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'تصنيف المنطقة *' : 'Type *' }}</label>
+            <select [(ngModel)]="editArea.type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+              <option value="governorate">{{ getLocale() === 'ar' ? 'محافظة' : 'Governorate' }}</option>
+              <option value="city">{{ getLocale() === 'ar' ? 'مدينة' : 'City' }}</option>
+              <option value="town">{{ getLocale() === 'ar' ? 'قرية / مركز / بلدة' : 'Town / Village' }}</option>
+            </select>
+          </div>
+          @if (editArea.type !== 'governorate') {
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'التابعة لـ (المحافظة)' : 'Belongs to Governorate' }}</label>
+              <select [(ngModel)]="editArea.parentId" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+                <option [value]="null">-- {{ getLocale() === 'ar' ? 'بدون' : 'None' }} --</option>
+                @for (gov of getGovernoratesList(); track gov.id) {
+                  <option [value]="gov.id">{{ getAreaName(gov) }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button (click)="showEditAreaModal.set(false)" class="bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer">{{ getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+          <button (click)="handleUpdateArea()" class="bg-amber-600 text-white font-bold text-xs px-5 py-2 rounded-xl border-0 cursor-pointer hover:bg-amber-700">{{ getLocale() === 'ar' ? 'حفظ التعديلات' : 'Save Changes' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

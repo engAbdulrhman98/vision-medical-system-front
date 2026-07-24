@@ -1,0 +1,942 @@
+
+<!-- Render Views depending on active tab -->
+@if (activeSubTab() === 'stats') {
+
+  <!-- Statistics Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Visitors Card -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs flex items-center justify-between animate-fade-in-up">
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">{{ langService.t('total_visitors') }}</span>
+        <div class="text-3xl font-black text-slate-900 font-sans">{{ stats().total_visits | number }}</div>
+        <div class="text-[10px] text-emerald-600 font-extrabold flex items-center gap-1">
+          <i class="fa-solid fa-users text-xxs"></i>
+          <span>{{ langService.t('today_visitors', {count: stats().today_visits}) }}</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-xl shrink-0">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
+    </div>
+
+    <!-- Products Card -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs flex items-center justify-between animate-fade-in-up">
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">{{ langService.t('total_products') }}</span>
+        <div class="text-3xl font-black text-slate-900 font-sans">{{ stats().products }}</div>
+        <span class="text-[10px] text-slate-400 block font-semibold">{{ langService.t('displayed_in_catalog') }}</span>
+      </div>
+      <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl shrink-0">
+        <i class="fa-solid fa-boxes-stacked"></i>
+      </div>
+    </div>
+
+    <!-- Categories & Brands Card -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs flex items-center justify-between animate-fade-in-up">
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">{{ langService.t('categories_and_brands') }}</span>
+        <div class="text-3xl font-black text-slate-900 font-sans">
+          {{ stats().categories }} <span class="text-xs font-semibold text-slate-400">/</span> {{ stats().brands }}
+        </div>
+        <span class="text-[10px] text-slate-400 block font-semibold">
+          {{ langService.currentLang() === 'ar' ? 'فئات / مصنعين' : 'Categories / Brands' }}
+        </span>
+      </div>
+      <div class="w-12 h-12 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center text-xl shrink-0">
+        <i class="fa-solid fa-folder-tree"></i>
+      </div>
+    </div>
+
+    <!-- Pending actions Card -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs flex items-center justify-between animate-fade-in-up">
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">{{ langService.t('pending_actions') }}</span>
+        <div class="text-3xl font-black text-slate-900 font-sans">
+          {{ stats().pending_reviews + stats().unread_messages }}
+        </div>
+        <div class="text-[10px] text-rose-600 font-bold flex items-center gap-1.5 font-sans">
+          <span>{{ stats().pending_reviews }} {{ langService.currentLang() === 'ar' ? 'مراجعات' : 'Reviews' }}</span>
+          <span>•</span>
+          <span>{{ stats().unread_messages }} {{ langService.currentLang() === 'ar' ? 'رسائل' : 'Messages' }}</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-xl shrink-0">
+        <i class="fa-solid fa-bell animate-bounce"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- SVG-based Visitors Line Chart (2 Columns) -->
+    <div class="lg:col-span-2 bg-white border border-slate-150 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="font-bold text-slate-950 text-base flex items-center gap-2">
+          <i class="fa-solid fa-users-viewfinder text-emerald-600"></i>
+          <span>{{ langService.t('visitors_stats') }}</span>
+        </h3>
+        <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider">{{ langService.t('live_update') }}</span>
+      </div>
+      
+      <!-- Premium SVG Line Graph Chart representation -->
+      <div class="relative w-full h-72">
+        <svg viewBox="0 0 500 200" class="w-full h-full">
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"></stop>
+              <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"></stop>
+            </linearGradient>
+          </defs>
+          <!-- Grid Lines -->
+          <line x1="0" y1="40" x2="500" y2="40" stroke="#f1f5f9" stroke-width="1"></line>
+          <line x1="0" y1="80" x2="500" y2="80" stroke="#f1f5f9" stroke-width="1"></line>
+          <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" stroke-width="1"></line>
+          <line x1="0" y1="160" x2="500" y2="160" stroke="#f1f5f9" stroke-width="1"></line>
+          
+          <!-- Area under Curve -->
+          <path d="M 10 160 Q 90 90, 170 120 T 330 60 T 490 80 L 490 180 L 10 180 Z" fill="url(#chartGrad)"></path>
+          
+          <!-- Graph Line -->
+          <path d="M 10 160 Q 90 90, 170 120 T 330 60 T 490 80" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"></path>
+          
+          <!-- Graph Points -->
+          <circle cx="10" cy="160" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+          <circle cx="90" cy="95" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+          <circle cx="170" cy="120" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+          <circle cx="250" cy="90" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+          <circle cx="330" cy="60" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+          <circle cx="410" cy="70" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+          <circle cx="490" cy="80" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+        </svg>
+      </div>
+
+      <div class="flex justify-between items-center text-[10px] text-slate-400 font-bold px-2 pt-4 border-t border-slate-50 font-sans">
+        <span>Mon</span>
+        <span>Tue</span>
+        <span>Wed</span>
+        <span>Thu</span>
+        <span>Fri</span>
+        <span>Sat</span>
+        <span>Sun</span>
+      </div>
+    </div>
+
+    <!-- Activity Log Timeline (1 Column) -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs flex flex-col max-h-[360px]">
+      <h3 class="font-bold text-slate-950 text-base mb-5 flex items-center gap-2 pb-3 border-b border-slate-50 shrink-0">
+        <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
+        <span>{{ langService.t('activity_log') }}</span>
+      </h3>
+
+      @if (logs().length === 0) {
+        <div class="flex-grow flex flex-col items-center justify-center text-center py-8">
+          <i class="fa-solid fa-history text-slate-300 text-3xl mb-3 animate-spin-slow"></i>
+          <p class="text-slate-400 text-xs">{{ langService.t('no_activities') }}</p>
+        </div>
+      } @else {
+        <div class="flex-grow overflow-y-auto space-y-4 pr-1">
+          @for (log of logs(); track log.id) {
+            <div class="flex gap-3 relative before:absolute before:top-8 before:bottom-[-20px] before:w-[2px] before:bg-slate-100 last:before:hidden"
+                 [ngClass]="langService.currentLang() === 'ar' ? 'before:right-[15px]' : 'before:left-[15px]'">
+              <!-- Icon -->
+              <div class="w-8 h-8 rounded-full bg-slate-50 border border-slate-150 flex items-center justify-center text-[10px] text-emerald-500 shrink-0 z-10">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div class="space-y-0.5">
+                <p class="text-xs text-slate-800 font-semibold leading-relaxed">
+                  {{ log.action }}
+                </p>
+                <span class="text-slate-400 text-[10px] block">
+                  {{ log.user || 'System' }} • {{ log.created_at | date:'shortTime' }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (activeSubTab() === 'reviews') {
+  <!-- Pending Reviews Moderation Panel -->
+  <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
+    <div class="flex items-center justify-between mb-5 border-b border-slate-50 pb-3">
+      <h3 class="font-bold text-slate-950 text-base flex items-center gap-2">
+        <i class="fa-solid fa-star-half-stroke text-amber-500"></i>
+        <span>{{ langService.t('new_pending_reviews') }}</span>
+      </h3>
+    </div>
+
+    @if (pendingReviews().length === 0) {
+      <div class="text-center py-16 text-slate-400 text-sm">
+        <i class="fa-regular fa-comment-dots text-4xl mb-3 block text-slate-300"></i>
+        {{ langService.t('no_pending_reviews') }}
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up">
+        @for (rev of pendingReviews(); track rev.id) {
+          <div class="bg-slate-50 border border-slate-150 p-5 rounded-2xl space-y-3 flex flex-col justify-between">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-slate-900 text-sm block">{{ rev.reviewer_name }}</span>
+                  <span class="text-xs text-slate-400 block mt-0.5">
+                    {{ langService.currentLang() === 'ar' ? 'على المنتج: ' : 'On Product: ' }}
+                    <span class="font-semibold text-emerald-600">{{ rev.product_name[getLocale()] }}</span>
+                  </span>
+                </div>
+                <div class="flex items-center gap-0.5 text-amber-400 shrink-0">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <i class="fa-star text-[10px]" [ngClass]="star <= rev.rating ? 'fa-solid' : 'fa-regular'"></i>
+                  }
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">{{ rev.comment }}</p>
+            </div>
+            
+            <!-- Action buttons -->
+            <div class="flex items-center gap-2 pt-3 border-t border-slate-200/50 mt-3 shrink-0">
+              <button (click)="handleApproveReview(rev.id)" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-[10px] px-4 py-2 rounded-lg shadow-xs transition cursor-pointer border-0">
+                {{ langService.t('approve_and_publish') }}
+              </button>
+              <button (click)="handleDeleteReview(rev.id)" class="bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-700 font-bold text-[10px] px-4 py-2 rounded-lg transition cursor-pointer border-0">
+                {{ langService.t('delete') }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+@if (activeSubTab() === 'messages') {
+  <!-- Messages Panel -->
+  <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs animate-fade-in-up">
+    <h3 class="font-bold text-slate-950 text-base mb-5 border-b border-slate-50 pb-3 flex items-center gap-2">
+      <i class="fa-solid fa-envelope-open-text text-sky-500"></i>
+      <span>{{ langService.t('unread_messages') }}</span>
+    </h3>
+
+    @if (messages().length === 0) {
+      <div class="text-center py-16 text-slate-400 text-sm">
+        <i class="fa-regular fa-envelope text-4xl mb-3 block text-slate-300"></i>
+        {{ langService.t('no_unread_messages') }}
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (msg of messages(); track msg.id) {
+          <div class="bg-slate-50 border border-slate-150 p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition hover:border-slate-350">
+            <div class="space-y-2 max-w-2xl">
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-slate-900 text-sm block">{{ msg.name }}</span>
+                <span class="bg-sky-100/70 border border-sky-200/50 text-sky-800 text-[10px] px-2 py-0.5 rounded-md font-bold truncate max-w-[200px]">{{ msg.subject || langService.t('no_subject') }}</span>
+                @if (!msg.is_read) {
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                }
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed font-sans">{{ msg.message }}</p>
+              <span class="text-[10px] text-slate-400 block font-semibold">{{ msg.created_at | date:'medium' }} • {{ msg.email }}</span>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex items-center gap-2 shrink-0">
+              @if (!msg.is_read) {
+                <button (click)="handleReadMessage(msg.id)" class="bg-sky-500 hover:bg-sky-600 text-white font-bold text-[10px] px-4 py-2 rounded-lg transition shadow-xs cursor-pointer border-0">
+                  {{ langService.currentLang() === 'ar' ? 'تعليم كمقروء' : 'Mark as Read' }}
+                </button>
+              }
+              <button (click)="handleDeleteMessage(msg.id)" class="bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-700 font-bold text-[10px] px-4 py-2 rounded-lg transition cursor-pointer border-0">
+                {{ langService.t('delete') }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+@if (activeSubTab() === 'permissions') {
+  <div class="space-y-8 animate-fade-in-up">
+    <!-- Role Assignment Form Card -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
+      <h3 class="font-bold text-slate-950 text-base mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-user-plus text-emerald-600"></i>
+        <span>{{ langService.currentLang() === 'ar' ? 'تعيين دور لموظف' : 'Assign Role to Employee' }}</span>
+      </h3>
+      <p class="text-xs text-slate-400 mb-6 font-semibold">
+        {{ langService.currentLang() === 'ar' ? 'قم بتعيين أو تغيير صلاحيات وصول الموظف بإدخال بريده الإلكتروني واختيار الدور الوظيفي.' : 'Assign or update employee access levels by entering their corporate email address and choosing a role.' }}
+      </p>
+
+      @if (showAssignmentSuccess()) {
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-xs font-bold mb-6 flex items-center gap-2">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>{{ langService.currentLang() === 'ar' ? 'تم تعيين الدور بنجاح وتحديث سجل الأنشطة!' : 'Role assigned successfully and logged in activities!' }}</span>
+        </div>
+      }
+
+      <form (submit)="handleAssignRole($event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-2">{{ langService.currentLang() === 'ar' ? 'البريد الإلكتروني للموظف' : 'Employee Email' }}</label>
+          <input type="email" name="assignEmail" [(ngModel)]="assignEmail" required placeholder="e.g. employee@vision-medical.com"
+                 class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-emerald-500 focus:outline-none transition font-sans">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-2">{{ langService.currentLang() === 'ar' ? 'الدور الوظيفي' : 'Select System Role' }}</label>
+          <select name="assignSelectedRole" [(ngModel)]="assignSelectedRole"
+                  class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs px-4 py-3 rounded-xl focus:bg-white focus:border-emerald-500 focus:outline-none transition cursor-pointer">
+            @for (role of systemRoles(); track role.name) {
+              <option [value]="role.name">{{ role.name }}</option>
+            }
+          </select>
+        </div>
+        <button type="submit" [disabled]="!assignEmail"
+                class="bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-950 font-black text-xs py-3 rounded-xl transition cursor-pointer border-0">
+          {{ langService.currentLang() === 'ar' ? 'حفظ وتحديث الصلاحيات' : 'Update & Assign Access' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- System Users Table Card -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
+      <h3 class="font-bold text-slate-950 text-base mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-users-gear text-emerald-600"></i>
+        <span>{{ langService.currentLang() === 'ar' ? 'المستخدمين النشطين وصلاحياتهم' : 'Active Users & Roles' }}</span>
+      </h3>
+      <div class="overflow-y-auto max-h-64 border border-slate-100 rounded-xl px-4 scrollbar-thin">
+        <table class="w-full text-start border-collapse">
+          <thead>
+            <tr class="border-b border-slate-150 text-slate-400 text-[10px] font-bold uppercase tracking-wider sticky top-0 bg-white z-10">
+              <th class="text-start py-3 bg-white">{{ langService.currentLang() === 'ar' ? 'الاسم' : 'Name' }}</th>
+              <th class="text-start py-3 bg-white">{{ langService.currentLang() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}</th>
+              <th class="text-start py-3 bg-white">{{ langService.currentLang() === 'ar' ? 'الدور الحالي' : 'Current Role' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            @for (user of users(); track user.id) {
+              <tr class="hover:bg-slate-50/50 transition">
+                <td class="py-3 font-bold text-slate-800">{{ user.name }}</td>
+                <td class="py-3 text-slate-500 font-sans">{{ user.email }}</td>
+                <td class="py-3">
+                  <span class="inline-block px-2.5 py-0.5 rounded-full font-bold text-[10px]"
+                        [ngClass]="{
+                          'bg-red-50 text-red-800 border border-red-100': user.role === 'Admin',
+                          'bg-emerald-50 text-emerald-800 border border-emerald-100': user.role === 'CEO',
+                          'bg-violet-50 text-violet-800 border border-violet-100': user.role === 'Operations Manager',
+                          'bg-sky-50 text-sky-800 border border-sky-100': user.role === 'Service Engineer outdoor',
+                          'bg-cyan-50 text-cyan-800 border border-cyan-100': user.role === 'Service Engineer indoor',
+                          'bg-amber-50 text-amber-800 border border-amber-100': user.role === 'Accountant',
+                          'bg-pink-50 text-pink-800 border border-pink-100': user.role === 'Sale',
+                          'bg-slate-50 text-slate-800 border border-slate-100': !['Admin','CEO','Operations Manager','Service Engineer outdoor','Service Engineer indoor','Accountant','Sale'].includes(user.role)
+                        }">
+                    {{ user.role }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Roles Selection Dropdown Card -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="font-bold text-slate-950 text-lg mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-user-shield text-emerald-600"></i>
+            <span>{{ langService.currentLang() === 'ar' ? 'صلاحيات المجموعات والأدوار' : 'Group Roles & Permissions' }}</span>
+          </h3>
+          <p class="text-sm text-slate-400 font-semibold">
+            {{ langService.currentLang() === 'ar' ? 'اختر الدور الوظيفي من القائمة لعرض وتعديل صلاحياته في قاعدة البيانات.' : 'Select a functional role from the list to view and update its database privileges.' }}
+          </p>
+        </div>
+        
+        <!-- Role Dropdown Selector -->
+        <div class="shrink-0 min-w-[240px]">
+          <select [ngModel]="selectedRoleIndex()" (ngModelChange)="selectedRoleIndex.set($event)"
+                  class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm sm:text-base px-4 py-3 rounded-xl focus:bg-white focus:border-emerald-500 focus:outline-none transition cursor-pointer font-bold">
+            @for (role of systemRoles(); track role.name; let idx = $index) {
+              <option [value]="idx">{{ role.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Selected Role Info & Permissions Grid -->
+      @if (systemRoles()[selectedRoleIndex()]) {
+        @let activeRoleObj = systemRoles()[selectedRoleIndex()];
+        <div class="space-y-6 animate-fade-in-up">
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <div>
+              <span class="text-base font-black text-slate-900 block">{{ activeRoleObj.name }}</span>
+              <span class="text-sm text-slate-450 block mt-1 font-semibold">
+                {{ activeRoleObj.description ? activeRoleObj.description[getLocale()] : (langService.currentLang() === 'ar' ? 'صلاحيات هذا الدور مستمدة بالكامل من قاعدة البيانات.' : 'Privileges derived dynamically from the DB.') }}
+              </span>
+            </div>
+            <span class="bg-emerald-50 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-100 shrink-0 self-start sm:self-center">
+              {{ activeRoleObj.permissions.length }} {{ langService.currentLang() === 'ar' ? 'صلاحيات نشطة حالياً' : 'Currently Active Privileges' }}
+            </span>
+          </div>
+
+          <!-- Organized Categorized Groups of Permissions (Collapsible Tables with Scroll - Large Fonts) -->
+          <div class="space-y-4">
+            <!-- Group 1: Tasks -->
+            <div class="border border-slate-150 rounded-2xl overflow-hidden">
+              <button type="button" (click)="toggleGroup(1)"
+                      class="w-full flex justify-between items-center text-slate-900 font-bold text-sm sm:text-base py-4 bg-slate-50 hover:bg-slate-100 px-4 border-0 border-b border-slate-100 cursor-pointer transition select-none">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-list-check text-emerald-600"></i>
+                  <span>{{ langService.currentLang() === 'ar' ? 'صلاحيات المهام وتكليفات الصيانة' : 'Tasks & Maintenance Assignment' }}</span>
+                </span>
+                <i class="fa-solid text-slate-400 text-xs sm:text-sm" [ngClass]="expandedGroups().includes(1) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              
+              @if (expandedGroups().includes(1)) {
+                <div class="overflow-y-auto max-h-64 p-4 bg-white animate-fade-in-up">
+                  <table class="w-full text-start border-collapse text-sm sm:text-base">
+                    <thead>
+                      <tr class="border-b border-slate-100 text-slate-500 text-xs sm:text-sm font-bold uppercase tracking-wider">
+                        <th class="text-start pb-2.5 w-1/2">{{ langService.currentLang() === 'ar' ? 'اسم الصلاحية' : 'Permission Name' }}</th>
+                        <th class="text-start pb-2.5 w-1/3">{{ langService.currentLang() === 'ar' ? 'رمز الصلاحية' : 'System Key' }}</th>
+                        <th class="text-center pb-2.5 w-1/6">{{ langService.currentLang() === 'ar' ? 'تفعيل' : 'Active' }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                      @for (perm of ['view tasks', 'create tasks', 'edit tasks', 'delete tasks', 'assign tasks']; track perm) {
+                        <tr class="hover:bg-slate-50/50 transition">
+                          <td class="py-3.5 font-bold text-slate-900">{{ translatePermission(perm) }}</td>
+                          <td class="py-3.5 font-mono text-xs sm:text-sm text-slate-500 font-sans">{{ perm }}</td>
+                          <td class="py-3.5 text-center">
+                            <input type="checkbox" 
+                                   [checked]="activeRoleObj.permissions.includes(perm)"
+                                   (change)="togglePermission(selectedRoleIndex(), perm)"
+                                   class="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer">
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+
+            <!-- Group 2: Devices & Reports -->
+            <div class="border border-slate-150 rounded-2xl overflow-hidden">
+              <button type="button" (click)="toggleGroup(2)"
+                      class="w-full flex justify-between items-center text-slate-900 font-bold text-sm sm:text-base py-4 bg-slate-50 hover:bg-slate-100 px-4 border-0 border-b border-slate-100 cursor-pointer transition select-none">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-screwdriver-wrench text-emerald-600"></i>
+                  <span>{{ langService.currentLang() === 'ar' ? 'صلاحيات الأجهزة وتقارير الصيانة' : 'Devices, Schedules & Service Reports' }}</span>
+                </span>
+                <i class="fa-solid text-slate-400 text-xs sm:text-sm" [ngClass]="expandedGroups().includes(2) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              
+              @if (expandedGroups().includes(2)) {
+                <div class="overflow-y-auto max-h-64 p-4 bg-white animate-fade-in-up">
+                  <table class="w-full text-start border-collapse text-sm sm:text-base">
+                    <thead>
+                      <tr class="border-b border-slate-100 text-slate-500 text-xs sm:text-sm font-bold uppercase tracking-wider">
+                        <th class="text-start pb-2.5 w-1/2">{{ langService.currentLang() === 'ar' ? 'اسم الصلاحية' : 'Permission Name' }}</th>
+                        <th class="text-start pb-2.5 w-1/3">{{ langService.currentLang() === 'ar' ? 'رمز الصلاحية' : 'System Key' }}</th>
+                        <th class="text-center pb-2.5 w-1/6">{{ langService.currentLang() === 'ar' ? 'تفعيل' : 'Active' }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                      @for (perm of [
+                        'view maintenance_schedules', 'create maintenance_schedules', 'edit maintenance_schedules', 'delete maintenance_schedules',
+                        'view devices', 'create devices', 'edit devices', 'delete devices',
+                        'view maintenance_reports', 'create maintenance_reports', 'edit maintenance_reports', 'delete maintenance_reports'
+                      ]; track perm) {
+                        <tr class="hover:bg-slate-50/50 transition">
+                          <td class="py-3.5 font-bold text-slate-900">{{ translatePermission(perm) }}</td>
+                          <td class="py-3.5 font-mono text-xs sm:text-sm text-slate-500 font-sans">{{ perm }}</td>
+                          <td class="py-3.5 text-center">
+                            <input type="checkbox" 
+                                   [checked]="activeRoleObj.permissions.includes(perm)"
+                                   (change)="togglePermission(selectedRoleIndex(), perm)"
+                                   class="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer">
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+
+            <!-- Group 3: Inventory & Products -->
+            <div class="border border-slate-150 rounded-2xl overflow-hidden">
+              <button type="button" (click)="toggleGroup(3)"
+                      class="w-full flex justify-between items-center text-slate-900 font-bold text-sm sm:text-base py-4 bg-slate-50 hover:bg-slate-100 px-4 border-0 border-b border-slate-100 cursor-pointer transition select-none">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-boxes-stacked text-emerald-600"></i>
+                  <span>{{ langService.currentLang() === 'ar' ? 'صلاحيات المستودع والمنتجات الطبية' : 'Inventory & Products' }}</span>
+                </span>
+                <i class="fa-solid text-slate-400 text-xs sm:text-sm" [ngClass]="expandedGroups().includes(3) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              
+              @if (expandedGroups().includes(3)) {
+                <div class="overflow-y-auto max-h-64 p-4 bg-white animate-fade-in-up">
+                  <table class="w-full text-start border-collapse text-sm sm:text-base">
+                    <thead>
+                      <tr class="border-b border-slate-100 text-slate-500 text-xs sm:text-sm font-bold uppercase tracking-wider">
+                        <th class="text-start pb-2.5 w-1/2">{{ langService.currentLang() === 'ar' ? 'اسم الصلاحية' : 'Permission Name' }}</th>
+                        <th class="text-start pb-2.5 w-1/3">{{ langService.currentLang() === 'ar' ? 'رمز الصلاحية' : 'System Key' }}</th>
+                        <th class="text-center pb-2.5 w-1/6">{{ langService.currentLang() === 'ar' ? 'تفعيل' : 'Active' }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                      @for (perm of [
+                        'view stock_items', 'create stock_items', 'edit stock_items', 'delete stock_items',
+                        'view products', 'create products', 'edit products', 'delete products'
+                      ]; track perm) {
+                        <tr class="hover:bg-slate-50/50 transition">
+                          <td class="py-3.5 font-bold text-slate-900">{{ translatePermission(perm) }}</td>
+                          <td class="py-3.5 font-mono text-xs sm:text-sm text-slate-500 font-sans">{{ perm }}</td>
+                          <td class="py-3.5 text-center">
+                            <input type="checkbox" 
+                                   [checked]="activeRoleObj.permissions.includes(perm)"
+                                   (change)="togglePermission(selectedRoleIndex(), perm)"
+                                   class="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer">
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+
+            <!-- Group 4: Quotations & Financials -->
+            <div class="border border-slate-150 rounded-2xl overflow-hidden">
+              <button type="button" (click)="toggleGroup(4)"
+                      class="w-full flex justify-between items-center text-slate-900 font-bold text-sm sm:text-base py-4 bg-slate-50 hover:bg-slate-100 px-4 border-0 border-b border-slate-100 cursor-pointer transition select-none">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+                  <span>{{ langService.currentLang() === 'ar' ? 'صلاحيات عروض الأسعار والماليات' : 'Quotations, Financials & Reports' }}</span>
+                </span>
+                <i class="fa-solid text-slate-400 text-xs sm:text-sm" [ngClass]="expandedGroups().includes(4) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              
+              @if (expandedGroups().includes(4)) {
+                <div class="overflow-y-auto max-h-64 p-4 bg-white animate-fade-in-up">
+                  <table class="w-full text-start border-collapse text-sm sm:text-base">
+                    <thead>
+                      <tr class="border-b border-slate-100 text-slate-500 text-xs sm:text-sm font-bold uppercase tracking-wider">
+                        <th class="text-start pb-2.5 w-1/2">{{ langService.currentLang() === 'ar' ? 'اسم الصلاحية' : 'Permission Name' }}</th>
+                        <th class="text-start pb-2.5 w-1/3">{{ langService.currentLang() === 'ar' ? 'رمز الصلاحية' : 'System Key' }}</th>
+                        <th class="text-center pb-2.5 w-1/6">{{ langService.currentLang() === 'ar' ? 'تفعيل' : 'Active' }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                      @for (perm of [
+                        'view quotations', 'create quotations', 'edit quotations', 'delete quotations',
+                        'view financials', 'manage financials'
+                      ]; track perm) {
+                        <tr class="hover:bg-slate-50/50 transition">
+                          <td class="py-3.5 font-bold text-slate-900">{{ translatePermission(perm) }}</td>
+                          <td class="py-3.5 font-mono text-xs sm:text-sm text-slate-500 font-sans">{{ perm }}</td>
+                          <td class="py-3.5 text-center">
+                            <input type="checkbox" 
+                                   [checked]="activeRoleObj.permissions.includes(perm)"
+                                   (change)="togglePermission(selectedRoleIndex(), perm)"
+                                   class="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer">
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+
+            <!-- Group 5: Settings & Administration -->
+            <div class="border border-slate-150 rounded-2xl overflow-hidden">
+              <button type="button" (click)="toggleGroup(5)"
+                      class="w-full flex justify-between items-center text-slate-900 font-bold text-sm sm:text-base py-4 bg-slate-50 hover:bg-slate-100 px-4 border-0 border-b border-slate-100 cursor-pointer transition select-none">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-gears text-emerald-600"></i>
+                  <span>{{ langService.currentLang() === 'ar' ? 'صلاحيات النظام وإدارة الموظفين' : 'System Administration & Settings' }}</span>
+                </span>
+                <i class="fa-solid text-slate-400 text-xs sm:text-sm" [ngClass]="expandedGroups().includes(5) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              
+              @if (expandedGroups().includes(5)) {
+                <div class="overflow-y-auto max-h-64 p-4 bg-white animate-fade-in-up">
+                  <table class="w-full text-start border-collapse text-sm sm:text-base">
+                    <thead>
+                      <tr class="border-b border-slate-100 text-slate-500 text-xs sm:text-sm font-bold uppercase tracking-wider">
+                        <th class="text-start pb-2.5 w-1/2">{{ langService.currentLang() === 'ar' ? 'اسم الصلاحية' : 'Permission Name' }}</th>
+                        <th class="text-start pb-2.5 w-1/3">{{ langService.currentLang() === 'ar' ? 'رمز الصلاحية' : 'System Key' }}</th>
+                        <th class="text-center pb-2.5 w-1/6">{{ langService.currentLang() === 'ar' ? 'تفعيل' : 'Active' }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                      @for (perm of ['manage users', 'manage settings']; track perm) {
+                        <tr class="hover:bg-slate-50/50 transition">
+                          <td class="py-3.5 font-bold text-slate-900">{{ translatePermission(perm) }}</td>
+                          <td class="py-3.5 font-mono text-xs sm:text-sm text-slate-500 font-sans">{{ perm }}</td>
+                          <td class="py-3.5 text-center">
+                            <input type="checkbox" 
+                                   [checked]="activeRoleObj.permissions.includes(perm)"
+                                   (change)="togglePermission(selectedRoleIndex(), perm)"
+                                   class="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer">
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (activeSubTab() === 'settings') {
+<div class="space-y-6 animate-fade-in-up">
+
+  <!-- Settings Header -->
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+        <i class="fa-solid fa-gear text-emerald-600"></i>
+        {{ langService.currentLang() === 'ar' ? 'إعدادات الموقع' : 'Site Settings' }}
+      </h2>
+      <p class="text-xs text-slate-400 font-semibold mt-1">
+        {{ langService.currentLang() === 'ar' ? 'تحكم في بيانات المتجر، نصوص الموقع، ومواعيد العمل.' : 'Control store info, site texts, and working hours.' }}
+      </p>
+    </div>
+    <!-- Save Button (top) -->
+    <button (click)="handleSaveSettings()" [disabled]="settingsLoading()"
+            class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm px-6 py-3 rounded-xl transition cursor-pointer border-0 shadow-sm shadow-emerald-200 disabled:opacity-60">
+      <i class="fa-solid fa-floppy-disk"></i>
+      {{ langService.currentLang() === 'ar' ? 'حفظ الإعدادات' : 'Save Settings' }}
+    </button>
+  </div>
+
+  <!-- Success / Error toasts -->
+  @if (settingsSaved()) {
+    <div class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-bold px-5 py-3 rounded-xl">
+      <i class="fa-solid fa-circle-check text-emerald-500"></i>
+      {{ langService.currentLang() === 'ar' ? 'تم حفظ الإعدادات بنجاح!' : 'Settings saved successfully!' }}
+    </div>
+  }
+  @if (settingsError()) {
+    <div class="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800 text-sm font-bold px-5 py-3 rounded-xl">
+      <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+      {{ settingsError() }}
+    </div>
+  }
+
+  <!-- Sub-tab Nav -->
+  <div class="bg-white border border-slate-100 rounded-2xl p-2 flex items-center gap-1 overflow-x-auto shadow-xs">
+    @for (tab of [
+      { key: 'core',  icon: 'fa-circle-info',           ar: 'بيانات المتجر', en: 'Store Info' },
+      { key: 'about', icon: 'fa-hospital-user',         ar: 'من نحن',        en: 'About Us' },
+      { key: 'footer',icon: 'fa-window-maximize',       ar: 'التذييل',        en: 'Footer' },
+      { key: 'hours', icon: 'fa-clock',                  ar: 'أوقات العمل',  en: 'Hours' },
+      { key: 'app',   icon: 'fa-mobile-screen-button',   ar: 'تطبيق الموبايل',en: 'Mobile App' }
+    ]; track tab.key) {
+      <button type="button" (click)="settingsActiveTab.set($any(tab.key))"
+              class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer border-2"
+              [ngClass]="settingsActiveTab() === tab.key
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'text-slate-500 border-transparent hover:bg-slate-50'">
+        <span class="w-6 h-6 flex items-center justify-center rounded-lg text-[11px]"
+              [ngClass]="settingsActiveTab() === tab.key ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100'">
+          <i [class]="'fa-solid ' + tab.icon"></i>
+        </span>
+        {{ langService.currentLang() === 'ar' ? tab.ar : tab.en }}
+      </button>
+    }
+  </div>
+
+  @if (settingsLoading()) {
+    <div class="flex items-center justify-center py-16 text-slate-400 text-sm gap-3">
+      <i class="fa-solid fa-spinner fa-spin text-2xl text-emerald-400"></i>
+      {{ langService.currentLang() === 'ar' ? 'جاري تحميل الإعدادات...' : 'Loading settings...' }}
+    </div>
+  } @else {
+
+    <!-- ══════════ TAB: Core Store Info ══════════ -->
+    @if (settingsActiveTab() === 'core') {
+      <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-xs space-y-6">
+        <h3 class="font-bold text-slate-900 text-base border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-circle-info text-emerald-600"></i>
+          {{ langService.currentLang() === 'ar' ? 'بيانات المتجر الأساسية' : 'Store Core Info' }}
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Store Name AR -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'اسم المتجر بالعربية *' : 'Store Name (Arabic) *' }}</label>
+            <input type="text" [ngModel]="settingsForm().store_name.ar"
+                   (ngModelChange)="patchSettings(['store_name','ar'], $event)"
+                   placeholder="فيجن ميديكال..."
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+          </div>
+          <!-- Store Name EN -->
+          <div class="space-y-1.5" dir="ltr">
+            <label class="block text-xs font-bold text-slate-600 text-right">Store Name (English) *</label>
+            <input type="text" [ngModel]="settingsForm().store_name.en"
+                   (ngModelChange)="patchSettings(['store_name','en'], $event)"
+                   placeholder="Vision Medical..."
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition text-left">
+          </div>
+          <!-- Email -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'البريد الإلكتروني *' : 'Store Email *' }}</label>
+            <input type="email" [ngModel]="settingsForm().store_email"
+                   (ngModelChange)="patchSettings(['store_email'], $event)"
+                   placeholder="info@vision-medical.com"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+          </div>
+          <!-- Phone -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'رقم الهاتف *' : 'Store Phone *' }}</label>
+            <input type="text" [ngModel]="settingsForm().store_phone"
+                   (ngModelChange)="patchSettings(['store_phone'], $event)"
+                   placeholder="+20 100 123 4567"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+          </div>
+          <!-- WhatsApp -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'رقم واتساب المبيعات *' : 'Sales WhatsApp *' }}</label>
+            <input type="text" [ngModel]="settingsForm().whatsapp"
+                   (ngModelChange)="patchSettings(['whatsapp'], $event)"
+                   placeholder="201001234567"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+            <span class="text-[10px] text-slate-400 font-semibold">{{ langService.currentLang() === 'ar' ? 'أرقام فقط مع كود الدولة (مثال: 201001234567)' : 'Digits only with country code (e.g. 201001234567)' }}</span>
+          </div>
+          <!-- Maintenance Phone -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'هاتف الصيانة' : 'Maintenance Phone' }}</label>
+            <input type="text" [ngModel]="settingsForm().maintenance_phone"
+                   (ngModelChange)="patchSettings(['maintenance_phone'], $event)"
+                   placeholder="+20 111 765 4321"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+          </div>
+          <!-- Maintenance WhatsApp -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'واتساب الصيانة' : 'Maintenance WhatsApp' }}</label>
+            <input type="text" [ngModel]="settingsForm().maintenance_whatsapp"
+                   (ngModelChange)="patchSettings(['maintenance_whatsapp'], $event)"
+                   placeholder="201117654321"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+          </div>
+          <!-- Map Link -->
+          <div class="space-y-1.5 md:col-span-2">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'رابط خرائط جوجل (Google Maps Embed Link)' : 'Google Maps Embed Link' }}</label>
+            <input type="text" [ngModel]="settingsForm().company_map_link"
+                   (ngModelChange)="patchSettings(['company_map_link'], $event)"
+                   placeholder="https://www.google.com/maps/embed?..."
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition font-mono text-xs">
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ══════════ TAB: About Us ══════════ -->
+    @if (settingsActiveTab() === 'about') {
+      <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-xs space-y-5">
+        <h3 class="font-bold text-slate-900 text-base border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-hospital-user text-emerald-600"></i>
+          {{ langService.currentLang() === 'ar' ? 'محتوى صفحة من نحن' : 'About Us Page Content' }}
+        </h3>
+        <!-- Title AR -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'العنوان بالعربية *' : 'Title (Arabic) *' }}</label>
+          <input type="text" [ngModel]="settingsForm().about_us_title.ar"
+                 (ngModelChange)="patchSettings(['about_us_title','ar'], $event)"
+                 placeholder="من نحن - فيجن ميديكال"
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+        </div>
+        <!-- Title EN -->
+        <div class="space-y-1.5" dir="ltr">
+          <label class="block text-xs font-bold text-slate-600 text-right">Title (English) *</label>
+          <input type="text" [ngModel]="settingsForm().about_us_title.en"
+                 (ngModelChange)="patchSettings(['about_us_title','en'], $event)"
+                 placeholder="About Us - Vision Medical"
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition text-left">
+        </div>
+        <!-- Content AR -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'المحتوى بالعربية *' : 'Content (Arabic) *' }}</label>
+          <textarea rows="6" [ngModel]="settingsForm().about_us_content.ar"
+                    (ngModelChange)="patchSettings(['about_us_content','ar'], $event)"
+                    placeholder="اكتب نبذة عن الشركة باللغة العربية..."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y"></textarea>
+        </div>
+        <!-- Content EN -->
+        <div class="space-y-1.5" dir="ltr">
+          <label class="block text-xs font-bold text-slate-600 text-right">Content (English) *</label>
+          <textarea rows="6" [ngModel]="settingsForm().about_us_content.en"
+                    (ngModelChange)="patchSettings(['about_us_content','en'], $event)"
+                    placeholder="Write company history in English..."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y text-left"></textarea>
+        </div>
+      </div>
+    }
+
+    <!-- ══════════ TAB: Footer ══════════ -->
+    @if (settingsActiveTab() === 'footer') {
+      <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-xs space-y-5">
+        <h3 class="font-bold text-slate-900 text-base border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-window-maximize text-emerald-600"></i>
+          {{ langService.currentLang() === 'ar' ? 'نص تذييل الموقع' : 'Footer Text' }}
+        </h3>
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'نص حقوق التأليف بالعربية' : 'Copyright (Arabic)' }}</label>
+          <input type="text" [ngModel]="settingsForm().footer_text.ar"
+                 (ngModelChange)="patchSettings(['footer_text','ar'], $event)"
+                 placeholder="جميع الحقوق محفوظة © فيجن ميديكال 2026."
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+        </div>
+        <div class="space-y-1.5" dir="ltr">
+          <label class="block text-xs font-bold text-slate-600 text-right">Copyright (English)</label>
+          <input type="text" [ngModel]="settingsForm().footer_text.en"
+                 (ngModelChange)="patchSettings(['footer_text','en'], $event)"
+                 placeholder="All rights reserved © Vision Medical 2026."
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition text-left">
+        </div>
+      </div>
+    }
+
+    <!-- ══════════ TAB: Mobile App Settings ══════════ -->
+    @if (settingsActiveTab() === 'app') {
+      <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-xs space-y-6">
+        <h3 class="font-bold text-slate-900 text-base border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-mobile-screen-button text-emerald-600"></i>
+          {{ langService.currentLang() === 'ar' ? 'إعدادات وررابط تطبيق الموبايل' : 'Mobile App Links & Settings' }}
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Android APK URL -->
+          <div class="space-y-1.5 md:col-span-2">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'رابط تنزيل ملف Android APK *' : 'Android APK Download URL *' }}</label>
+            <input type="text" [ngModel]="settingsForm().app_android_url"
+                   (ngModelChange)="patchSettings(['app_android_url'], $event)"
+                   placeholder="http://localhost:8000/api/app/download/apk"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs font-mono focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+          </div>
+          <!-- iOS App Store URL -->
+          <div class="space-y-1.5 md:col-span-2">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'رابط تطبيق آبل (App Store URL)' : 'iOS App Store URL' }}</label>
+            <input type="text" [ngModel]="settingsForm().app_ios_url"
+                   (ngModelChange)="patchSettings(['app_ios_url'], $event)"
+                   placeholder="https://apps.apple.com/..."
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs font-mono focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+          </div>
+          <!-- App Version -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'رقم إصدار التطبيق' : 'App Version' }}</label>
+            <input type="text" [ngModel]="settingsForm().app_version"
+                   (ngModelChange)="patchSettings(['app_version'], $event)"
+                   placeholder="v2.4.0"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition font-mono">
+          </div>
+          <!-- Release Notes -->
+          <div class="space-y-1.5 md:col-span-2">
+            <label class="block text-xs font-bold text-slate-600">{{ langService.currentLang() === 'ar' ? 'ملاحظات الإصدار والتغييرات (Release Notes)' : 'Release Notes' }}</label>
+            <textarea rows="3" [ngModel]="settingsForm().app_release_notes"
+                      (ngModelChange)="patchSettings(['app_release_notes'], $event)"
+                      placeholder="اكتب التغييرات في الإصدار الأخير..."
+                      class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y"></textarea>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ══════════ TAB: Working Hours ══════════ -->
+    @if (settingsActiveTab() === 'hours') {
+      <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-xs space-y-5">
+        <h3 class="font-bold text-slate-900 text-base border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-clock text-emerald-600"></i>
+          {{ langService.currentLang() === 'ar' ? 'أيام ومواعيد العمل' : 'Working Days & Hours' }}
+        </h3>
+        <div class="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          @for (day of dayKeys; track day) {
+            <div class="relative rounded-2xl border p-4 transition-all"
+                 [ngClass]="settingsForm().working_hours_days[day]?.open
+                   ? 'bg-white border-emerald-200 shadow-sm shadow-emerald-50'
+                   : 'bg-slate-50 border-rose-100 opacity-75'">
+
+              <!-- Day label -->
+              <div class="mb-3">
+                <span class="text-sm font-extrabold text-slate-800 block">{{ getDayLabel(day) }}</span>
+                <span class="text-[10px] text-slate-400 font-semibold">{{ dayLabels[day].en }}</span>
+              </div>
+
+              <!-- Open/Closed Toggle Button -->
+              <button type="button" (click)="toggleDay(day)"
+                      class="w-full rounded-xl py-1.5 text-xs font-bold transition mb-3 cursor-pointer border"
+                      [ngClass]="settingsForm().working_hours_days[day]?.open
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-rose-50 text-rose-600 border-rose-200'">
+                {{ settingsForm().working_hours_days[day]?.open
+                   ? (langService.currentLang() === 'ar' ? '✅ يوم عمل' : '✅ Open')
+                   : (langService.currentLang() === 'ar' ? '🔴 إجازة' : '🔴 Closed') }}
+              </button>
+
+              <!-- Time Inputs -->
+              @if (settingsForm().working_hours_days[day]?.open) {
+                <div class="flex items-center justify-center gap-1 bg-slate-50 border border-slate-100 rounded-xl p-2">
+                  <input type="time"
+                         [ngModel]="settingsForm().working_hours_days[day]?.from"
+                         (ngModelChange)="patchDayTime(day, 'from', $event)"
+                         class="bg-transparent text-center font-bold text-slate-900 text-sm focus:outline-none w-20">
+                  <span class="text-emerald-500 font-black text-xs">→</span>
+                  <input type="time"
+                         [ngModel]="settingsForm().working_hours_days[day]?.to"
+                         (ngModelChange)="patchDayTime(day, 'to', $event)"
+                         class="bg-transparent text-center font-bold text-slate-900 text-sm focus:outline-none w-20">
+                </div>
+              } @else {
+                <div class="flex items-center justify-center gap-2 bg-rose-50 border border-rose-100 rounded-xl p-2">
+                  <i class="fa-solid fa-umbrella-beach text-rose-400 text-xs"></i>
+                  <span class="text-xs font-bold text-rose-400">{{ langService.currentLang() === 'ar' ? 'يوم إجازة' : 'Day Off' }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Bottom Save Button -->
+    <div class="flex justify-end">
+      <button (click)="handleSaveSettings()"
+              class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm px-8 py-3 rounded-xl transition cursor-pointer border-0 shadow-sm shadow-emerald-200">
+        <i class="fa-solid fa-floppy-disk"></i>
+        {{ langService.currentLang() === 'ar' ? 'حفظ الإعدادات' : 'Save Settings' }}
+      </button>
+    </div>
+  }
+</div>
+}
+
+<!-- ===== TASKS TAB ===== -->
+@if (activeSubTab() === 'tasks') {
+  <app-tasks [role]="'admin'" [taskType]="'internal'"></app-tasks>
+}
+
+<!-- ===== EXTERNAL TASKS TAB ===== -->
+@if (activeSubTab() === 'external-tasks') {
+  <app-tasks [role]="'admin'" [taskType]="'external'"></app-tasks>
+}
+
+<!-- ===== EMPLOYEES TAB ===== -->
+@if (activeSubTab() === 'employees') {
+  <app-employees></app-employees>
+}
+
+<!-- ===== EMPLOYEE FOLLOW-UP TAB ===== -->
+@if (activeSubTab() === 'employee-followup' || activeSubTab() === 'followup') {
+  <app-employee-followup></app-employee-followup>
+}

@@ -1,0 +1,438 @@
+<div class="space-y-6">
+  
+  @if (activeSubTab() === 'clients' || activeSubTab() === 'new_client') {
+    <!-- CLIENTS DIRECTORY & MANAGEMENT VIEW -->
+    <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-users text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'سجل العملاء والمستشفيات والعيادات' : 'Clients & Hospitals Directory' }}</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-1 font-medium">
+            {{ getLocale() === 'ar' ? 'إدارة بيانات التواصل ومسؤولي المستشفيات والتقسيمات الجغرافية.' : 'Manage client details, contact persons, and geographic locations.' }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 flex-wrap">
+          <button (click)="exportClients()"
+                  class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'تصدير إكسيل' : 'Export Excel' }}</span>
+          </button>
+
+          <label class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
+            <i class="fa-solid fa-file-import text-blue-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'استيراد إكسيل' : 'Import Excel' }}</span>
+            <input type="file" (change)="onImportFileSelected($event)" accept=".xlsx, .xls, .csv" class="hidden">
+          </label>
+
+          <button (click)="showAddClientModal.set(true)"
+                  class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer shadow-xs transition">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>{{ getLocale() === 'ar' ? 'إضافة عميل جديد' : 'Add New Client' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/80">
+        <!-- Search Input -->
+        <div class="relative flex-grow max-w-md">
+          <i class="fa-solid fa-magnifying-glass absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 text-slate-400 text-xs"></i>
+          <input type="text"
+                 [ngModel]="searchQuery()"
+                 (ngModelChange)="searchQuery.set($event)"
+                 [placeholder]="getLocale() === 'ar' ? 'بحث باسم العميل، الهاتف، غير محدد، غير معروف...' : 'Search by name, phone, unspecified, unknown...'"
+                 class="w-full bg-white border border-slate-200 rounded-xl rtl:pr-9 ltr:pl-9 rtl:pl-4 ltr:pr-4 py-2 text-xs font-bold focus:border-emerald-500 transition">
+        </div>
+
+        <!-- Filter Selects -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Client Type Filter -->
+          <select [ngModel]="selectedTypeFilter()"
+                  (ngModelChange)="selectedTypeFilter.set($event)"
+                  class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+            <option value="all">{{ getLocale() === 'ar' ? 'جميع الأنواع' : 'All Client Types' }}</option>
+            <option value="Hospital">{{ getLocale() === 'ar' ? 'مستشفى' : 'Hospital' }}</option>
+            <option value="Clinic">{{ getLocale() === 'ar' ? 'عيادة' : 'Clinic' }}</option>
+            <option value="Center">{{ getLocale() === 'ar' ? 'مركز طبي' : 'Medical Center' }}</option>
+            <option value="Company">{{ getLocale() === 'ar' ? 'شركة / معمل' : 'Company' }}</option>
+            <option value="غير محدد">{{ getLocale() === 'ar' ? 'غير محدد' : 'Unspecified' }}</option>
+          </select>
+
+          <!-- Governorate Filter -->
+          <select [ngModel]="selectedGovFilter()"
+                  (ngModelChange)="selectedGovFilter.set($event)"
+                  class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-500 cursor-pointer">
+            <option value="all">{{ getLocale() === 'ar' ? 'جميع المحافظات' : 'All Governorates' }}</option>
+            @for (gov of governorates(); track gov.id) {
+              <option [value]="getAreaNameString(gov)">
+                {{ getAreaNameString(gov) }}
+              </option>
+            }
+          </select>
+
+          <!-- Incomplete Data Toggle Button -->
+          <button (click)="toggleIncompleteFilter()"
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition border cursor-pointer shrink-0"
+                  [ngClass]="filterIncompleteOnly() ? 'bg-rose-600 text-white border-rose-600 shadow-xs' : 'bg-white hover:bg-rose-50 text-rose-700 border-rose-200'">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>{{ getLocale() === 'ar' ? 'بيانات ناقصة' : 'Incomplete' }}</span>
+            @if (filterIncompleteOnly()) {
+              <i class="fa-solid fa-xmark text-xs ms-1"></i>
+            }
+          </button>
+
+          <!-- Counter Badge & Reset -->
+          <span class="bg-emerald-100 text-emerald-900 font-extrabold text-[10px] px-2.5 py-1.5 rounded-lg border border-emerald-200 font-mono shrink-0">
+            {{ getFilteredClients().length }} / {{ clients().length }}
+          </span>
+
+          @if (searchQuery() || filterIncompleteOnly() || selectedGovFilter() !== 'all' || selectedTypeFilter() !== 'all') {
+            <button (click)="resetClientFilters()" class="text-[10px] font-black text-rose-600 hover:underline cursor-pointer shrink-0">
+              {{ getLocale() === 'ar' ? 'إعادة ضبط' : 'Reset' }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Clients Table -->
+      <div class="overflow-x-auto overflow-y-auto max-h-[550px] rounded-xl border border-slate-200 shadow-inner">
+        <table class="w-full text-right text-xs">
+          <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 sticky top-0 z-10 shadow-2xs">
+            <tr>
+              <th class="p-3 bg-slate-50">#</th>
+              <th class="p-3 bg-slate-50">{{ getLocale() === 'ar' ? 'اسم العميل / المستشفى' : 'Client Name' }}</th>
+              <th class="p-3 bg-slate-50">{{ getLocale() === 'ar' ? 'النوع' : 'Type' }}</th>
+              <th class="p-3 bg-slate-50">{{ getLocale() === 'ar' ? 'المحافظة والمدينة' : 'Location' }}</th>
+              <th class="p-3 bg-slate-50">{{ getLocale() === 'ar' ? 'رقم الهاتف الرئيسي' : 'Phone' }}</th>
+              <th class="p-3 text-center bg-slate-50">{{ getLocale() === 'ar' ? 'مسؤولو التواصل' : 'Contact Persons' }}</th>
+              <th class="p-3 text-center bg-slate-50">{{ getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 bg-white">
+            @for (client of getFilteredClients(); track client.id; let idx = $index) {
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="p-3 font-bold text-slate-400">#{{ idx + 1 }}</td>
+                <td class="p-3 font-black text-slate-900">{{ getClientName(client.name) }}</td>
+                <td class="p-3">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
+                        [ngClass]="getClientTypeAr(client.type) === 'غير محدد' ? 'bg-rose-50 text-rose-700 border-rose-200 font-bold' : 'bg-sky-50 text-sky-700 border-sky-200'">
+                    {{ getClientTypeAr(client.type) }}
+                  </span>
+                </td>
+                <td class="p-3 font-semibold text-slate-700">
+                  <span [ngClass]="(!client.governorate || client.governorate === 'غير معروف') ? 'text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 text-[11px]' : ''">
+                    {{ client.governorate || (getLocale() === 'ar' ? 'غير معروف' : 'Unknown') }}
+                  </span>
+                  <span class="text-slate-400 mx-1">/</span>
+                  <span [ngClass]="(!client.city || client.city === 'غير معروف') ? 'text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 text-[11px]' : ''">
+                    {{ client.city || (getLocale() === 'ar' ? 'غير معروف' : 'Unknown') }}
+                  </span>
+                </td>
+                <td class="p-3" dir="ltr">
+                  <span [ngClass]="(!client.phone || client.phone === 'غير معروف') ? 'text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 text-[11px]' : 'font-mono font-bold text-slate-800'">
+                    {{ client.phone || (getLocale() === 'ar' ? 'غير معروف' : 'Unknown') }}
+                  </span>
+                </td>
+                <td class="p-3 text-center">
+                  <button (click)="openContactsModal(client)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[10px] rounded-lg border-0 cursor-pointer transition flex items-center gap-1.5 mx-auto">
+                    <i class="fa-solid fa-address-book text-emerald-600"></i>
+                    <span>{{ getLocale() === 'ar' ? 'عرض المسئولين' : 'Contacts' }}</span>
+                  </button>
+                </td>
+                <td class="p-3 text-center">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <button (click)="openAddressModal(client)"
+                            class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg border-0 cursor-pointer transition"
+                            [title]="getLocale() === 'ar' ? 'عرض العنوان التفصيلي' : 'View Address'">
+                      <i class="fa-solid fa-location-dot text-xs"></i>
+                    </button>
+                    <button (click)="openEditClientModal(client)"
+                            class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-lg border-0 cursor-pointer transition"
+                            [title]="getLocale() === 'ar' ? 'تعديل البيانات' : 'Edit'">
+                      <i class="fa-solid fa-pen-to-square text-xs"></i>
+                    </button>
+                    <button (click)="handleDeleteClient(client)"
+                            class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg border-0 cursor-pointer transition"
+                            [title]="getLocale() === 'ar' ? 'حذف العميل' : 'Delete'">
+                      <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="p-6 text-center text-slate-400 font-bold">
+                  {{ getLocale() === 'ar' ? 'لا يوجد عملاء مسجلين حالياً' : 'No clients found' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <!-- TASKS VIEWS -->
+    <app-tasks [role]="'seller'" [taskType]="activeSubTab() === 'external-tasks' ? 'external' : 'all'"></app-tasks>
+  }
+
+  <!-- ADD CLIENT MODAL -->
+  @if (showAddClientModal()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl space-y-4">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
+          <i class="fa-solid fa-user-plus text-emerald-600"></i>
+          <span>{{ getLocale() === 'ar' ? 'تسجيل عميل أو مستشفى جديدة' : 'Add New Client / Hospital' }}</span>
+        </h3>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'اسم العميل / المستشفى / العيادة *' : 'Client Name *' }}</label>
+            <input type="text" [(ngModel)]="newClient.name" placeholder="مثال: مستشفى الصفا التخصصي"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'النوع' : 'Type' }}</label>
+              <select [(ngModel)]="newClient.type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+                <option value="غير محدد">{{ getLocale() === 'ar' ? 'غير محدد' : 'Unspecified' }}</option>
+                <option value="مستشفى">{{ getLocale() === 'ar' ? 'مستشفى' : 'Hospital' }}</option>
+                <option value="عيادة">{{ getLocale() === 'ar' ? 'عيادة' : 'Clinic' }}</option>
+                <option value="مركز طبي">{{ getLocale() === 'ar' ? 'مركز طبي' : 'Medical Center' }}</option>
+                <option value="شركة / معمل">{{ getLocale() === 'ar' ? 'شركة / معمل' : 'Company / Lab' }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone' }}</label>
+              <input type="text" [(ngModel)]="newClient.phone" placeholder="010XXXXXXXX"
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold font-mono">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'المحافظة' : 'Governorate' }}</label>
+              <select [(ngModel)]="newClient.governorate_id" (change)="onGovernorateChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+                <option [value]="0">-- اختر المحافظة --</option>
+                @for (gov of governorates(); track gov.id) {
+                  <option [value]="gov.id">{{ getClientName(gov.name) }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'المدينة' : 'City' }}</label>
+              <select [(ngModel)]="newClient.city_id" [disabled]="!newClient.governorate_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold disabled:opacity-50">
+                <option [value]="0">-- اختر المدينة --</option>
+                @for (city of cities(); track city.id) {
+                  <option [value]="city.id">{{ getClientName(city.name) }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'العنوان التفصيلي' : 'Detailed Address' }}</label>
+            <input type="text" [(ngModel)]="newClient.detailed_address" placeholder="الشارع، البرج، الدور..."
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button (click)="showAddClientModal.set(false)" class="bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer">{{ getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+          <button (click)="handleCreateClient()" class="bg-emerald-600 text-white font-bold text-xs px-5 py-2 rounded-xl border-0 cursor-pointer hover:bg-emerald-700">{{ getLocale() === 'ar' ? 'حفظ العميل' : 'Save Client' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- CLIENT CONTACT PERSONS MODAL -->
+  @if (showContactsModal() && selectedClientForContacts()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+            <i class="fa-solid fa-address-book text-emerald-600"></i>
+            <span>{{ getClientName(selectedClientForContacts()?.name) }} - {{ getLocale() === 'ar' ? 'مسؤولو المستشفى' : 'Hospital Contacts' }}</span>
+          </h3>
+          <button (click)="showContactsModal.set(false)" class="text-slate-400 hover:text-slate-600 border-0 bg-transparent cursor-pointer">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Add Contact Form -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+          <div class="text-xs font-bold text-slate-800">{{ getLocale() === 'ar' ? 'إضافة مسؤول تواصل جديد:' : 'Add Contact Person:' }}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <input type="text" [(ngModel)]="newContact.name" placeholder="الاسم *" class="bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold">
+            <input type="text" [(ngModel)]="newContact.phone" placeholder="رقم الهاتف" class="bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold font-mono">
+            <input type="text" [(ngModel)]="newContact.job_title" placeholder="المسمى الوظيفي" class="bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold">
+          </div>
+          <button (click)="handleAddContact()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-lg border-0 cursor-pointer mt-1">
+            {{ getLocale() === 'ar' ? '+ إضافة المسؤول' : '+ Add Contact' }}
+          </button>
+        </div>
+
+        <!-- Existing Contacts List -->
+        <div class="space-y-2 max-h-56 overflow-y-auto">
+          @for (contact of clientContacts(); track contact.id) {
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-150">
+              <div>
+                <div class="font-bold text-slate-900 text-xs">{{ contact.name }} <span class="text-slate-500 font-normal">({{ contact.job_title || 'مسؤول' }})</span></div>
+                <div class="text-[11px] font-mono text-emerald-700 font-bold" dir="ltr">{{ contact.phone || '-' }}</div>
+              </div>
+              <button (click)="handleDeleteContact(contact.id)" class="text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg border-0 bg-transparent cursor-pointer">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          } @empty {
+            <div class="text-center py-6 text-slate-400 text-xs font-bold">
+              {{ getLocale() === 'ar' ? 'لا يوجد مسؤولو تواصل مسجلين لهذا العميل' : 'No contacts added' }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- EDIT CLIENT MODAL -->
+  @if (showEditClientModal()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl space-y-4">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
+          <i class="fa-solid fa-pen-to-square text-amber-600"></i>
+          <span>{{ getLocale() === 'ar' ? 'تعديل بيانات العميل' : 'Edit Client Details' }}</span>
+        </h3>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'اسم العميل / المستشفى / العيادة *' : 'Client Name *' }}</label>
+            <input type="text" [(ngModel)]="editClient.name" placeholder="مثال: مستشفى الصفا التخصصي"
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'النوع' : 'Type' }}</label>
+              <select [(ngModel)]="editClient.type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+                <option value="غير محدد">{{ getLocale() === 'ar' ? 'غير محدد' : 'Unspecified' }}</option>
+                <option value="مستشفى">{{ getLocale() === 'ar' ? 'مستشفى' : 'Hospital' }}</option>
+                <option value="عيادة">{{ getLocale() === 'ar' ? 'عيادة' : 'Clinic' }}</option>
+                <option value="مركز طبي">{{ getLocale() === 'ar' ? 'مركز طبي' : 'Medical Center' }}</option>
+                <option value="شركة / معمل">{{ getLocale() === 'ar' ? 'شركة / معمل' : 'Company / Lab' }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone' }}</label>
+              <input type="text" [(ngModel)]="editClient.phone" placeholder="010XXXXXXXX"
+                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold font-mono">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'المحافظة' : 'Governorate' }}</label>
+              <select [(ngModel)]="editClient.governorate_id" (change)="onEditGovernorateChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+                <option [value]="0">-- اختر المحافظة --</option>
+                @for (gov of governorates(); track gov.id) {
+                  <option [value]="gov.id">{{ getClientName(gov.name) }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'المدينة' : 'City' }}</label>
+              <select [(ngModel)]="editClient.city_id" [disabled]="!editClient.governorate_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold disabled:opacity-50">
+                <option [value]="0">-- اختر المدينة --</option>
+                @for (city of editCities(); track city.id) {
+                  <option [value]="city.id">{{ getClientName(city.name) }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-700 block mb-1">{{ getLocale() === 'ar' ? 'العنوان التفصيلي' : 'Detailed Address' }}</label>
+            <input type="text" [(ngModel)]="editClient.detailed_address" placeholder="الشارع، البرج، الدور..."
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button (click)="showEditClientModal.set(false)" class="bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer">{{ getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+          <button (click)="handleUpdateClient()" class="bg-amber-600 text-white font-bold text-xs px-5 py-2 rounded-xl border-0 cursor-pointer hover:bg-amber-700">{{ getLocale() === 'ar' ? 'تحديث البيانات' : 'Update Client' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- CLIENT DETAILED ADDRESS MODAL -->
+  @if (showAddressModal() && selectedClientForAddress()) {
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+            <i class="fa-solid fa-location-dot text-rose-500"></i>
+            <span>{{ getClientName(selectedClientForAddress()?.name) }}</span>
+          </h3>
+          <button (click)="showAddressModal.set(false)" class="text-slate-400 hover:text-slate-600 border-0 bg-transparent cursor-pointer">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-150 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-200/60 pb-2 text-xs">
+            <span class="text-slate-500 font-bold">{{ getLocale() === 'ar' ? 'نوع العميل:' : 'Client Type:' }}</span>
+            <span class="font-black px-2 py-0.5 rounded-md border text-[11px]"
+                  [ngClass]="getClientTypeAr(selectedClientForAddress()?.type) === 'غير محدد' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-sky-50 text-sky-700 border-sky-200'">
+              {{ getClientTypeAr(selectedClientForAddress()?.type) }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-slate-200/60 pb-2 text-xs">
+            <span class="text-slate-500 font-bold">{{ getLocale() === 'ar' ? 'المحافظة:' : 'Governorate:' }}</span>
+            <span class="font-bold" [ngClass]="(!selectedClientForAddress()?.governorate || selectedClientForAddress()?.governorate === 'غير معروف') ? 'text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200 text-[11px]' : 'text-slate-800'">
+              {{ selectedClientForAddress()?.governorate || (getLocale() === 'ar' ? 'غير معروف' : 'Unknown') }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center border-b border-slate-200/60 pb-2 text-xs">
+            <span class="text-slate-500 font-bold">{{ getLocale() === 'ar' ? 'المدينة / المركز:' : 'City / District:' }}</span>
+            <span class="font-bold" [ngClass]="(!selectedClientForAddress()?.city || selectedClientForAddress()?.city === 'غير معروف') ? 'text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200 text-[11px]' : 'text-slate-800'">
+              {{ selectedClientForAddress()?.city || (getLocale() === 'ar' ? 'غير معروف' : 'Unknown') }}
+            </span>
+          </div>
+
+          <div class="space-y-1 text-xs">
+            <span class="text-slate-500 font-bold block">{{ getLocale() === 'ar' ? 'العنوان بالتفصيل:' : 'Detailed Address:' }}</span>
+            <div class="p-3 rounded-xl border font-bold leading-relaxed shadow-2xs"
+                 [ngClass]="(!selectedClientForAddress()?.detailed_address || selectedClientForAddress()?.detailed_address === 'غير معروف') ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-white border-slate-200 text-slate-800'">
+              {{ selectedClientForAddress()?.detailed_address || selectedClientForAddress()?.address || (getLocale() === 'ar' ? 'غير معروف' : 'Unknown') }}
+            </div>
+          </div>
+
+          @if (selectedClientForAddress()?.notes) {
+            <div class="space-y-1 text-xs pt-1 border-t border-slate-200/60">
+              <span class="text-slate-500 font-bold block">{{ getLocale() === 'ar' ? 'ملاحظات:' : 'Notes:' }}</span>
+              <div class="bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/80 text-amber-900 font-medium text-[11px]">
+                {{ selectedClientForAddress()?.notes }}
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="flex justify-end pt-1">
+          <button (click)="showAddressModal.set(false)" class="bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-5 py-2 rounded-xl border-0 cursor-pointer transition">
+            {{ getLocale() === 'ar' ? 'إغلاق' : 'Close' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- DAILY TASKS & FIELD VISITS FOR SALES/FIELD ENGINEER -->
+  @if (activeSubTab() === 'tasks') {
+    <app-tasks [role]="'seller'"></app-tasks>
+  }
+</div>

@@ -1,0 +1,143 @@
+<div class="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
+  
+  <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl border border-slate-100 space-y-0 relative animate-slide-up">
+    
+    <!-- Modal Close Button -->
+    <button (click)="closeModal()"
+            class="absolute top-4 left-4 rtl:left-4 ltr:right-4 z-10 w-9 h-9 rounded-full bg-slate-900/40 hover:bg-slate-900 text-white flex items-center justify-center transition border-0 cursor-pointer">
+      <i class="fa-solid fa-xmark text-sm"></i>
+    </button>
+
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-emerald-700 via-teal-700 to-slate-900 text-white p-6 sm:p-8 relative overflow-hidden">
+      <!-- Decorative Glow Circle -->
+      <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-400/20 rounded-full blur-2xl"></div>
+
+      <div class="relative z-10 flex flex-col sm:flex-row items-center gap-5">
+        <!-- App Phone Icon Badge -->
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-emerald-300 text-3xl sm:text-4xl shadow-inner shrink-0">
+          <i class="fa-solid fa-mobile-screen-button animate-bounce"></i>
+        </div>
+
+        <div class="text-center sm:text-right space-y-1">
+          <span class="bg-emerald-400/20 text-emerald-200 border border-emerald-400/30 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider font-mono">
+            {{ appInfo()?.version || 'v2.4.0' }} • {{ appInfo()?.file_size || '28.4 MB' }}
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black leading-tight">
+            {{ typeof appInfo()?.app_name === 'object' ? (appInfo()?.app_name[getLocale()] || appInfo()?.app_name.ar) : (appInfo()?.app_name || 'تطبيق فيجن ميديكال للهواتف الذكية') }}
+          </h2>
+          <p class="text-xs text-slate-200 font-medium max-w-md">
+            {{ getLocale() === 'ar' ? 'تطبيق الموبايل الرسمي المخصص للفنيين والمهندسين والعملاء لمتابعة الزيارات وإجراءات الصيانة الميدانية.' : 'Official mobile application for field engineers, technicians, and clients.' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="p-6 sm:p-8 space-y-6 max-h-[70vh] overflow-y-auto scrollbar-thin">
+      
+      @if (isLoading()) {
+        <div class="py-12 flex flex-col items-center justify-center text-slate-400 gap-3">
+          <i class="fa-solid fa-circle-notch text-3xl text-emerald-600 animate-spin"></i>
+          <span class="text-xs font-bold">{{ getLocale() === 'ar' ? 'جاري تجهيز روابط التحميل...' : 'Preparing download links...' }}</span>
+        </div>
+      } @else {
+
+        <!-- Action Buttons & QR Code Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+          
+          <!-- Download Buttons (Col Span 2) -->
+          <div class="sm:col-span-2 space-y-3">
+            <h4 class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+              <i class="fa-solid fa-download text-emerald-600"></i>
+              <span>{{ getLocale() === 'ar' ? 'اختر نظام التشغيل للتنزيل المباشر:' : 'Select Operating System to Download:' }}</span>
+            </h4>
+
+            <!-- Android APK Download Button -->
+            <button (click)="downloadAndroidApk()"
+                    class="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-bold px-4 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer border-0">
+              <div class="flex items-center gap-3">
+                <i class="fa-brands fa-android text-2xl text-emerald-200"></i>
+                <div class="text-right rtl:text-right ltr:text-left">
+                  <div class="text-xs font-black">{{ getLocale() === 'ar' ? 'تحميل مباشر ملف Android APK' : 'Download Android APK File' }}</div>
+                  <div class="text-[9px] text-emerald-100 font-mono">{{ getLocale() === 'ar' ? 'الإصدار المباشر للموبايل' : 'Direct Installer' }} • {{ appInfo()?.file_size || '28.4 MB' }}</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-down text-sm"></i>
+            </button>
+
+            <!-- iOS App Store Button -->
+            <button (click)="openIosAppStore()"
+                    class="w-full flex items-center justify-between gap-3 bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-3 rounded-xl shadow-md transition cursor-pointer border-0">
+              <div class="flex items-center gap-3">
+                <i class="fa-brands fa-apple text-2xl text-slate-300"></i>
+                <div class="text-right rtl:text-right ltr:text-left">
+                  <div class="text-xs font-black">{{ getLocale() === 'ar' ? 'تطبيق iPhone (App Store)' : 'Download on App Store' }}</div>
+                  <div class="text-[9px] text-slate-400 font-mono">{{ getLocale() === 'ar' ? 'متوفر على متجر آبل' : 'Available on App Store' }}</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400"></i>
+            </button>
+          </div>
+
+          <!-- QR Code Preview Badge -->
+          <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col items-center text-center shadow-xs">
+            <!-- Simulated QR Code SVG -->
+            <div class="w-24 h-24 bg-slate-900 p-2 rounded-lg flex items-center justify-center relative overflow-hidden">
+              <div class="w-full h-full bg-white p-1 rounded grid grid-cols-5 gap-0.5">
+                <div class="bg-slate-900 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-white"></div><div class="bg-slate-900 rounded-xs"></div>
+                <div class="bg-slate-900 rounded-xs"></div><div class="bg-white"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div>
+                <div class="bg-slate-900 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-emerald-600 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-white"></div>
+                <div class="bg-white"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-white"></div><div class="bg-slate-900 rounded-xs"></div>
+                <div class="bg-slate-900 rounded-xs"></div><div class="bg-white"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div><div class="bg-slate-900 rounded-xs"></div>
+              </div>
+            </div>
+            <span class="text-[9px] font-black text-slate-700 mt-2">
+              {{ getLocale() === 'ar' ? 'امسح بالكاميرا للتحميل' : 'Scan to Download' }}
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Features Highlights Grid -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i>
+            <span>{{ getLocale() === 'ar' ? 'مميزات تطبيق الموبايل الميداني:' : 'Mobile App Features:' }}</span>
+          </h4>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            @for (feat of appInfo()?.features; track feat.title) {
+              <div class="p-3.5 rounded-xl border border-slate-150 bg-slate-50/70 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-black flex items-center justify-center shrink-0">
+                  <i class="fa-solid" [ngClass]="feat.icon || 'fa-check'"></i>
+                </div>
+                <div>
+                  <h5 class="text-xs font-bold text-slate-900">
+                    {{ typeof feat.title === 'object' ? (feat.title[getLocale()] || feat.title.ar) : feat.title }}
+                  </h5>
+                  <p class="text-[10px] text-slate-500 font-medium mt-0.5 leading-relaxed">
+                    {{ typeof feat.description === 'object' ? (feat.description[getLocale()] || feat.description.ar) : feat.description }}
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+      }
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="bg-slate-50 border-t border-slate-100 p-4 flex justify-between items-center text-xs font-bold text-slate-500">
+      <span>{{ getLocale() === 'ar' ? 'تطبيق فيجن ميديكال للأجهزة الطبية © 2026' : 'Vision Medical Mobile App © 2026' }}</span>
+      <button (click)="closeModal()"
+              class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-xl border-0 font-bold cursor-pointer transition">
+        {{ getLocale() === 'ar' ? 'إغلاق النافذة' : 'Close Window' }}
+      </button>
+    </div>
+
+  </div>
+
+</div>

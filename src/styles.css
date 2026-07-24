@@ -1,1 +1,111 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+
+@source './app/**/*.html';
+@source './app/**/*.ts';
+
+@theme {
+    --font-sans: 'Tajawal', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+    
+    --color-emerald-50: #f0fafb;
+    --color-emerald-100: #d6f2f4;
+    --color-emerald-200: #aee3e5;
+    --color-emerald-300: #7dcad0;
+    --color-emerald-400: #4cb2b5;
+    --color-emerald-500: #0fa2a4; /* Brand Teal */
+    --color-emerald-600: #0d8385; /* Brand Teal Dark */
+    --color-emerald-700: #0a696b;
+    --color-emerald-800: #085254;
+    --color-emerald-900: #053b3c;
+    --color-emerald-950: #021f20;
+
+    /* Custom Animations */
+    --animate-spin-slow: spin 20s linear infinite;
+    --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    --animate-pulse-glow: pulse-glow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(15, 162, 164, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(15, 162, 164, 0.7);
+        transform: scale(1.02);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+}
+
+/* Custom CSS Utilities */
+.glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .glass-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-header {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.glow-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glow-hover:hover {
+    box-shadow: 0 10px 30px -10px rgba(15, 162, 164, 0.3);
+    border-color: rgba(15, 162, 164, 0.3);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+body {
+    font-family: 'Tajawal', 'Outfit', sans-serif;
+    background-color: #f8fafc;
+}
+.transition-all-300 {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -1,0 +1,168 @@
+<div class="max-w-5xl mx-auto space-y-12 py-6 animate-fade-in-up">
+  
+  <!-- Header banner -->
+  <div class="text-center space-y-4">
+    <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-4 py-2 rounded-full border border-emerald-100/50 uppercase tracking-wider">
+      {{ langService.t('contact_us') }}
+    </span>
+    <h1 class="text-3xl sm:text-4xl font-black text-slate-900 leading-tight">
+      {{ langService.t('contact_title') }}
+    </h1>
+    <p class="text-slate-500 text-sm max-w-lg mx-auto leading-relaxed font-medium">
+      {{ langService.t('contact_desc') }}
+    </p>
+  </div>
+
+  <!-- Alert success message -->
+  @if (showSuccessAlert()) {
+    <div class="mb-8 bg-emerald-50 border border-emerald-200/60 text-emerald-800 px-5 py-4 rounded-2xl shadow-xs flex items-center gap-3 animate-fade-in-up">
+      <div class="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-600">
+        <i class="fa-solid fa-circle-check text-lg animate-pulse"></i>
+      </div>
+      <div class="text-sm font-bold">{{ langService.t('contact_success') }}</div>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+    
+    <!-- Quick Contact Cards (2 Columns) -->
+    <div class="md:col-span-2 space-y-6">
+      <div class="bg-white border border-slate-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm space-y-6">
+        <h3 class="font-bold text-slate-900 text-lg border-b border-slate-100 pb-4">
+          {{ langService.t('direct_channels') }}
+        </h3>
+        
+        <div class="space-y-4">
+          <!-- WhatsApp direct button -->
+          <a [href]="'https://wa.me/' + whatsappNumber + '?text=' + langService.t('whats_general_text')" 
+             target="_blank"
+             class="flex items-center gap-4 p-4 bg-emerald-50/50 hover:bg-emerald-100/60 text-emerald-800 rounded-2xl border border-emerald-100/50 hover:border-emerald-200 transition-all-300 group shadow-xxs">
+            <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-950 text-xl shadow-md shadow-emerald-500/15 group-hover:scale-105 transition-all-300 shrink-0">
+              <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-emerald-600 block">{{ langService.t('whatsapp_channel') }}</span>
+              <span class="text-sm font-black text-slate-900 block mt-0.5" dir="ltr">+{{ whatsappNumber }}</span>
+            </div>
+          </a>
+
+          <!-- Phone Call direct button -->
+          <a [href]="'tel:' + phoneNumber" 
+             class="flex items-center gap-4 p-4 bg-sky-50/50 hover:bg-sky-100/60 text-sky-800 rounded-2xl border border-sky-100/50 hover:border-sky-200 transition-all-300 group shadow-xxs">
+            <div class="w-12 h-12 bg-sky-500 rounded-xl flex items-center justify-center text-white text-xl shadow-md shadow-sky-500/15 group-hover:scale-105 transition-all-300 shrink-0">
+              <i class="fa-solid fa-phone"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-sky-600 block">{{ langService.t('call_channel') }}</span>
+              <span class="text-sm font-black text-slate-900 block mt-0.5" dir="ltr">{{ phoneNumber }}</span>
+            </div>
+          </a>
+
+          <!-- Email direct button -->
+          <a [href]="'mailto:' + emailAddress" 
+             class="flex items-center gap-4 p-4 bg-violet-50/50 hover:bg-violet-100/60 text-violet-800 rounded-2xl border border-violet-100/50 hover:border-violet-200 transition-all-300 group shadow-xxs">
+            <div class="w-12 h-12 bg-violet-500 rounded-xl flex items-center justify-center text-white text-xl shadow-md shadow-violet-500/15 group-hover:scale-105 transition-all-300 shrink-0">
+              <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-violet-600 block">{{ langService.t('email_channel') }}</span>
+              <span class="text-sm font-black text-slate-900 block mt-0.5 break-all">{{ emailAddress }}</span>
+            </div>
+          </a>
+
+          <!-- Working Hours Info Card -->
+          <div class="flex items-center gap-4 p-4 bg-amber-50/40 rounded-2xl border border-amber-100/40 shadow-xxs">
+            <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-white text-xl shadow-md shadow-amber-500/15 shrink-0">
+              <i class="fa-solid fa-business-time"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-amber-600 block">{{ langService.currentLang() === 'ar' ? 'ساعات العمل' : 'Working Hours' }}</span>
+              <span class="text-sm font-black text-slate-950 block mt-0.5">{{ langService.currentLang() === 'ar' ? 'السبت - الخميس: 08:00 صباحاً - 05:00 مساءً' : 'Sat - Thu: 08:00 AM - 05:00 PM' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form (3 Columns) -->
+    <div class="md:col-span-3 bg-white border border-slate-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm">
+      <h3 class="font-bold text-slate-900 text-lg border-b border-slate-100 pb-4 mb-6">
+        {{ langService.t('send_message_title') }}
+      </h3>
+      
+      <form (submit)="submitContactForm($event)" class="space-y-4">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Name -->
+          <div>
+            <label for="name" class="block text-xs font-bold text-slate-600 mb-1.5">{{ langService.t('name_label') }}</label>
+            <input type="text" [(ngModel)]="contactName" name="contactName" id="name" required 
+                   [placeholder]="langService.t('name_placeholder')" 
+                   class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500/20 rounded-xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none transition-all-300 shadow-sm">
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-xs font-bold text-slate-600 mb-1.5">{{ langService.t('email') }}</label>
+            <input type="email" [(ngModel)]="contactEmail" name="contactEmail" id="email" required 
+                   [placeholder]="langService.t('email_placeholder')" 
+                   class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500/20 rounded-xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none transition-all-300 shadow-sm">
+          </div>
+        </div>
+
+        <!-- Subject -->
+        <div>
+          <label for="subject" class="block text-xs font-bold text-slate-600 mb-1.5">{{ langService.t('subject_label') }}</label>
+          <input type="text" [(ngModel)]="contactSubject" name="contactSubject" id="subject" 
+                 [placeholder]="langService.t('subject_placeholder')" 
+                 class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500/20 rounded-xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none transition-all-300 shadow-sm">
+        </div>
+
+        <!-- Message -->
+        <div>
+          <label for="message" class="block text-xs font-bold text-slate-600 mb-1.5">{{ langService.t('message_label') }}</label>
+          <textarea [(ngModel)]="contactMessage" name="contactMessage" id="message" rows="5" required 
+                    [placeholder]="langService.t('message_placeholder')" 
+                    class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500/20 rounded-xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none transition-all-300 shadow-sm"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-slate-950 hover:bg-emerald-500 hover:text-slate-950 font-black py-4 rounded-xl shadow-md transition-all duration-300 text-sm text-white cursor-pointer border-0">
+          {{ langService.t('submit_message') }}
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Map Section -->
+  @if (companyMapLink) {
+    <div id="map" class="bg-white border border-slate-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm space-y-6 mt-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
+        <div class="space-y-1" [ngClass]="langService.currentLang() === 'ar' ? 'text-right' : 'text-left'">
+          <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+            <i class="fa-solid fa-map-location-dot text-emerald-500 text-xl"></i>
+            <span>{{ langService.t('company_map') }}</span>
+          </h3>
+          <p class="text-slate-500 text-xs font-medium">{{ langService.t('map_description') }}</p>
+        </div>
+        <a [href]="companyMapLink" 
+           target="_blank"
+           class="inline-flex items-center gap-2 bg-slate-50 hover:bg-emerald-500 hover:text-slate-950 border border-slate-200/60 text-slate-700 font-bold text-xs px-5 py-3.5 rounded-xl transition-all-300 shadow-xs">
+          <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
+          <span>{{ langService.t('view_on_map') }}</span>
+        </a>
+      </div>
+      
+      <div class="relative w-full h-[380px] rounded-2xl overflow-hidden border border-slate-200/80 bg-slate-50 shadow-inner">
+        <iframe 
+            [src]="sanitizedMapLink"
+            class="absolute inset-0 w-full h-full border-0" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+  }
+
+</div>

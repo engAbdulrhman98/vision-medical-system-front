@@ -1,0 +1,274 @@
+@if (product()) {
+  <!-- Breadcrumbs -->
+  <nav class="flex mb-8 text-sm" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+      <li class="inline-flex items-center">
+        <a routerLink="/" class="inline-flex items-center text-slate-500 hover:text-emerald-600 font-semibold transition-all-300">
+          <i class="fa-solid fa-house text-xs" [ngClass]="langService.currentLang() === 'ar' ? 'ml-2' : 'mr-2'"></i>
+          {{ langService.t('home') }}
+        </a>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <i class="fa-solid text-slate-300 text-xxs mx-2" [ngClass]="langService.currentLang() === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+          <a [routerLink]="['/store']" [queryParams]="{category: getCategorySlug(product()!.category_id)}" class="text-slate-500 hover:text-emerald-600 font-semibold transition-all-300">
+            {{ getCategoryName(product()!.category_id) }}
+          </a>
+        </div>
+      </li>
+      <li aria-current="page">
+        <div class="flex items-center">
+          <i class="fa-solid text-slate-300 text-xxs mx-2" [ngClass]="langService.currentLang() === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+          <span class="text-slate-900 font-black line-clamp-1">{{ product()!.name[getLocale()] }}</span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Flash success messages for review submission -->
+  @if (showSuccessAlert()) {
+    <div class="mb-8 bg-emerald-50 border border-emerald-200/60 text-emerald-800 px-5 py-4 rounded-2xl shadow-xs flex items-center gap-3 animate-fade-in-up">
+      <div class="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-600">
+        <i class="fa-solid fa-circle-check text-lg animate-pulse"></i>
+      </div>
+      <div class="text-sm font-bold">{{ langService.t('review_success') }}</div>
+    </div>
+  }
+
+  <!-- Product Showcase Grid -->
+  <div class="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-sm mb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 p-6 sm:p-10">
+      
+      <!-- Left: Product Image -->
+      <div class="relative bg-slate-50/50 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-slate-200/50 group">
+        @if (product()!.image) {
+          <img [src]="product()!.image" [alt]="product()!.name[getLocale()]" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500">
+        } @else {
+          <div class="flex flex-col items-center justify-center text-slate-300">
+            <i class="fa-solid fa-briefcase-medical text-8xl"></i>
+            <span class="mt-4 text-xs font-semibold text-slate-400">Image not available</span>
+          </div>
+        }
+        
+        @if (!product()!.in_stock) {
+          <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center">
+            <span class="bg-rose-600 text-white font-black text-sm px-6 py-3 rounded-xl shadow-lg">{{ langService.t('out_of_stock') }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Right: Product Details -->
+      <div class="flex flex-col justify-between space-y-6">
+        <div class="space-y-4">
+          <!-- Badges -->
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-emerald-100/50">
+              {{ getCategoryName(product()!.category_id) }}
+            </span>
+            <span class="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200/60">
+              {{ langService.t('filter_brand') }}: {{ getBrandName(product()!.brand_id) }}
+            </span>
+          </div>
+
+          <!-- Title -->
+          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
+            {{ product()!.name[getLocale()] }}
+          </h1>
+
+          <!-- Rating Stars -->
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-0.5 text-amber-400">
+              @for (star of [1,2,3,4,5]; track star) {
+                <i class="fa-star text-sm" [ngClass]="star <= averageRating() ? 'fa-solid' : 'fa-regular'"></i>
+              }
+            </div>
+            <span class="text-sm font-black text-slate-950">{{ averageRating() }} / 5</span>
+            <span class="text-xs text-slate-400 font-semibold">({{ approvedReviews().length }} {{ langService.t('reviews_title') }})</span>
+          </div>
+
+          <!-- Price -->
+          <div class="text-emerald-600 font-extrabold text-3xl pt-2 font-sans">
+            {{ product()!.price | number:'1.2-2' }} <span class="text-base font-semibold text-slate-500 font-sans">{{ langService.t('currency') }}</span>
+          </div>
+
+          <hr class="border-slate-100 my-4">
+
+          <!-- Short Description -->
+          <div class="space-y-1.5">
+            <h3 class="font-bold text-slate-900 text-sm">{{ langService.t('product_overview') }}</h3>
+            <p class="text-slate-600 text-sm leading-relaxed">
+              {{ product()!.description[getLocale()] }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Call to Actions -->
+        <div class="space-y-3 pt-6">
+          @if (product()!.in_stock) {
+            <a [href]="getWhatsAppOrderUrl()" 
+               target="_blank"
+               class="w-full flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-4 rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 hover:scale-101 transition-all duration-300 text-base animate-pulse-glow">
+              <i class="fa-brands fa-whatsapp text-2xl"></i>
+              <span>{{ langService.t('whatsapp_order') }}</span>
+            </a>
+          }
+
+          <a routerLink="/contact" 
+             class="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-slate-200/60 text-slate-700 font-bold py-3.5 rounded-xl transition-all-300 text-sm">
+            <i class="fa-solid fa-circle-info text-slate-400"></i>
+            <span>{{ langService.t('request_info') }}</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Product Specifications & Details -->
+  @if (product()!.details && product()!.details[getLocale()]) {
+    <div class="bg-white border border-slate-200/80 rounded-[2rem] p-6 sm:p-10 shadow-sm mb-12">
+      <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-file-medical text-emerald-600 text-lg"></i>
+        <span>{{ langService.t('specifications') }}</span>
+      </h2>
+      <div class="text-slate-700 text-sm leading-relaxed whitespace-pre-line space-y-2">
+        {{ product()!.details[getLocale()] }}
+      </div>
+    </div>
+  }
+
+  <!-- Reviews Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Submit Review Form -->
+    <div class="bg-white border border-slate-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm h-fit">
+      <h3 class="font-bold text-slate-900 text-lg mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-pen-to-square text-emerald-500 text-base"></i>
+        <span>{{ langService.t('add_review') }}</span>
+      </h3>
+      
+      <form (submit)="submitReview($event)" class="space-y-4">
+        <!-- Name -->
+        <div>
+          <label for="reviewer_name" class="block text-xs font-bold text-slate-600 mb-1.5">{{ langService.t('reviewer_name') }}</label>
+          <input type="text" [(ngModel)]="reviewerName" name="reviewerName" id="reviewer_name" required 
+                 [placeholder]="langService.t('reviewer_name_placeholder')" 
+                 class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500/20 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none transition-all duration-300">
+        </div>
+
+        <!-- Rating -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1.5">{{ langService.t('rating_label') }}</label>
+          <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-3">
+            <select [(ngModel)]="reviewerRating" name="reviewerRating" id="rating" required class="bg-transparent border-0 focus:ring-0 text-amber-500 font-bold text-sm w-full focus:outline-none cursor-pointer">
+              <option value="5" class="text-amber-500 font-bold">⭐⭐⭐⭐⭐ 5/5</option>
+              <option value="4" class="text-amber-500 font-bold">⭐⭐⭐⭐ 4/5</option>
+              <option value="3" class="text-amber-500 font-bold">⭐⭐⭐ 3/5</option>
+              <option value="2" class="text-amber-500 font-bold">⭐⭐ 2/5</option>
+              <option value="1" class="text-amber-500 font-bold">⭐ 1/5</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Comment -->
+        <div>
+          <label for="comment" class="block text-xs font-bold text-slate-600 mb-1.5">{{ langService.t('comment_label') }}</label>
+          <textarea [(ngModel)]="reviewerComment" name="reviewerComment" id="comment" rows="4" required 
+                    [placeholder]="langService.t('comment_placeholder')" 
+                    class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-1 focus:ring-emerald-500/20 rounded-xl px-4 py-3 text-slate-900 text-sm focus:outline-none transition-all duration-300"></textarea>
+        </div>
+
+        <div class="bg-amber-50/50 border border-amber-100 text-amber-800 text-[10px] font-bold p-3 rounded-xl flex items-start gap-2 leading-relaxed">
+          <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
+          <span>{{ langService.t('review_moderation_note') }}</span>
+        </div>
+
+        <button type="submit" class="w-full bg-slate-950 hover:bg-emerald-500 hover:text-slate-950 font-black py-4 rounded-xl shadow-md transition-all-300 text-sm cursor-pointer border-0">
+          {{ langService.t('submit_review') }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Approved Reviews List -->
+    <div class="lg:col-span-2 bg-white border border-slate-200/80 rounded-[2rem] p-6 sm:p-10 shadow-sm">
+      <h3 class="font-bold text-slate-900 text-lg border-b border-slate-100 pb-4 mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-comments text-emerald-500 text-base"></i>
+        <span>{{ langService.t('reviews_title') }}</span>
+      </h3>
+
+      @if (approvedReviews().length === 0) {
+        <div class="text-center py-12">
+          <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+            <i class="fa-regular fa-comments text-3xl"></i>
+          </div>
+          <p class="text-slate-500 text-sm font-semibold">{{ langService.t('no_reviews') }}</p>
+        </div>
+      } @else {
+        <div class="space-y-6">
+          @for (review of approvedReviews(); track review.id) {
+            <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-emerald-100/50 text-emerald-700 font-extrabold rounded-full flex items-center justify-center text-sm">
+                    {{ review.reviewer_name.substring(0, 1) }}
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-slate-900 text-sm">{{ review.reviewer_name }}</h4>
+                    <span class="text-slate-400 text-[10px] font-bold block">{{ review.created_at | date:'mediumDate' }}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-0.5 text-amber-400">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <i class="fa-star text-xs" [ngClass]="star <= review.rating ? 'fa-solid' : 'fa-regular'"></i>
+                  }
+                </div>
+              </div>
+              <p class="text-slate-700 text-sm leading-relaxed pl-1">
+                {{ review.comment }}
+              </p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  @if (relatedProducts().length > 0) {
+    <div class="mt-20 space-y-8">
+      <h3 class="font-bold text-slate-900 text-xl flex items-center gap-2">
+        <i class="fa-solid fa-cubes text-emerald-500 text-base"></i>
+        <span>{{ langService.t('related_products') }}</span>
+      </h3>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (rel of relatedProducts(); track rel.id) {
+          <div class="group bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div class="bg-slate-50/50 aspect-video overflow-hidden relative">
+              @if (rel.image) {
+                <img [src]="rel.image" [alt]="rel.name[getLocale()]" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-slate-300">
+                  <i class="fa-solid fa-briefcase-medical text-3xl"></i>
+                </div>
+              }
+            </div>
+            <div class="p-5 flex-grow flex flex-col justify-between space-y-4 font-sans">
+              <h4 class="font-bold text-slate-900 text-sm line-clamp-2 leading-snug group-hover:text-emerald-600 transition-all duration-300">
+                <a [routerLink]="['/product', rel.slug]">{{ rel.name[getLocale()] }}</a>
+              </h4>
+              <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                <span class="text-emerald-600 font-extrabold text-sm">{{ rel.price | number:'1.2-2' }} {{ langService.t('currency') }}</span>
+                <a [routerLink]="['/product', rel.slug]" class="text-slate-400 hover:text-emerald-600 text-xs font-bold transition-all-300 flex items-center gap-1">
+                  <span>{{ langService.t('details_label') }}</span>
+                  <i class="fa-solid text-[10px]" [ngClass]="langService.currentLang() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right'"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+}
