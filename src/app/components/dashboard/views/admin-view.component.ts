@@ -202,7 +202,7 @@ export class AdminViewComponent {
           this.loadRolesAndUsers();
         }
       });
-    });
+    }, { allowSignalWrites: true });
   }
 
   public refreshData() {

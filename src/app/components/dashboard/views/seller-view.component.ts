@@ -1,4 +1,4 @@
-import { Component, inject, signal, model, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, model, OnInit, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../services/language.service';
@@ -22,10 +22,12 @@ export class SellerViewComponent implements OnInit {
   constructor() {
     effect(() => {
       const tab = this.activeSubTab();
-      if (tab === 'clients' && this.clients().length === 0) {
-        this.loadClients();
-      }
-    });
+      untracked(() => {
+        if (tab === 'clients' && this.clients().length === 0) {
+          this.loadClients();
+        }
+      });
+    }, { allowSignalWrites: true });
   }
 
   // State Signals

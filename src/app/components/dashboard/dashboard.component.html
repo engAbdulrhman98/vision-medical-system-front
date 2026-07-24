@@ -130,19 +130,19 @@
       @if (loggedUser()) {
         @switch (getEffectiveRole()) {
           @case ('admin') {
-            <app-admin-view [activeSubTab]="adminActiveTab()" (activeSubTabChange)="adminActiveTab.set($any($event))"></app-admin-view>
+            <app-admin-view [(activeSubTab)]="adminActiveTab"></app-admin-view>
           }
           @case ('manager') {
-            <app-manager-view [activeSubTab]="managerActiveTab()" (activeSubTabChange)="managerActiveTab.set($any($event))"></app-manager-view>
+            <app-manager-view [(activeSubTab)]="managerActiveTab"></app-manager-view>
           }
           @case ('accountant') {
-            <app-accountant-view [activeSubTab]="accountantActiveTab()" (activeSubTabChange)="accountantActiveTab.set($any($event))"></app-accountant-view>
+            <app-accountant-view [(activeSubTab)]="accountantActiveTab"></app-accountant-view>
           }
           @case ('seller') {
-            <app-seller-view [activeSubTab]="sellerActiveTab()" (activeSubTabChange)="sellerActiveTab.set($any($event))"></app-seller-view>
+            <app-seller-view [(activeSubTab)]="sellerActiveTab"></app-seller-view>
           }
           @default {
-            <app-admin-view [activeSubTab]="adminActiveTab()" (activeSubTabChange)="adminActiveTab.set($any($event))"></app-admin-view>
+            <app-admin-view [(activeSubTab)]="adminActiveTab"></app-admin-view>
           }
         }
       }

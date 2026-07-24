@@ -43,7 +43,7 @@ export class ManagerViewComponent implements OnInit {
       untracked(() => {
         this.loadActiveTabData();
       });
-    });
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit() {
