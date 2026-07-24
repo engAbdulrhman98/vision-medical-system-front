@@ -185,7 +185,7 @@ export interface ActivityLog {
 export class ApiService {
   private http = inject(HttpClient);
   private apiUrl = (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
-    ? ((window as any).API_URL || `${window.location.protocol}//${window.location.hostname}/api`)
+    ? ((window as any).API_URL || 'https://vision-medical-system-back-production.up.railway.app/api')
     : 'http://localhost:8000/api';
 
   private getHeaders(): HttpHeaders {
