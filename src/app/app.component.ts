@@ -39,9 +39,7 @@ export class AppComponent {
       this.currentUrl.set(initialPath);
       setTimeout(() => {
         this.isInitialLoading.set(false);
-      }, 300);
-    } else {
-      this.isInitialLoading.set(false);
+      }, 200);
     }
 
     // Monitor route changes strictly on NavigationEnd to guarantee correct URL state
@@ -51,6 +49,9 @@ export class AppComponent {
       const targetUrl = event.urlAfterRedirects || event.url;
       this.currentUrl.set(targetUrl);
       this.isMobileMenuOpen.set(false);
+      if (this.isInitialLoading()) {
+        this.isInitialLoading.set(false);
+      }
       if (typeof window !== 'undefined') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
