@@ -21,7 +21,7 @@
 
         <div class="text-center sm:text-right space-y-1">
           <span class="bg-emerald-400/20 text-emerald-200 border border-emerald-400/30 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider font-mono">
-            {{ appInfo()?.version || 'v2.4.0' }} • {{ appInfo()?.file_size || '28.4 MB' }}
+            {{ appInfo()?.version || 'v2.5.2' }} • {{ appInfo()?.file_size || '52.6 MB' }}
           </span>
           <h2 class="text-xl sm:text-2xl font-black leading-tight">
             {{ typeof appInfo()?.app_name === 'object' ? (appInfo()?.app_name[getLocale()] || appInfo()?.app_name.ar) : (appInfo()?.app_name || 'تطبيق فيجن ميديكال للهواتف الذكية') }}
@@ -53,18 +53,21 @@
               <span>{{ getLocale() === 'ar' ? 'اختر نظام التشغيل للتنزيل المباشر:' : 'Select Operating System to Download:' }}</span>
             </h4>
 
-            <!-- Android APK Download Button -->
-            <button (click)="downloadAndroidApk()"
-                    class="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-bold px-4 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer border-0">
+            <!-- Android APK Download Link -->
+            <a href="https://vision-medical-system-front-production.up.railway.app/downloads/vision-medical.apk"
+               download="vision-medical-v2.5.2.apk"
+               target="_blank"
+               (click)="downloadAndroidApk()"
+               class="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-bold px-4 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer border-0 no-underline">
               <div class="flex items-center gap-3">
                 <i class="fa-brands fa-android text-2xl text-emerald-200"></i>
                 <div class="text-right rtl:text-right ltr:text-left">
                   <div class="text-xs font-black">{{ getLocale() === 'ar' ? 'تحميل مباشر ملف Android APK' : 'Download Android APK File' }}</div>
-                  <div class="text-[9px] text-emerald-100 font-mono">{{ getLocale() === 'ar' ? 'الإصدار المباشر للموبايل' : 'Direct Installer' }} • {{ appInfo()?.file_size || '28.4 MB' }}</div>
+                  <div class="text-[9px] text-emerald-100 font-mono">{{ getLocale() === 'ar' ? 'الإصدار المباشر للموبايل' : 'Direct Installer' }} • {{ appInfo()?.file_size || '52.6 MB' }}</div>
                 </div>
               </div>
               <i class="fa-solid fa-arrow-down text-sm"></i>
-            </button>
+            </a>
 
             <!-- iOS App Store Button -->
             <button (click)="openIosAppStore()"

@@ -55,10 +55,16 @@ export class AppDownloadModalComponent implements OnInit {
   }
 
   public downloadAndroidApk() {
-    const url = this.appInfo()?.android_download_url || 'https://vision-medical-system-back-production.up.railway.app/api/app/download/apk';
-    window.open(url, '_blank');
+    const url = 'https://vision-medical-system-front-production.up.railway.app/downloads/vision-medical.apk';
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vision-medical-v2.5.2.apk';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
     this.toastService.success({
-      ar: 'جاري بدأ تنزيل تطبيق أندرويد (Vision Medical APK)...',
+      ar: 'جاري بدأ تنزيل تطبيق أندرويد (Vision Medical v2.5.2 APK)...',
       en: 'Starting Vision Medical Android APK download...'
     });
   }
