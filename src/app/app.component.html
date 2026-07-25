@@ -193,30 +193,26 @@
           </h3>
           <ul class="space-y-3 text-sm">
             <li>
-              <a routerLink="/" class="hover:text-emerald-400 flex items-center gap-2 transition-all-300">
-                <i class="fa-solid fa-chevron-left text-[10px] opacity-50 rtl:block ltr:hidden"></i>
-                <i class="fa-solid fa-chevron-right text-[10px] opacity-50 ltr:block rtl:hidden"></i>
+              <a routerLink="/" class="hover:text-emerald-400 flex items-center gap-2.5 transition-all-300">
+                <i class="fa-solid fa-circle text-[6px] text-emerald-500"></i>
                 <span>{{ langService.t('home') }}</span>
               </a>
             </li>
             <li>
-              <a routerLink="/store" class="hover:text-emerald-400 flex items-center gap-2 transition-all-300">
-                <i class="fa-solid fa-chevron-left text-[10px] opacity-50 rtl:block ltr:hidden"></i>
-                <i class="fa-solid fa-chevron-right text-[10px] opacity-50 ltr:block rtl:hidden"></i>
+              <a routerLink="/store" class="hover:text-emerald-400 flex items-center gap-2.5 transition-all-300">
+                <i class="fa-solid fa-circle text-[6px] text-emerald-500"></i>
                 <span>{{ langService.t('store') }}</span>
               </a>
             </li>
             <li>
-              <a routerLink="/about" class="hover:text-emerald-400 flex items-center gap-2 transition-all-300">
-                <i class="fa-solid fa-chevron-left text-[10px] opacity-50 rtl:block ltr:hidden"></i>
-                <i class="fa-solid fa-chevron-right text-[10px] opacity-50 ltr:block rtl:hidden"></i>
+              <a routerLink="/about" class="hover:text-emerald-400 flex items-center gap-2.5 transition-all-300">
+                <i class="fa-solid fa-circle text-[6px] text-emerald-500"></i>
                 <span>{{ langService.t('about_us') }}</span>
               </a>
             </li>
             <li>
-              <a routerLink="/contact" class="hover:text-emerald-400 flex items-center gap-2 transition-all-300">
-                <i class="fa-solid fa-chevron-left text-[10px] opacity-50 rtl:block ltr:hidden"></i>
-                <i class="fa-solid fa-chevron-right text-[10px] opacity-50 ltr:block rtl:hidden"></i>
+              <a routerLink="/contact" class="hover:text-emerald-400 flex items-center gap-2.5 transition-all-300">
+                <i class="fa-solid fa-circle text-[6px] text-emerald-500"></i>
                 <span>{{ langService.t('contact_us') }}</span>
               </a>
             </li>
@@ -230,23 +226,20 @@
           </h3>
           <ul class="space-y-3 text-sm">
             <li>
-              <a routerLink="/store" [queryParams]="{category: 'diagnostic-devices'}" class="hover:text-emerald-400 flex items-center gap-2 transition-all-300">
-                <i class="fa-solid fa-chevron-left text-[10px] opacity-50 rtl:block ltr:hidden"></i>
-                <i class="fa-solid fa-chevron-right text-[10px] opacity-50 ltr:block rtl:hidden"></i>
+              <a routerLink="/store" [queryParams]="{category: 'diagnostic-devices'}" class="hover:text-emerald-400 flex items-center gap-2.5 transition-all-300">
+                <i class="fa-solid fa-circle text-[6px] text-emerald-500"></i>
                 <span>{{ langService.currentLang() === 'ar' ? 'الأجهزة التشخيصية' : 'Diagnostic Devices' }}</span>
               </a>
             </li>
             <li>
-              <a routerLink="/store" [queryParams]="{category: 'medical-supplies'}" class="hover:text-emerald-400 flex items-center gap-2 transition-all-300">
-                <i class="fa-solid fa-chevron-left text-[10px] opacity-50 rtl:block ltr:hidden"></i>
-                <i class="fa-solid fa-chevron-right text-[10px] opacity-50 ltr:block rtl:hidden"></i>
+              <a routerLink="/store" [queryParams]="{category: 'medical-supplies'}" class="hover:text-emerald-400 flex items-center gap-2.5 transition-all-300">
+                <i class="fa-solid fa-circle text-[6px] text-emerald-500"></i>
                 <span>{{ langService.currentLang() === 'ar' ? 'المستلزمات الطبية' : 'Medical Supplies' }}</span>
               </a>
             </li>
             <li>
-              <a routerLink="/store" [queryParams]="{category: 'ophthalmology-optics'}" class="hover:text-emerald-400 flex items-center gap-2 transition-all-300">
-                <i class="fa-solid fa-chevron-left text-[10px] opacity-50 rtl:block ltr:hidden"></i>
-                <i class="fa-solid fa-chevron-right text-[10px] opacity-50 ltr:block rtl:hidden"></i>
+              <a routerLink="/store" [queryParams]="{category: 'ophthalmology-optics'}" class="hover:text-emerald-400 flex items-center gap-2.5 transition-all-300">
+                <i class="fa-solid fa-circle text-[6px] text-emerald-500"></i>
                 <span>{{ langService.currentLang() === 'ar' ? 'العيون والبصريات' : 'Ophthalmology & Optics' }}</span>
               </a>
             </li>
