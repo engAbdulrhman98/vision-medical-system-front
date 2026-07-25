@@ -44,7 +44,7 @@
 
         <!-- Dedicated Role & Permissions View Switcher Button -->
         <div class="relative shrink-0">
-          <button (click)="isRoleSelectorOpen.update(v => !v)" 
+          <button (click)="toggleRoleSelector()" 
                   class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs border border-slate-700 transition cursor-pointer border-0">
             <i class="fa-solid fa-user-gear text-emerald-400 text-sm"></i>
             <span class="hidden sm:inline">{{ getActiveRoleLabel() }}</span>

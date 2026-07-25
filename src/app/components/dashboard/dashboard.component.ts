@@ -50,6 +50,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public sellerActiveTab = signal<string>('clients');
   public accountantActiveTab = signal<string>('quotations');
 
+  public toggleRoleSelector() {
+    this.isRoleSelectorOpen.update(v => !v);
+  }
+
   public selectRoleView(role: 'admin' | 'manager' | 'accountant' | 'seller') {
     this.activeRole.set(role);
     this.isRoleSelectorOpen.set(false);
