@@ -580,6 +580,10 @@ export class ApiService {
     );
   }
 
+  createRole(payload: { name: string; description_ar?: string; description_en?: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/roles`, payload, { headers: this.getHeaders() });
+  }
+
   assignRole(email: string, role: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/users/assign-role`, { email, role }, { headers: this.getHeaders() });
   }

@@ -48,6 +48,42 @@ export class EmployeesComponent implements OnInit {
   public showProgressModal = signal(false);
   public selectedEmployeeForProgress = signal<any | null>(null);
 
+  // ─── Create Role Modal State ───
+  public showCreateRoleModal = signal(false);
+  public newRoleName = '';
+  public newRoleDescriptionAr = '';
+  public isCreatingRole = signal(false);
+
+  public openCreateRoleModal() {
+    this.newRoleName = '';
+    this.newRoleDescriptionAr = '';
+    this.showCreateRoleModal.set(true);
+  }
+
+  public handleCreateRole(e: Event) {
+    e.preventDefault();
+    if (!this.newRoleName.trim()) return;
+
+    this.isCreatingRole.set(true);
+    this.apiService.createRole({
+      name: this.newRoleName.trim(),
+      description_ar: this.newRoleDescriptionAr.trim() || this.newRoleName.trim(),
+      description_en: this.newRoleName.trim()
+    }).subscribe({
+      next: (res: any) => {
+        this.isCreatingRole.set(false);
+        this.showCreateRoleModal.set(false);
+        this.successMessage.set(this.lang === 'ar' ? `تم إضافة الدور الوظيفي الجديد (${this.newRoleName}) بنجاح!` : `New role (${this.newRoleName}) created successfully!`);
+        this.loadRoles();
+        setTimeout(() => this.successMessage.set(''), 4000);
+      },
+      error: (err: any) => {
+        this.isCreatingRole.set(false);
+        this.errorMessage.set(err?.error?.message || (this.lang === 'ar' ? 'فشل إنشاء الدور الجديد' : 'Failed to create role'));
+      }
+    });
+  }
+
   public openProgressModal(emp: any) {
     this.selectedEmployeeForProgress.set(emp);
     this.showProgressModal.set(true);

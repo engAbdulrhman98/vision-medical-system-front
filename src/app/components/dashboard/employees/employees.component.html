@@ -22,6 +22,12 @@
       </div>
     </div>
     <div class="flex items-center gap-2 shrink-0 flex-wrap">
+      <button (click)="openCreateRoleModal()"
+              class="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer transition">
+        <i class="fa-solid fa-shield-cat text-indigo-600"></i>
+        <span>{{ lang === 'ar' ? 'إضافة دور وظيفي جديد' : 'Add New Role' }}</span>
+      </button>
+
       <button (click)="exportEmployeesToCSV()"
               class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
         <i class="fa-solid fa-file-excel text-emerald-600"></i>
@@ -670,5 +676,53 @@
         </button>
       </div>
     }
+  </div>
+}
+
+<!-- ─── CREATE ROLE MODAL ─── -->
+@if (showCreateRoleModal()) {
+  <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-100 space-y-0 relative animate-slide-up">
+      <div class="bg-gradient-to-r from-indigo-700 to-purple-800 text-white p-5 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-indigo-200">
+            <i class="fa-solid fa-shield-cat text-base"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-sm text-white">{{ lang === 'ar' ? 'إضافة دور وظيفي جديد' : 'Create New Role' }}</h3>
+            <p class="text-[10px] text-indigo-200 font-medium">{{ lang === 'ar' ? 'إنشاء دور وصلاحيات وظيفية مخصصة' : 'Define custom role and permissions' }}</p>
+          </div>
+        </div>
+        <button (click)="showCreateRoleModal.set(false)" class="text-white/80 hover:text-white border-0 bg-transparent cursor-pointer">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <form (submit)="handleCreateRole($event)" class="p-6 space-y-4">
+        <div>
+          <label class="text-xs font-bold text-slate-700 block mb-1.5">{{ lang === 'ar' ? 'اسم الدور الوظيفي (بالإنجليزية/الرمز) *' : 'Role Name *' }}</label>
+          <input type="text" [(ngModel)]="newRoleName" name="newRoleName" required placeholder="مثال: Quality Inspector / Medical Consultant"
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-slate-700 block mb-1.5">{{ lang === 'ar' ? 'وصف المسئوليات والصلاحيات' : 'Description / Responsibilities' }}</label>
+          <textarea [(ngModel)]="newRoleDescriptionAr" name="newRoleDescriptionAr" rows="3" placeholder="متابعة جودة المعايرة وإصدار شهادات الفحص للأجهزة الطبية..."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" (click)="showCreateRoleModal.set(false)" class="bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer">
+            {{ lang === 'ar' ? 'إلغاء' : 'Cancel' }}
+          </button>
+          <button type="submit" [disabled]="isCreatingRole()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-2.5 rounded-xl border-0 cursor-pointer disabled:opacity-50 flex items-center gap-2">
+            @if (isCreatingRole()) {
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            }
+            <span>{{ lang === 'ar' ? 'حفظ وإنشاء الدور' : 'Create Role' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 }
