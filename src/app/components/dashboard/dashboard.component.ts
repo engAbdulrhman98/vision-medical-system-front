@@ -81,6 +81,50 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Change Password Modal States
+  public showChangePasswordModal = signal<boolean>(false);
+  public currentPassword = signal<string>('');
+  public newPassword = signal<string>('');
+  public newPasswordConfirm = signal<string>('');
+  public changePasswordError = signal<string | null>(null);
+  public isChangingPassword = signal<boolean>(false);
+
+  public submitChangePassword() {
+    this.changePasswordError.set(null);
+    if (!this.currentPassword() || !this.newPassword()) {
+      this.changePasswordError.set('يرجى ملء جميع الحقول المطلوبة.');
+      return;
+    }
+    if (this.newPassword() !== this.newPasswordConfirm()) {
+      this.changePasswordError.set('كلمة المرور الجديدة غير متطابقة مع تأكيد كلمة المرور.');
+      return;
+    }
+    if (this.newPassword().length < 6) {
+      this.changePasswordError.set('يجب ألا تقل كلمة المرور الجديدة عن 6 أحرف.');
+      return;
+    }
+
+    this.isChangingPassword.set(true);
+    this.apiService.changePassword(this.currentPassword(), this.newPassword(), this.newPasswordConfirm()).subscribe({
+      next: (res) => {
+        this.isChangingPassword.set(false);
+        this.showChangePasswordModal.set(false);
+        const user = this.loggedUser();
+        if (user) {
+          user.must_change_password = false;
+          this.loggedUser.set({ ...user });
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('vm_logged_user', JSON.stringify(user));
+          }
+        }
+      },
+      error: (err) => {
+        this.isChangingPassword.set(false);
+        this.changePasswordError.set(err?.error?.message || 'كلمة المرور الحالية غير صحيحة.');
+      }
+    });
+  }
+
   ngOnInit() {
     if (typeof window !== 'undefined') {
       const userStr = localStorage.getItem('vm_logged_user');
@@ -91,6 +135,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       try {
         const user = JSON.parse(userStr);
         this.loggedUser.set(user);
+
+        if (user && user.must_change_password) {
+          const roleName = String(user.role || '').toLowerCase();
+          if (!roleName.includes('admin') && !roleName.includes('manager')) {
+            this.showChangePasswordModal.set(true);
+          }
+        }
+
         this.loadNotifications();
 
         if (typeof window !== 'undefined') {

@@ -202,12 +202,20 @@ export class ApiService {
   }
 
   // ── Auth ─────────────────────────────────────────────────────────────
-  login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, { email, password }, { headers: this.getHeaders() });
+  login(login: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, { login, email: login, username: login, password }, { headers: this.getHeaders() });
   }
 
   logout(): Observable<any> {
     return this.http.post(`${this.apiUrl}/logout`, {}, { headers: this.getHeaders() });
+  }
+
+  changePassword(currentPassword: string, newPassword: string, newPasswordConfirmation: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/change-password`, {
+      current_password: currentPassword,
+      new_password: newPassword,
+      new_password_confirmation: newPasswordConfirmation
+    }, { headers: this.getHeaders() });
   }
 
   getMe(): Observable<any> {

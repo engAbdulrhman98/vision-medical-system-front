@@ -84,7 +84,9 @@ export class LoginComponent {
           localStorage.setItem('vm_logged_user', JSON.stringify({
             id: response.user.id,
             email: response.user.email,
+            username: response.user.username || response.user.email,
             role: frontendRole,
+            must_change_password: response.must_change_password ?? response.user.must_change_password ?? false,
             name: { ar: nameAr, en: nameEn },
             permissions: response.user.all_permissions || []
           }));

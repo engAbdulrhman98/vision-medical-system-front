@@ -153,5 +153,72 @@
     @if (showAppDownloadModal()) {
       <app-download-modal (close)="showAppDownloadModal.set(false)"></app-download-modal>
     }
+
+    <!-- Mandatory First-Time Password Change Modal -->
+    @if (showChangePasswordModal()) {
+      <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 animate-fade-in-up">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-xl shrink-0 border border-amber-500/30">
+              <i class="fa-solid fa-key"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-white leading-tight">
+                {{ langService.currentLang() === 'ar' ? 'تغيير كلمة المرور الإجباري' : 'Mandatory First-Time Password Change' }}
+              </h3>
+              <p class="text-xs text-slate-400 mt-1">
+                {{ langService.currentLang() === 'ar' ? 'لدواعي أمان حسابك، يُرجى تعيين كلمة مرور جديدة قبل المتابعة.' : 'For security reasons, please update your password before proceeding.' }}
+              </p>
+            </div>
+          </div>
+
+          @if (changePasswordError()) {
+            <div class="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded-xl text-xs flex items-center gap-2">
+              <i class="fa-solid fa-circle-exclamation shrink-0 text-rose-400"></i>
+              <span>{{ changePasswordError() }}</span>
+            </div>
+          }
+
+          <form (ngSubmit)="submitChangePassword()" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1.5">
+                {{ langService.currentLang() === 'ar' ? 'كلمة المرور الحالية المؤقتة' : 'Current Temporary Password' }}
+              </label>
+              <input type="password" [(ngModel)]="currentPassword" name="currentPassword" required
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                [placeholder]="langService.currentLang() === 'ar' ? 'أدخل كلمة المرور الحالية (password)' : 'Current password'" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1.5">
+                {{ langService.currentLang() === 'ar' ? 'كلمة المرور الجديدة' : 'New Password' }}
+              </label>
+              <input type="password" [(ngModel)]="newPassword" name="newPassword" required
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                [placeholder]="langService.currentLang() === 'ar' ? '6 أحرف على الأقل' : 'At least 6 characters'" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1.5">
+                {{ langService.currentLang() === 'ar' ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password' }}
+              </label>
+              <input type="password" [(ngModel)]="newPasswordConfirm" name="newPasswordConfirm" required
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                [placeholder]="langService.currentLang() === 'ar' ? 'أعد كتابة كلمة المرور الجديدة' : 'Confirm new password'" />
+            </div>
+
+            <button type="submit" [disabled]="isChangingPassword()"
+              class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
+              @if (isChangingPassword()) {
+                <i class="fa-solid fa-spinner animate-spin"></i>
+              } @else {
+                <i class="fa-solid fa-check-double"></i>
+              }
+              <span>{{ langService.currentLang() === 'ar' ? 'حفظ وتحديث كلمة المرور' : 'Save & Update Password' }}</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    }
   </div>
 </div>
