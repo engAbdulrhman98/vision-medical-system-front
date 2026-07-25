@@ -74,7 +74,7 @@ export class AdminViewComponent {
     company_map_link: '',
     app_android_url: '',
     app_ios_url: '',
-    app_version: 'v2.4.0',
+    app_version: 'v2.5.2',
     app_release_notes: '',
     working_hours_days: {
       saturday:  { open: true,  from: '08:00', to: '17:00' },
@@ -131,9 +131,9 @@ export class AdminViewComponent {
           about_us_content: res.about_us_content || { ar: '', en: '' },
           footer_text: res.footer_text || { ar: '', en: '' },
           company_map_link: res.company_map_link || '',
-          app_android_url: res.app_android_url || 'http://localhost:8000/api/app/download/apk',
+          app_android_url: res.app_android_url || 'https://vision-medical-system-front-production.up.railway.app/downloads/vision-medical.apk',
           app_ios_url: res.app_ios_url || 'https://apps.apple.com',
-          app_version: res.app_version || 'v2.4.0',
+          app_version: res.app_version || 'v2.5.2',
           app_release_notes: res.app_release_notes || '',
           working_hours_days: days
         });
