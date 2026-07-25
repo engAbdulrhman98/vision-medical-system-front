@@ -1,5 +1,9 @@
 
 <!-- Render Views depending on active tab -->
+@if (activeSubTab() === 'chat') {
+  <app-chat [isFullPage]="true"></app-chat>
+}
+
 @if (activeSubTab() === 'stats') {
 
   <!-- Statistics Cards Grid -->

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy, ElementRef, ViewChild, effect } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, ElementRef, ViewChild, Input, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService, Conversation, ChatMessage, ChatUser } from '../../../services/api.service';
@@ -17,14 +17,17 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   @ViewChild('messageContainer') private messageContainer!: ElementRef;
 
+  @Input() isFullPage: boolean = true;
+
   // Signals for state management
-  public isOpen = signal<boolean>(false);
+  public isOpen = signal<boolean>(true);
   public activeView = signal<'list' | 'chat'>('list');
   public conversations = signal<Conversation[]>([]);
   public activeConversation = signal<Conversation | null>(null);
   public messages = signal<ChatMessage[]>([]);
   public allUsers = signal<ChatUser[]>([]);
   public searchQuery = signal<string>('');
+  public isNewChatModalOpen = signal<boolean>(false);
   
   // Normal state
   public currentUser: any = null;
@@ -39,7 +42,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     // Scroll to bottom when messages list changes and we are in active chat
     effect(() => {
       const msgs = this.messages();
-      if (msgs.length > 0 && this.activeView() === 'chat') {
+      if (msgs.length > 0) {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
@@ -80,12 +83,10 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.loadConversations();
     this.loadAllUsers();
     
-    // Poll conversation list every 30 seconds only when chat is open
+    // Poll conversation list every 15 seconds
     this.listPollInterval = setInterval(() => {
-      if (this.isOpen() && this.activeView() === 'list') {
-        this.loadConversations();
-      }
-    }, 30000);
+      this.loadConversations();
+    }, 15000);
   }
 
   ngOnDestroy() {
@@ -99,9 +100,12 @@ export class ChatComponent implements OnInit, OnDestroy {
   public loadConversations() {
     this.apiService.getConversations().subscribe({
       next: (res: any) => {
-        // Handle standard Laravel paginated response resource structure
         const data = res.data || res || [];
         this.conversations.set(data);
+        // Auto select first conversation if none selected in desktop/fullPage view
+        if (this.isFullPage && !this.activeConversation() && data.length > 0) {
+          this.selectConversation(data[0]);
+        }
       },
       error: (err) => console.error('Failed to load conversations', err)
     });
@@ -111,13 +115,22 @@ export class ChatComponent implements OnInit, OnDestroy {
   public loadAllUsers() {
     this.apiService.getUsers().subscribe({
       next: (res: any) => {
-        // Exclude the current user
         const list = res.data || res || [];
         const filtered = list.filter((u: any) => u.id !== this.currentUser?.id);
         this.allUsers.set(filtered);
       },
       error: (err) => console.error('Failed to load users', err)
     });
+  }
+
+  public openNewChatModal() {
+    this.loadAllUsers();
+    this.searchQuery.set('');
+    this.isNewChatModalOpen.set(true);
+  }
+
+  public closeNewChatModal() {
+    this.isNewChatModalOpen.set(false);
   }
 
   // Toggle chat widget
@@ -156,7 +169,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.apiService.getConversationMessages(convId).subscribe({
       next: (res: any) => {
         const data = res.data || res || [];
-        // Laravel paginate latest messages comes in descending order, we want ascending
         const ascMessages = [...data].reverse();
         this.messages.set(ascMessages);
       },
@@ -168,10 +180,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   private startMessagePolling(convId: number) {
     this.clearMessagePolling();
     this.messagePollInterval = setInterval(() => {
-      if (this.isOpen() && this.activeView() === 'chat' && this.activeConversation()?.id === convId) {
+      if (this.activeConversation()?.id === convId) {
         this.loadMessages(convId);
       }
-    }, 15000);
+    }, 10000);
   }
 
   private clearMessagePolling() {
@@ -189,9 +201,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     const bodyText = this.newMessageText.trim();
     this.newMessageText = '';
 
-    // Add message locally for instant responsiveness (optimistic UI update)
     const tempMsg: ChatMessage = {
-      id: Date.now(), // Temp ID
+      id: Date.now(),
       conversation_id: convId,
       user_id: this.currentUser.id,
       body: bodyText,
@@ -217,14 +228,14 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   // Start conversation with selected employee
   public startChatWithUser(user: ChatUser) {
+    this.isNewChatModalOpen.set(false);
     this.isNewChatDropdownOpen = false;
     this.searchQuery.set('');
 
-    // Call API to start or get direct conversation
     this.apiService.startConversation([user.id]).subscribe({
       next: (res: any) => {
-        // If already exists, return object contains it
         const conv = res.conversation || res.data || res;
+        this.loadConversations();
         this.selectConversation(conv);
       },
       error: (err) => console.error('Failed to start chat', err)
@@ -249,15 +260,50 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   public getParticipantName(conv: Conversation): string {
     const p = this.getParticipant(conv);
-    return p ? p.name : 'Unknown User';
+    return p ? p.name : (this.langService.currentLang() === 'ar' ? 'مستخدم غير معروف' : 'Unknown User');
   }
 
   public getParticipantRole(conv: Conversation): string {
     const p = this.getParticipant(conv);
     if (!p) return '';
-    // Look up role in all users list or return a localized version if available
     const systemUser = this.allUsers().find(u => u.id === p.id);
-    return systemUser?.role || 'Staff';
+    return this.getDisplayRoleLabel(systemUser || p);
+  }
+
+  public getDisplayRoleLabel(roleOrUser: any): string {
+    const roleStr = typeof roleOrUser === 'string' ? roleOrUser : (roleOrUser?.role || roleOrUser?.rawRole || '');
+    const r = String(roleStr).toLowerCase();
+    const isAr = this.langService.currentLang() === 'ar';
+    if (r.includes('engineer') || r.includes('outdoor') || r.includes('indoor') || r.includes('فني') || r.includes('مهندس')) {
+      return isAr ? '👷‍♂️ مهندس صيانة' : 'Field Engineer';
+    }
+    if (r.includes('sale') || r.includes('مبيعات')) {
+      return isAr ? '💼 مسؤول مبيعات' : 'Sales Rep';
+    }
+    if (r.includes('accountant') || r.includes('محاسب')) {
+      return isAr ? '💰 محاسب مالي' : 'Accountant';
+    }
+    if (r.includes('manager') || r.includes('operations') || r.includes('صيانة')) {
+      return isAr ? '📊 مدير الصيانة والعمليات' : 'Operations Manager';
+    }
+    if (r.includes('ceo') || r.includes('عام')) {
+      return isAr ? '👔 المدير العام' : 'CEO / General Manager';
+    }
+    if (r.includes('admin') || r.includes('نظام')) {
+      return isAr ? '👑 مدير النظام' : 'Admin';
+    }
+    return isAr ? 'موظف' : 'Staff';
+  }
+
+  public getRoleBadgeClass(roleOrUser: any): string {
+    const roleStr = typeof roleOrUser === 'string' ? roleOrUser : (roleOrUser?.role || roleOrUser?.rawRole || '');
+    const r = String(roleStr).toLowerCase();
+    if (r.includes('engineer') || r.includes('outdoor') || r.includes('indoor')) return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+    if (r.includes('sale') || r.includes('مبيعات')) return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+    if (r.includes('accountant') || r.includes('محاسب')) return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+    if (r.includes('manager') || r.includes('operations')) return 'bg-sky-500/15 text-sky-300 border-sky-500/30';
+    if (r.includes('ceo')) return 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
+    return 'bg-purple-500/15 text-purple-300 border-purple-500/30';
   }
 
   public getInitials(name: string): string {
@@ -281,7 +327,9 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   private scrollToBottom() {
     try {
-      this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+      if (this.messageContainer) {
+        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+      }
     } catch (err) {
       // Container not ready or not visible
     }

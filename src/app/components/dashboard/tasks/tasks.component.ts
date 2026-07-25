@@ -14,7 +14,7 @@ export class TasksComponent implements OnInit {
   public apiService = inject(ApiService);
   public langService = inject(LanguageService);
 
-  @Input() role: 'admin' | 'ceo' | 'manager' | 'seller' | 'accountant' = 'admin';
+  @Input() role: 'admin' | 'ceo' | 'manager' | 'seller' | 'accountant' | 'engineer' = 'admin';
   @Input() taskType: 'all' | 'internal' | 'external' = 'all';
 
   // State Signals

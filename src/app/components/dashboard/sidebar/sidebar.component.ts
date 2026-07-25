@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../../services/language.service';
 
 export interface NavigateTabEvent {
-  role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller';
+  role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer';
   tab: string;
 }
 
@@ -81,7 +81,7 @@ export interface NavigateTabEvent {
           </button>
 
           <!-- 1. SALES & FIELD ENGINEERING (المبيعات والصيانة الميدانية) -->
-          @if (isShowAllButtons() || getEffectiveRole() === 'admin' || getEffectiveRole() === 'seller') {
+          @if (isShowAllButtons() || getEffectiveRole() === 'admin' || getEffectiveRole() === 'seller' || getEffectiveRole() === 'engineer') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -91,6 +91,18 @@ export interface NavigateTabEvent {
               </div>
               
               <nav class="space-y-1">
+                <!-- Staff Chat Button (General for all roles) -->
+                <button (click)="onNavigate(getEffectiveRole(), 'chat')"
+                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                  [ngClass]="isActive(getEffectiveRole(), 'chat') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                  <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-comments text-sm w-5 text-center transition-transform group-hover:scale-110"
+                       [ngClass]="isActive(getEffectiveRole(), 'chat') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                    <span>{{ langService.currentLang() === 'ar' ? '💬 محادثات الموظفين والتواصل' : 'Staff Chat & Communication' }}</span>
+                  </div>
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </button>
+
                 <!-- Clients List -->
                 @if (hasPermission('view_clients')) {
                   <button (click)="onNavigate('seller', 'clients')"
@@ -521,7 +533,7 @@ export interface NavigateTabEvent {
               {{ getUserName() }}
             </span>
             <span class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider block truncate">
-              {{ loggedUser()?.role || 'Staff' }}
+              {{ getUserDisplayRole() }}
             </span>
           </div>
         </div>
@@ -558,7 +570,7 @@ export class SidebarComponent {
 
   // Inputs
   public loggedUser = input<any>(null);
-  public activeRole = input<'admin' | 'ceo' | 'manager' | 'accountant' | 'seller'>('admin');
+  public activeRole = input<'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer'>('admin');
   public adminActiveTab = input<string>('stats');
   public managerActiveTab = input<string>('products');
   public sellerActiveTab = input<string>('clients');
@@ -614,7 +626,7 @@ export class SidebarComponent {
     this.isSettingsOpen.update(v => !v);
   }
 
-  public isActive(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller', tab: string): boolean {
+  public isActive(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer', tab: string): boolean {
     const userRole = this.getUserRole();
     const effectiveRole = (userRole === 'admin' || userRole === 'ceo') ? this.activeRole() : userRole;
     if (effectiveRole !== role) return false;
@@ -625,13 +637,14 @@ export class SidebarComponent {
       case 'manager':
         return this.managerActiveTab() === tab;
       case 'seller':
+      case 'engineer':
         return this.sellerActiveTab() === tab;
       case 'accountant':
         return this.accountantActiveTab() === tab;
     }
   }
 
-  public onNavigate(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller', tab: string, event?: Event) {
+  public onNavigate(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer', tab: string, event?: Event) {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -647,7 +660,7 @@ export class SidebarComponent {
     this.logout.emit();
   }
 
-  public getEffectiveRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' {
+  public getEffectiveRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer' {
     const userRole = this.getUserRole();
     if (userRole === 'admin' || userRole === 'ceo') {
       return this.activeRole();
@@ -677,7 +690,7 @@ export class SidebarComponent {
       case 'view_quotations':
       case 'create_quotation':
       case 'view_invoices':
-        return effectiveRole === 'seller';
+        return effectiveRole === 'seller' || effectiveRole === 'engineer';
       case 'view_invoice_requests':
       case 'view_financial_reports':
         return effectiveRole === 'accountant';
@@ -692,15 +705,41 @@ export class SidebarComponent {
     }
   }
 
-  public getUserRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' {
+  public getUserRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer' {
     const u = this.loggedUser();
-    if (!u || !u.role) return 'admin';
-    const r = String(u.role).toLowerCase();
+    if (!u) return 'admin';
+    const email = String(u.email || '').toLowerCase();
+    const r = String(u.role || u.rawRole || '').toLowerCase();
     if (r === 'admin' || r.includes('نظام')) return 'admin';
     if (r === 'ceo' || r.includes('المدير العام') || r.includes('general manager')) return 'ceo';
     if (r.includes('manager') || r.includes('operations')) return 'manager';
     if (r.includes('accountant') || r.includes('محاسب')) return 'accountant';
+    if (r.includes('engineer') || r.includes('outdoor') || r.includes('indoor') || r.includes('فني') || r.includes('مهندس') || email.includes('engineer') || email.includes('tech')) return 'engineer';
     return 'seller';
+  }
+
+  public getUserDisplayRole(): string {
+    const u = this.loggedUser();
+    if (!u) return 'Staff';
+    const isAr = this.langService.currentLang() === 'ar';
+    const userRole = this.getUserRole();
+
+    switch (userRole) {
+      case 'engineer':
+        return isAr ? '👷‍♂️ مهندس صيانة ميدانية' : 'Field Engineer';
+      case 'seller':
+        return isAr ? '💼 مسؤول مبيعات' : 'Sales Representative';
+      case 'accountant':
+        return isAr ? '💰 المحاسب المالي' : 'Accountant';
+      case 'manager':
+        return isAr ? '📊 مدير الصيانة والعمليات' : 'Operations Manager';
+      case 'ceo':
+        return isAr ? '👔 المدير العام' : 'General Manager';
+      case 'admin':
+        return isAr ? '👑 مدير النظام' : 'Administrator';
+      default:
+        return u.role || 'Staff';
+    }
   }
 
   public getUserName(): string {

@@ -6,12 +6,13 @@ import { ApiService, Review, ContactMessage, ActivityLog } from '../../../servic
 import { TasksComponent } from '../tasks/tasks.component';
 import { EmployeesComponent } from '../employees/employees.component';
 import { EmployeeFollowupComponent } from '../employee-followup/employee-followup.component';
+import { ChatComponent } from '../chat/chat.component';
 import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, TasksComponent, EmployeesComponent, EmployeeFollowupComponent],
+  imports: [CommonModule, FormsModule, TasksComponent, EmployeesComponent, EmployeeFollowupComponent, ChatComponent],
   templateUrl: './admin-view.component.html'
 })
 export class AdminViewComponent {

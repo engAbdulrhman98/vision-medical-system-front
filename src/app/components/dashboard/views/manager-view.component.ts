@@ -6,12 +6,13 @@ import { ApiService, Area, Product, Category, Brand } from '../../../services/ap
 import { TasksComponent } from '../tasks/tasks.component';
 import { EmployeeFollowupComponent } from '../employee-followup/employee-followup.component';
 import { EmployeesComponent } from '../employees/employees.component';
+import { ChatComponent } from '../chat/chat.component';
 import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-manager-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, TasksComponent, EmployeeFollowupComponent, EmployeesComponent],
+  imports: [CommonModule, FormsModule, TasksComponent, EmployeeFollowupComponent, EmployeesComponent, ChatComponent],
   templateUrl: './manager-view.component.html'
 })
 export class ManagerViewComponent implements OnInit {

@@ -68,11 +68,11 @@ export class LoginComponent {
             nameAr = 'المحاسب المالي';
             nameEn = 'Financial Accountant';
           } else if (backendRole === 'Service Engineer outdoor') {
-            frontendRole = 'seller';
+            frontendRole = 'engineer';
             nameAr = 'مهندس صيانة خارجي';
             nameEn = 'Service Engineer outdoor';
           } else if (backendRole === 'Service Engineer indoor') {
-            frontendRole = 'seller';
+            frontendRole = 'engineer';
             nameAr = 'مهندس صيانة داخلي';
             nameEn = 'Service Engineer indoor';
           } else if (backendRole === 'Sale') {

@@ -5,11 +5,12 @@ import { LanguageService } from '../../../services/language.service';
 import { ApiService } from '../../../services/api.service';
 
 import { TasksComponent } from '../tasks/tasks.component';
+import { ChatComponent } from '../chat/chat.component';
 
 @Component({
   selector: 'app-accountant-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, TasksComponent],
+  imports: [CommonModule, FormsModule, TasksComponent, ChatComponent],
   templateUrl: './accountant-view.component.html'
 })
 export class AccountantViewComponent {

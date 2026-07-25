@@ -50,6 +50,10 @@
     </div>
   }
 
+  @if (activeSubTab() === 'chat') {
+    <app-chat [isFullPage]="true"></app-chat>
+  }
+
   <!-- ===== 1. QUOTATIONS TAB ===== -->
   @if (activeSubTab() === 'quotations') {
     <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
