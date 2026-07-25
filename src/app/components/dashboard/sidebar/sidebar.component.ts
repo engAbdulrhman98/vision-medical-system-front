@@ -81,7 +81,7 @@ export interface NavigateTabEvent {
           </button>
 
           <!-- 1. SALES & FIELD ENGINEERING (المبيعات والصيانة الميدانية) -->
-          @if (isShowAllButtons() || getUserRole() === 'admin' || getUserRole() === 'seller') {
+          @if (isShowAllButtons() || getEffectiveRole() === 'admin' || getEffectiveRole() === 'seller') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -147,7 +147,7 @@ export interface NavigateTabEvent {
           }
 
           <!-- 2. REPORTS & FINANCIALS (التقارير والماليات) -->
-          @if (isShowAllButtons() || getUserRole() === 'admin' || getUserRole() === 'accountant') {
+          @if (isShowAllButtons() || getEffectiveRole() === 'admin' || getEffectiveRole() === 'accountant') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -226,7 +226,7 @@ export interface NavigateTabEvent {
           }
 
           <!-- 3. INVENTORY CONTROL (إدارة المستودع) -->
-          @if (isShowAllButtons() || getUserRole() === 'admin' || getUserRole() === 'manager') {
+          @if (isShowAllButtons() || getEffectiveRole() === 'admin' || getEffectiveRole() === 'manager') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -311,7 +311,7 @@ export interface NavigateTabEvent {
           }
 
           <!-- 4. ADMINISTRATOR (المدير العام) -->
-          @if (isShowAllButtons() || getUserRole() === 'admin') {
+          @if (isShowAllButtons() || getEffectiveRole() === 'admin') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -607,10 +607,18 @@ export class SidebarComponent {
     this.logout.emit();
   }
 
+  public getEffectiveRole(): 'admin' | 'manager' | 'accountant' | 'seller' {
+    const userRole = this.getUserRole();
+    if (userRole === 'admin') {
+      return this.activeRole();
+    }
+    return userRole;
+  }
+
   public hasPermission(permission: string): boolean {
     if (this.isShowAllButtons()) return true;
-    const userRole = this.getUserRole();
-    if (userRole === 'admin') return true;
+    const effectiveRole = this.getEffectiveRole();
+    if (effectiveRole === 'admin') return true;
 
     const user = this.loggedUser();
     if (!user) return false;
@@ -620,25 +628,25 @@ export class SidebarComponent {
       if (perms.includes('*') || perms.includes(permission)) return true;
     }
 
-    // Role-based default visibility rules for standard permissions
+    // Strict role-based default visibility rules for standard permissions
     switch (permission) {
       case 'view_clients':
       case 'create_clients':
       case 'view_tasks':
       case 'view_external_tasks':
-        return userRole === 'seller';
+        return effectiveRole === 'seller';
       case 'view_quotations':
       case 'create_quotation':
       case 'view_invoices':
       case 'view_invoice_requests':
       case 'view_financial_reports':
-        return userRole === 'accountant';
+        return effectiveRole === 'accountant';
       case 'view_products':
       case 'view_categories':
       case 'view_brands':
       case 'view_maintenance_tasks':
       case 'manage_areas':
-        return userRole === 'manager';
+        return effectiveRole === 'manager';
       default:
         return false;
     }
