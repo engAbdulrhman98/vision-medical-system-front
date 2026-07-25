@@ -142,6 +142,45 @@ export interface NavigateTabEvent {
                     </div>
                   </button>
                 }
+
+                <!-- Quotations Request for Seller -->
+                @if (hasPermission('view_quotations')) {
+                  <button (click)="onNavigate('accountant', 'quotations')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('accountant', 'quotations') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-file-invoice text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('accountant', 'quotations') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'عروض الأسعار والطلب' : 'Quotations' }}</span>
+                    </div>
+                  </button>
+                }
+
+                <!-- Create Quotation Request for Accountant -->
+                @if (hasPermission('create_quotation')) {
+                  <button (click)="onNavigate('accountant', 'new')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('accountant', 'new') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-file-circle-plus text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('accountant', 'new') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'طلب إنشاء عرض سعر (للمحاسب)' : 'Request New Quotation' }}</span>
+                    </div>
+                  </button>
+                }
+
+                <!-- Invoice Requests for Accountant -->
+                @if (hasPermission('view_invoices')) {
+                  <button (click)="onNavigate('accountant', 'invoices')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('accountant', 'invoices') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-receipt text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('accountant', 'invoices') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'الفواتير والتحصيل الميداني' : 'Invoices & Billing' }}</span>
+                    </div>
+                  </button>
+                }
               </nav>
             </div>
           }
@@ -634,10 +673,10 @@ export class SidebarComponent {
       case 'create_clients':
       case 'view_tasks':
       case 'view_external_tasks':
-        return effectiveRole === 'seller';
       case 'view_quotations':
       case 'create_quotation':
       case 'view_invoices':
+        return effectiveRole === 'seller';
       case 'view_invoice_requests':
       case 'view_financial_reports':
         return effectiveRole === 'accountant';
