@@ -228,11 +228,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public getEffectiveRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer' {
-    const userRole = this.getUserRole();
-    if (userRole === 'admin' || userRole === 'ceo') return this.activeRole();
-    const currentActive = this.activeRole();
-    if (currentActive === userRole) return currentActive;
-    return userRole;
+    return this.activeRole();
   }
 
   public hasPermission(permission: string): boolean {
@@ -249,14 +245,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public navigateTab(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer', tab: string) {
-    const userRole = this.getUserRole();
-    const effectiveRole = (userRole === 'admin' || userRole === 'ceo') ? role : userRole;
-    this.activeRole.set(effectiveRole);
+    this.activeRole.set(role);
 
-    if (effectiveRole === 'admin' || effectiveRole === 'ceo') this.adminActiveTab.set(tab);
-    else if (effectiveRole === 'manager') this.managerActiveTab.set(tab);
-    else if (effectiveRole === 'accountant') this.accountantActiveTab.set(tab);
-    else if (effectiveRole === 'seller' || effectiveRole === 'engineer') this.sellerActiveTab.set(tab);
+    if (role === 'admin' || role === 'ceo') this.adminActiveTab.set(tab);
+    else if (role === 'manager') this.managerActiveTab.set(tab);
+    else if (role === 'accountant') this.accountantActiveTab.set(tab);
+    else if (role === 'seller' || role === 'engineer') this.sellerActiveTab.set(tab);
     this.isSidebarOpen.set(false);
   }
 

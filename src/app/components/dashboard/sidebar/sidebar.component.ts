@@ -661,11 +661,7 @@ export class SidebarComponent {
   }
 
   public getEffectiveRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' | 'engineer' {
-    const userRole = this.getUserRole();
-    if (userRole === 'admin' || userRole === 'ceo') {
-      return this.activeRole();
-    }
-    return userRole;
+    return this.activeRole();
   }
 
   public hasPermission(permission: string): boolean {
