@@ -4,7 +4,11 @@
     <app-chat [isFullPage]="true"></app-chat>
   }
 
-  @if (activeSubTab() === 'clients' || activeSubTab() === 'new_client') {
+  @if (activeSubTab() === 'quotations' || activeSubTab() === 'new' || activeSubTab() === 'new_quotation' || activeSubTab() === 'invoices' || activeSubTab() === 'reports') {
+    <app-accountant-view [(activeSubTab)]="activeSubTab"></app-accountant-view>
+  }
+
+  @if (activeSubTab() === 'clients' || activeSubTab() === 'new_client' || (activeSubTab() !== 'chat' && activeSubTab() !== 'tasks' && activeSubTab() !== 'external-tasks' && activeSubTab() !== 'quotations' && activeSubTab() !== 'new' && activeSubTab() !== 'new_quotation' && activeSubTab() !== 'invoices' && activeSubTab() !== 'reports')) {
     <!-- CLIENTS DIRECTORY & MANAGEMENT VIEW -->
     <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">

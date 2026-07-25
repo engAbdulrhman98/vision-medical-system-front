@@ -157,12 +157,12 @@ export interface NavigateTabEvent {
 
                 <!-- Quotations Request for Seller -->
                 @if (hasPermission('view_quotations')) {
-                  <button (click)="onNavigate('accountant', 'quotations')"
+                  <button (click)="onNavigate('seller', 'quotations')"
                     class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                    [ngClass]="isActive('accountant', 'quotations') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    [ngClass]="isActive('seller', 'quotations') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
                     <div class="flex items-center gap-3">
                       <i class="fa-solid fa-file-invoice text-sm w-5 text-center transition-transform group-hover:scale-110"
-                         [ngClass]="isActive('accountant', 'quotations') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                         [ngClass]="isActive('seller', 'quotations') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
                       <span>{{ langService.currentLang() === 'ar' ? 'عروض الأسعار والطلب' : 'Quotations' }}</span>
                     </div>
                   </button>
@@ -170,12 +170,12 @@ export interface NavigateTabEvent {
 
                 <!-- Create Quotation Request for Accountant -->
                 @if (hasPermission('create_quotation')) {
-                  <button (click)="onNavigate('accountant', 'new')"
+                  <button (click)="onNavigate('seller', 'new_quotation')"
                     class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                    [ngClass]="isActive('accountant', 'new') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    [ngClass]="isActive('seller', 'new_quotation') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
                     <div class="flex items-center gap-3">
                       <i class="fa-solid fa-file-circle-plus text-sm w-5 text-center transition-transform group-hover:scale-110"
-                         [ngClass]="isActive('accountant', 'new') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                         [ngClass]="isActive('seller', 'new_quotation') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
                       <span>{{ langService.currentLang() === 'ar' ? 'طلب إنشاء عرض سعر (للمحاسب)' : 'Request New Quotation' }}</span>
                     </div>
                   </button>
@@ -183,12 +183,12 @@ export interface NavigateTabEvent {
 
                 <!-- Invoice Requests for Accountant -->
                 @if (hasPermission('view_invoices')) {
-                  <button (click)="onNavigate('accountant', 'invoices')"
+                  <button (click)="onNavigate('seller', 'invoices')"
                     class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                    [ngClass]="isActive('accountant', 'invoices') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    [ngClass]="isActive('seller', 'invoices') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
                     <div class="flex items-center gap-3">
                       <i class="fa-solid fa-receipt text-sm w-5 text-center transition-transform group-hover:scale-110"
-                         [ngClass]="isActive('accountant', 'invoices') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                         [ngClass]="isActive('seller', 'invoices') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
                       <span>{{ langService.currentLang() === 'ar' ? 'الفواتير والتحصيل الميداني' : 'Invoices & Billing' }}</span>
                     </div>
                   </button>
@@ -539,7 +539,7 @@ export interface NavigateTabEvent {
         </div>
         
         <!-- View Store Button -->
-        <a routerLink="/" 
+        <a routerLink="/" target="_blank" 
            class="flex items-center justify-center gap-2 bg-slate-800/80 hover:bg-slate-800 text-slate-200 text-xs font-semibold py-2 rounded-xl transition-all border border-slate-700/50 hover:border-slate-600 cursor-pointer no-underline">
           <i class="fa-solid fa-globe text-emerald-400"></i>
           <span>{{ langService.t('view_store') }}</span>

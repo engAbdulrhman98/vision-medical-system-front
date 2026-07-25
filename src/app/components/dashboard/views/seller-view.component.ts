@@ -5,12 +5,13 @@ import { LanguageService } from '../../../services/language.service';
 import { ApiService, Client, Area } from '../../../services/api.service';
 import { TasksComponent } from '../tasks/tasks.component';
 import { ChatComponent } from '../chat/chat.component';
+import { AccountantViewComponent } from './accountant-view.component';
 import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-seller-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, TasksComponent, ChatComponent],
+  imports: [CommonModule, FormsModule, TasksComponent, ChatComponent, AccountantViewComponent],
   templateUrl: './seller-view.component.html'
 })
 export class SellerViewComponent implements OnInit {
