@@ -6,13 +6,15 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const toastService = inject(ToastService);
 
-  if (typeof window !== 'undefined') {
-    const userStr = localStorage.getItem('vm_logged_user');
-    const token = localStorage.getItem('vm_auth_token');
+  if (typeof window === 'undefined') {
+    return true;
+  }
 
-    if (userStr && token) {
-      return true;
-    }
+  const userStr = localStorage.getItem('vm_logged_user');
+  const token = localStorage.getItem('vm_auth_token');
+
+  if (userStr && token) {
+    return true;
   }
 
   // Not logged in: show warning toast and redirect to login

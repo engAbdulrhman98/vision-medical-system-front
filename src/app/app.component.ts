@@ -34,19 +34,19 @@ export class AppComponent {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      this.currentUrl.set(window.location.pathname);
+      this.currentUrl.set(window.location.pathname + window.location.search);
     }
 
-    // Monitor route changes to hide/show header/footer and close mobile menu
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      this.currentUrl.set(event.urlAfterRedirects || event.url);
-      this.isMobileMenuOpen.set(false);
-      
-      // Scroll to top on navigation
-      if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Monitor route changes immediately on NavigationStart & NavigationEnd
+    this.router.events.subscribe((event: any) => {
+      if (event && (event.url || event.urlAfterRedirects)) {
+        this.currentUrl.set(event.urlAfterRedirects || event.url);
+      }
+      if (event instanceof NavigationEnd) {
+        this.isMobileMenuOpen.set(false);
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
     });
   }
