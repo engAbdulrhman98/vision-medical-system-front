@@ -400,10 +400,13 @@ export class TasksComponent implements OnInit {
   }
 
   public openOtpModal(task: any) {
-    this.otpTask.set(task);
-    this.otpCodeInput = '';
-    this.showOtpModal.set(true);
-    this.handleGenerateOtp(task.id);
+    this.apiService.updateTaskStatus(task.id, 'completed').subscribe({
+      next: () => {
+        this.successMessage.set(this.getLocale() === 'ar' ? 'تم إكمال المهمة وإغلاق الطلب بنجاح' : 'Task completed successfully');
+        this.loadTasks();
+        setTimeout(() => this.successMessage.set(''), 3000);
+      }
+    });
   }
 
   public handleGenerateOtp(taskId: number) {
