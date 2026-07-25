@@ -37,7 +37,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private notificationsPollInterval: any;
 
   // States
-  public activeRole = signal<'admin' | 'manager' | 'accountant' | 'seller'>('admin');
+  public activeRole = signal<'admin' | 'ceo' | 'manager' | 'accountant' | 'seller'>('admin');
   public isRoleSelectorOpen = signal<boolean>(false);
   public isSidebarOpen = signal<boolean>(false);
   public isCatalogOpen = signal<boolean>(false);
@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isRoleSelectorOpen.update(v => !v);
   }
 
-  public selectRoleView(role: 'admin' | 'manager' | 'accountant' | 'seller') {
+  public selectRoleView(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller') {
     this.activeRole.set(role);
     this.isRoleSelectorOpen.set(false);
   }
@@ -65,6 +65,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     switch (role) {
       case 'admin':
         return isAr ? '👑 مدير النظام (Admin)' : 'Admin View';
+      case 'ceo':
+        return isAr ? '👔 المدير العام (متابعة الموظفين)' : 'CEO / General Manager';
       case 'manager':
         return isAr ? '📊 مدير الصيانة والمنتجات' : 'Manager View';
       case 'accountant':
@@ -212,19 +214,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  public getUserRole(): 'admin' | 'manager' | 'accountant' | 'seller' {
+  public getUserRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' {
     const u = this.loggedUser();
     if (!u || !u.role) return 'admin';
     const r = String(u.role).toLowerCase();
-    if (r === 'admin' || r === 'ceo') return 'admin';
+    if (r === 'admin' || r.includes('نظام')) return 'admin';
+    if (r === 'ceo' || r.includes('المدير العام') || r.includes('general manager')) return 'ceo';
     if (r.includes('manager') || r.includes('operations')) return 'manager';
     if (r.includes('accountant') || r.includes('محاسب')) return 'accountant';
     return 'seller';
   }
 
-  public getEffectiveRole(): 'admin' | 'manager' | 'accountant' | 'seller' {
+  public getEffectiveRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' {
     const userRole = this.getUserRole();
-    if (userRole === 'admin') return this.activeRole();
+    if (userRole === 'admin' || userRole === 'ceo') return this.activeRole();
     const currentActive = this.activeRole();
     if (currentActive === userRole) return currentActive;
     return userRole;
@@ -233,22 +236,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public hasPermission(permission: string): boolean {
     const user = this.loggedUser();
     if (!user) return false;
-    if (user.role === 'admin') return true;
+    if (user.role === 'admin' || user.role === 'ceo') return true;
     const perms = user.permissions || [];
     return perms.includes(permission);
   }
 
-  public selectRole(role: 'admin' | 'manager' | 'accountant' | 'seller') {
+  public selectRole(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller') {
     this.activeRole.set(role);
     this.isSidebarOpen.set(false);
   }
 
-  public navigateTab(role: 'admin' | 'manager' | 'accountant' | 'seller', tab: string) {
+  public navigateTab(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller', tab: string) {
     const userRole = this.getUserRole();
-    const effectiveRole = userRole === 'admin' ? role : userRole;
+    const effectiveRole = (userRole === 'admin' || userRole === 'ceo') ? role : userRole;
     this.activeRole.set(effectiveRole);
 
-    if (effectiveRole === 'admin') this.adminActiveTab.set(tab);
+    if (effectiveRole === 'admin' || effectiveRole === 'ceo') this.adminActiveTab.set(tab);
     else if (effectiveRole === 'manager') this.managerActiveTab.set(tab);
     else if (effectiveRole === 'accountant') this.accountantActiveTab.set(tab);
     else if (effectiveRole === 'seller') this.sellerActiveTab.set(tab);

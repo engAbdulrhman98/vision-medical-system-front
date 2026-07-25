@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../../services/language.service';
 
 export interface NavigateTabEvent {
-  role: 'admin' | 'manager' | 'accountant' | 'seller';
+  role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller';
   tab: string;
 }
 
@@ -558,7 +558,7 @@ export class SidebarComponent {
 
   // Inputs
   public loggedUser = input<any>(null);
-  public activeRole = input<'admin' | 'manager' | 'accountant' | 'seller'>('admin');
+  public activeRole = input<'admin' | 'ceo' | 'manager' | 'accountant' | 'seller'>('admin');
   public adminActiveTab = input<string>('stats');
   public managerActiveTab = input<string>('products');
   public sellerActiveTab = input<string>('clients');
@@ -592,7 +592,7 @@ export class SidebarComponent {
     if (this.isEmployeesOpen()) return true;
     const role = this.activeRole();
     const tab = this.adminActiveTab();
-    return role === 'admin' && ['permissions', 'followup'].includes(tab);
+    return (role === 'admin' || role === 'ceo') && ['permissions', 'followup'].includes(tab);
   }
 
   public isSettingsExpanded(): boolean {
@@ -614,12 +614,13 @@ export class SidebarComponent {
     this.isSettingsOpen.update(v => !v);
   }
 
-  public isActive(role: 'admin' | 'manager' | 'accountant' | 'seller', tab: string): boolean {
+  public isActive(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller', tab: string): boolean {
     const userRole = this.getUserRole();
-    const effectiveRole = userRole === 'admin' ? this.activeRole() : userRole;
+    const effectiveRole = (userRole === 'admin' || userRole === 'ceo') ? this.activeRole() : userRole;
     if (effectiveRole !== role) return false;
     switch (role) {
       case 'admin':
+      case 'ceo':
         return this.adminActiveTab() === tab;
       case 'manager':
         return this.managerActiveTab() === tab;
@@ -630,7 +631,7 @@ export class SidebarComponent {
     }
   }
 
-  public onNavigate(role: 'admin' | 'manager' | 'accountant' | 'seller', tab: string, event?: Event) {
+  public onNavigate(role: 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller', tab: string, event?: Event) {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -646,9 +647,9 @@ export class SidebarComponent {
     this.logout.emit();
   }
 
-  public getEffectiveRole(): 'admin' | 'manager' | 'accountant' | 'seller' {
+  public getEffectiveRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' {
     const userRole = this.getUserRole();
-    if (userRole === 'admin') {
+    if (userRole === 'admin' || userRole === 'ceo') {
       return this.activeRole();
     }
     return userRole;
@@ -657,7 +658,7 @@ export class SidebarComponent {
   public hasPermission(permission: string): boolean {
     if (this.isShowAllButtons()) return true;
     const effectiveRole = this.getEffectiveRole();
-    if (effectiveRole === 'admin') return true;
+    if (effectiveRole === 'admin' || effectiveRole === 'ceo') return true;
 
     const user = this.loggedUser();
     if (!user) return false;
@@ -691,11 +692,12 @@ export class SidebarComponent {
     }
   }
 
-  public getUserRole(): 'admin' | 'manager' | 'accountant' | 'seller' {
+  public getUserRole(): 'admin' | 'ceo' | 'manager' | 'accountant' | 'seller' {
     const u = this.loggedUser();
     if (!u || !u.role) return 'admin';
     const r = String(u.role).toLowerCase();
-    if (r === 'admin' || r === 'ceo') return 'admin';
+    if (r === 'admin' || r.includes('نظام')) return 'admin';
+    if (r === 'ceo' || r.includes('المدير العام') || r.includes('general manager')) return 'ceo';
     if (r.includes('manager') || r.includes('operations')) return 'manager';
     if (r.includes('accountant') || r.includes('محاسب')) return 'accountant';
     return 'seller';
