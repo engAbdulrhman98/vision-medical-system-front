@@ -65,8 +65,23 @@ export interface NavigateTabEvent {
         <!-- Navigation Sections -->
         <div class="p-3.5 space-y-5">
 
+          <!-- Dedicated Role & Permissions Buttons Toggle Button -->
+          <button (click)="toggleShowAllButtons()" 
+            class="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-950/90 border border-emerald-500/40 text-emerald-300 hover:text-white hover:bg-emerald-950/70 rounded-xl text-xs font-bold transition cursor-pointer shadow-sm border-0 text-start font-sans">
+            <div class="flex items-center gap-2.5">
+              <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                <i class="fa-solid" [ngClass]="isShowAllButtons() ? 'fa-eye-slash text-amber-400' : 'fa-sliders text-emerald-400'"></i>
+              </div>
+              <span class="text-xs font-bold">{{ isShowAllButtons() ? (langService.currentLang() === 'ar' ? 'عرض أزرار دوري فقط' : 'Show My Role Buttons') : (langService.currentLang() === 'ar' ? 'عرض كافة أزرار السايدبار والصلاحيات' : 'Show All Roles & Buttons') }}</span>
+            </div>
+            <span class="text-[9px] px-2 py-0.5 rounded-md font-mono font-bold uppercase tracking-wider shrink-0" 
+                  [ngClass]="isShowAllButtons() ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'">
+              {{ isShowAllButtons() ? (langService.currentLang() === 'ar' ? 'الكل' : 'ALL') : (langService.currentLang() === 'ar' ? 'مخصص' : 'ROLE') }}
+            </span>
+          </button>
+
           <!-- 1. SALES & FIELD ENGINEERING (المبيعات والصيانة الميدانية) -->
-          @if (getUserRole() === 'admin' || getUserRole() === 'seller') {
+          @if (isShowAllButtons() || getUserRole() === 'admin' || getUserRole() === 'seller') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -124,7 +139,7 @@ export interface NavigateTabEvent {
           }
 
           <!-- 2. REPORTS & FINANCIALS (التقارير والماليات) -->
-          @if (getUserRole() === 'admin' || getUserRole() === 'accountant') {
+          @if (isShowAllButtons() || getUserRole() === 'admin' || getUserRole() === 'accountant') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -193,7 +208,7 @@ export interface NavigateTabEvent {
           }
 
           <!-- 3. INVENTORY CONTROL (إدارة المستودع) -->
-          @if (getUserRole() === 'admin' || getUserRole() === 'manager') {
+          @if (isShowAllButtons() || getUserRole() === 'admin' || getUserRole() === 'manager') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -278,7 +293,7 @@ export interface NavigateTabEvent {
           }
 
           <!-- 4. ADMINISTRATOR (المدير العام) -->
-          @if (getUserRole() === 'admin') {
+          @if (isShowAllButtons() || getUserRole() === 'admin') {
             <div class="space-y-1">
               <div class="px-2.5 py-1 flex items-center justify-between">
                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -503,6 +518,11 @@ export class SidebarComponent {
   public isCatalogOpen = signal<boolean>(false);
   public isEmployeesOpen = signal<boolean>(false);
   public isSettingsOpen = signal<boolean>(false);
+  public isShowAllButtons = signal<boolean>(false);
+
+  public toggleShowAllButtons() {
+    this.isShowAllButtons.update(v => !v);
+  }
 
   public isCatalogExpanded(): boolean {
     if (this.isCatalogOpen()) return true;

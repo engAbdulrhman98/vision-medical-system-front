@@ -42,6 +42,59 @@
       <!-- Header Actions (Right) -->
       <div class="flex items-center gap-3 sm:gap-4 shrink-0">
 
+        <!-- Dedicated Role & Permissions View Switcher Button -->
+        <div class="relative shrink-0">
+          <button (click)="isRoleSelectorOpen.update(v => !v)" 
+                  class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs border border-slate-700 transition cursor-pointer border-0">
+            <i class="fa-solid fa-user-gear text-emerald-400 text-sm"></i>
+            <span class="hidden sm:inline">{{ getActiveRoleLabel() }}</span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200" [class.rotate-180]="isRoleSelectorOpen()"></i>
+          </button>
+
+          @if (isRoleSelectorOpen()) {
+            <div class="absolute end-0 mt-2 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 z-50 animate-fade-in-up">
+              <div class="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/80 mb-1 flex items-center justify-between">
+                <span>{{ langService.currentLang() === 'ar' ? 'تبديل عرض الأدوار والصلاحيات' : 'SWITCH ROLE VIEW' }}</span>
+                <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+              </div>
+              <div class="space-y-1">
+                <button (click)="selectRoleView('admin')" 
+                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition text-start border-0 cursor-pointer"
+                        [ngClass]="activeRole() === 'admin' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800'">
+                  <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-crown text-amber-400"></i>
+                    <span>{{ langService.currentLang() === 'ar' ? '👑 مدير النظام (Admin)' : 'Admin View' }}</span>
+                  </div>
+                </button>
+                <button (click)="selectRoleView('manager')" 
+                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition text-start border-0 cursor-pointer"
+                        [ngClass]="activeRole() === 'manager' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800'">
+                  <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-boxes-stacked text-sky-400"></i>
+                    <span>{{ langService.currentLang() === 'ar' ? '📊 مدير الصيانة والمنتجات' : 'Manager View' }}</span>
+                  </div>
+                </button>
+                <button (click)="selectRoleView('accountant')" 
+                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition text-start border-0 cursor-pointer"
+                        [ngClass]="activeRole() === 'accountant' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800'">
+                  <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-file-invoice-dollar text-rose-400"></i>
+                    <span>{{ langService.currentLang() === 'ar' ? '💰 المحاسب والماليات' : 'Accountant View' }}</span>
+                  </div>
+                </button>
+                <button (click)="selectRoleView('seller')" 
+                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition text-start border-0 cursor-pointer"
+                        [ngClass]="activeRole() === 'seller' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800'">
+                  <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-users text-emerald-400"></i>
+                    <span>{{ langService.currentLang() === 'ar' ? '💼 المبيعات والعملاء' : 'Sales View' }}</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
         <!-- Download Mobile App Button -->
         <button (click)="showAppDownloadModal.set(true)"
                 class="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-black px-3.5 py-2 rounded-xl shadow-xs transition cursor-pointer border-0">

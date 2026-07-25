@@ -38,6 +38,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // States
   public activeRole = signal<'admin' | 'manager' | 'accountant' | 'seller'>('admin');
+  public isRoleSelectorOpen = signal<boolean>(false);
   public isSidebarOpen = signal<boolean>(false);
   public isCatalogOpen = signal<boolean>(false);
   public isSettingsOpen = signal<boolean>(false);
@@ -48,6 +49,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public adminActiveTab = signal<string>('stats');
   public sellerActiveTab = signal<string>('clients');
   public accountantActiveTab = signal<string>('quotations');
+
+  public selectRoleView(role: 'admin' | 'manager' | 'accountant' | 'seller') {
+    this.activeRole.set(role);
+    this.isRoleSelectorOpen.set(false);
+  }
+
+  public getActiveRoleLabel(): string {
+    const role = this.activeRole();
+    const isAr = this.langService.currentLang() === 'ar';
+    switch (role) {
+      case 'admin':
+        return isAr ? '👑 مدير النظام (Admin)' : 'Admin View';
+      case 'manager':
+        return isAr ? '📊 مدير الصيانة والمنتجات' : 'Manager View';
+      case 'accountant':
+        return isAr ? '💰 المحاسب والماليات' : 'Accountant View';
+      case 'seller':
+        return isAr ? '💼 المبيعات والعملاء' : 'Sales View';
+    }
+  }
 
   public toggleCatalogMenu() {
     this.isCatalogOpen.update(v => !v);
