@@ -24,11 +24,10 @@ export class AppComponent {
   // computed check to determine if the public layout should be rendered
   public isDashboardRoute = computed(() => {
     const url = this.currentUrl();
-    if (url && url.startsWith('/dashboard')) return true;
-    if (typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/dashboard')) {
+    if (typeof window !== 'undefined' && window.location && window.location.pathname.includes('/dashboard')) {
       return true;
     }
-    return false;
+    return !!(url && url.includes('/dashboard'));
   });
 
   constructor() {
