@@ -17,13 +17,11 @@ import { AppDownloadModalComponent } from '../app-download-modal/app-download-mo
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     FormsModule,
     AdminViewComponent,
     ManagerViewComponent,
     AccountantViewComponent,
     SellerViewComponent,
-    ChatComponent,
     SidebarComponent,
     AppDownloadModalComponent
   ],
