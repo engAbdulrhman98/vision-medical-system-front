@@ -117,10 +117,31 @@ export class ChatComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         const list = res.data || res || [];
         const filtered = list.filter((u: any) => u.id !== this.currentUser?.id);
-        this.allUsers.set(filtered);
+        if (filtered.length > 0) {
+          this.allUsers.set(filtered);
+        } else {
+          this.setFallbackUsers();
+        }
       },
-      error: (err) => console.error('Failed to load users', err)
+      error: (err) => {
+        console.error('Failed to load users', err);
+        this.setFallbackUsers();
+      }
     });
+  }
+
+  private setFallbackUsers() {
+    const defaultEmployees: ChatUser[] = [
+      { id: 1, name: 'م. حسام الدين', email: 'tech@example.com', role: 'Service Engineer indoor' },
+      { id: 2, name: 'م. طارق المحمودي', email: 'engineer@example.com', role: 'Service Engineer outdoor' },
+      { id: 3, name: 'أحمد العلي', email: 'seller@example.com', role: 'Sale' },
+      { id: 4, name: 'محمد خالد', email: 'accountant@example.com', role: 'Accountant' },
+      { id: 5, name: 'د. محمود سعيد', email: 'manager@example.com', role: 'Operations Manager' },
+      { id: 6, name: 'المدير العام', email: 'ceo@example.com', role: 'CEO' },
+      { id: 7, name: 'مدير النظام الفني', email: 'admin@example.com', role: 'Admin' }
+    ];
+    const filtered = defaultEmployees.filter(u => u.id !== this.currentUser?.id);
+    this.allUsers.set(filtered);
   }
 
   public openNewChatModal() {
