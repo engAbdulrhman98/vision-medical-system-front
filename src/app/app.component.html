@@ -1,4 +1,18 @@
-@if (isDashboardRoute()) {
+@if (isInitialLoading()) {
+  <div class="fixed inset-0 bg-slate-950 z-[99999] flex flex-col items-center justify-center space-y-6 animate-fade-in">
+    <div class="relative flex items-center justify-center">
+      <div class="w-20 h-20 rounded-full border-4 border-emerald-500/20 border-t-emerald-500 animate-spin"></div>
+      <img src="/images/logo.png" alt="Vision Medical" class="h-10 w-10 object-contain absolute animate-pulse">
+    </div>
+    <div class="text-center space-y-1.5">
+      <div class="flex items-baseline justify-center gap-1 text-base font-black tracking-wide" style="font-family: 'Tajawal', sans-serif;">
+        <span style="color: #94a3b8;">فيجن</span>
+        <span style="color: #00A99D;">ميدكال</span>
+      </div>
+      <p class="text-slate-400 text-xs font-medium">جاري تحميل الواجهة وتحديث البيانات...</p>
+    </div>
+  </div>
+} @else if (isDashboardRoute()) {
   <div class="min-h-screen bg-slate-100 text-slate-800 antialiased">
     <router-outlet></router-outlet>
   </div>

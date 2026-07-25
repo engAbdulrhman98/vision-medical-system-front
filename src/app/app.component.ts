@@ -20,6 +20,7 @@ export class AppComponent {
   // States
   public isMobileMenuOpen = signal<boolean>(false);
   public currentUrl = signal<string>(typeof window !== 'undefined' ? window.location.pathname : '');
+  public isInitialLoading = signal<boolean>(true);
 
   // computed check to determine if the public layout should be rendered
   public isDashboardRoute = computed(() => {
@@ -35,6 +36,11 @@ export class AppComponent {
   constructor() {
     if (typeof window !== 'undefined') {
       this.currentUrl.set(window.location.pathname + window.location.search);
+      setTimeout(() => {
+        this.isInitialLoading.set(false);
+      }, 350);
+    } else {
+      this.isInitialLoading.set(false);
     }
 
     // Monitor route changes immediately on NavigationStart & NavigationEnd
