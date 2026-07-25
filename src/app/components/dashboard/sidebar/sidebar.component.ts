@@ -92,48 +92,56 @@ export interface NavigateTabEvent {
               
               <nav class="space-y-1">
                 <!-- Clients List -->
-                <button (click)="onNavigate('seller', 'clients')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('seller', 'clients') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-users text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('seller', 'clients') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'سجل العملاء والمستشفيات' : 'Clients & Hospitals' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('view_clients')) {
+                  <button (click)="onNavigate('seller', 'clients')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('seller', 'clients') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-users text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('seller', 'clients') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'سجل العملاء والمستشفيات' : 'Clients & Hospitals' }}</span>
+                    </div>
+                  </button>
+                }
 
                 <!-- Add Client -->
-                <button (click)="onNavigate('seller', 'new_client')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('seller', 'new_client') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-user-plus text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('seller', 'new_client') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'إضافة عميل جديد' : 'Add New Client' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('create_clients')) {
+                  <button (click)="onNavigate('seller', 'new_client')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('seller', 'new_client') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-user-plus text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('seller', 'new_client') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'إضافة عميل جديد' : 'Add New Client' }}</span>
+                    </div>
+                  </button>
+                }
 
                 <!-- Daily Tasks -->
-                <button (click)="onNavigate('seller', 'tasks')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('seller', 'tasks') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-list-check text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('seller', 'tasks') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'مهام المبيعات والصيانة' : 'Sales & Field Tasks' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('view_tasks')) {
+                  <button (click)="onNavigate('seller', 'tasks')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('seller', 'tasks') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-list-check text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('seller', 'tasks') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'مهام المبيعات والصيانة' : 'Sales & Field Tasks' }}</span>
+                    </div>
+                  </button>
+                }
 
                 <!-- External Tasks -->
-                <button (click)="onNavigate('seller', 'external-tasks')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('seller', 'external-tasks') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-screwdriver-wrench text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('seller', 'external-tasks') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'الصيانة الخارجية والميدانية' : 'External Maintenance Visits' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('view_external_tasks')) {
+                  <button (click)="onNavigate('seller', 'external-tasks')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('seller', 'external-tasks') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-screwdriver-wrench text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('seller', 'external-tasks') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'الصيانة الخارجية والميدانية' : 'External Maintenance Visits' }}</span>
+                    </div>
+                  </button>
+                }
               </nav>
             </div>
           }
@@ -150,59 +158,69 @@ export interface NavigateTabEvent {
               
               <nav class="space-y-1">
                 <!-- Quotations List -->
-                <button (click)="onNavigate('accountant', 'quotations')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('accountant', 'quotations') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-file-invoice text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('accountant', 'quotations') ? 'text-white' : 'text-slate-400 group-hover:text-rose-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'عروض الأسعار' : 'Quotations' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('view_quotations')) {
+                  <button (click)="onNavigate('accountant', 'quotations')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('accountant', 'quotations') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-file-invoice text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('accountant', 'quotations') ? 'text-white' : 'text-slate-400 group-hover:text-rose-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'عروض الأسعار' : 'Quotations' }}</span>
+                    </div>
+                  </button>
+                }
 
                 <!-- Create Quotation -->
-                <button (click)="onNavigate('accountant', 'new')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('accountant', 'new') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-file-circle-plus text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('accountant', 'new') ? 'text-white' : 'text-slate-400 group-hover:text-rose-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'إنشاء عرض سعر' : 'Create Quotation' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('create_quotation')) {
+                  <button (click)="onNavigate('accountant', 'new')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('accountant', 'new') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-file-circle-plus text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('accountant', 'new') ? 'text-white' : 'text-slate-400 group-hover:text-rose-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'إنشاء عرض سعر' : 'Create Quotation' }}</span>
+                    </div>
+                  </button>
+                }
 
                 <!-- Invoices List -->
-                <button (click)="onNavigate('accountant', 'invoices')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('accountant', 'invoices') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-receipt text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('accountant', 'invoices') ? 'text-white' : 'text-slate-400 group-hover:text-rose-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'الفواتير والتحصيل' : 'Invoices' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('view_invoices')) {
+                  <button (click)="onNavigate('accountant', 'invoices')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('accountant', 'invoices') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-receipt text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('accountant', 'invoices') ? 'text-white' : 'text-slate-400 group-hover:text-rose-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'الفواتير والتحصيل' : 'Invoices' }}</span>
+                    </div>
+                  </button>
+                }
 
                 <!-- Accountant Workflow Tasks -->
-                <button (click)="onNavigate('accountant', 'tasks')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('accountant', 'tasks') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-file-circle-check text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('accountant', 'tasks') ? 'text-white' : 'text-slate-400 group-hover:text-amber-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'طلبات الفواتير وأوامر الصيانة' : 'Invoice & Order Requests' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('view_invoice_requests')) {
+                  <button (click)="onNavigate('accountant', 'tasks')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('accountant', 'tasks') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-file-circle-check text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('accountant', 'tasks') ? 'text-white' : 'text-slate-400 group-hover:text-amber-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'طلبات الفواتير وأوامر الصيانة' : 'Invoice & Order Requests' }}</span>
+                    </div>
+                  </button>
+                }
 
                 <!-- Reports -->
-                <button (click)="onNavigate('accountant', 'reports')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive('accountant', 'reports') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-chart-pie text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive('accountant', 'reports') ? 'text-white' : 'text-slate-400 group-hover:text-rose-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? 'التقارير المالية' : 'Financial Reports' }}</span>
-                  </div>
-                </button>
+                @if (hasPermission('view_financial_reports')) {
+                  <button (click)="onNavigate('accountant', 'reports')"
+                    class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                    [ngClass]="isActive('accountant', 'reports') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                    <div class="flex items-center gap-3">
+                      <i class="fa-solid fa-chart-pie text-sm w-5 text-center transition-transform group-hover:scale-110"
+                         [ngClass]="isActive('accountant', 'reports') ? 'text-white' : 'text-slate-400 group-hover:text-rose-400'"></i>
+                      <span>{{ langService.currentLang() === 'ar' ? 'التقارير المالية' : 'Financial Reports' }}</span>
+                    </div>
+                  </button>
+                }
               </nav>
             </div>
           }
@@ -587,6 +605,43 @@ export class SidebarComponent {
 
   public onLogout() {
     this.logout.emit();
+  }
+
+  public hasPermission(permission: string): boolean {
+    if (this.isShowAllButtons()) return true;
+    const userRole = this.getUserRole();
+    if (userRole === 'admin') return true;
+
+    const user = this.loggedUser();
+    if (!user) return false;
+
+    const perms: string[] = user.permissions || [];
+    if (perms.length > 0) {
+      if (perms.includes('*') || perms.includes(permission)) return true;
+    }
+
+    // Role-based default visibility rules for standard permissions
+    switch (permission) {
+      case 'view_clients':
+      case 'create_clients':
+      case 'view_tasks':
+      case 'view_external_tasks':
+        return userRole === 'seller';
+      case 'view_quotations':
+      case 'create_quotation':
+      case 'view_invoices':
+      case 'view_invoice_requests':
+      case 'view_financial_reports':
+        return userRole === 'accountant';
+      case 'view_products':
+      case 'view_categories':
+      case 'view_brands':
+      case 'view_maintenance_tasks':
+      case 'manage_areas':
+        return userRole === 'manager';
+      default:
+        return false;
+    }
   }
 
   public getUserRole(): 'admin' | 'manager' | 'accountant' | 'seller' {
