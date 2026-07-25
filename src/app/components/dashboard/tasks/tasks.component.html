@@ -19,17 +19,17 @@
       </p>
     </div>
 
-    @if (role === 'admin' || role === 'manager') {
+    @if (role === 'admin' || role === 'ceo' || role === 'manager') {
       <button (click)="showCreateForm.set(!showCreateForm())"
               class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer shadow-xs shrink-0">
         <i class="fa-solid" [ngClass]="showCreateForm() ? 'fa-minus' : 'fa-plus'"></i>
-        <span>{{ getLocale() === 'ar' ? 'جدولة مهمة جديدة' : 'Schedule New Task' }}</span>
+        <span>{{ getLocale() === 'ar' ? 'جدولة وتكليف مهمة جديدة' : 'Schedule New Task' }}</span>
       </button>
     }
   </div>
 
   <!-- CREATE TASK FORM -->
-  @if (showCreateForm() && (role === 'admin' || role === 'manager')) {
+  @if (showCreateForm() && (role === 'admin' || role === 'ceo' || role === 'manager')) {
     <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs space-y-4">
       <h3 class="font-bold text-slate-950 text-base mb-3 flex items-center gap-2 border-b border-slate-100 pb-3">
         <i class="fa-solid fa-file-circle-plus text-emerald-600"></i>
