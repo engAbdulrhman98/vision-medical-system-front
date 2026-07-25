@@ -522,12 +522,18 @@ export class ApiService {
   }
 
   getDevices(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/devices`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/devices`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<any>(res)),
+      catchError(() => of([]))
+    );
   }
 
   // ── Employees & Roles ────────────────────────────────────────────────
   getEmployees(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/employees`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/employees`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<User>(res)),
+      catchError(() => of([]))
+    );
   }
 
   createEmployee(payload: any): Observable<any> {
@@ -543,7 +549,9 @@ export class ApiService {
   }
 
   getEmployeePermissions(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/employees/${id}/permissions`, { headers: this.getHeaders() });
+    return this.http.get(`${this.apiUrl}/employees/${id}/permissions`, { headers: this.getHeaders() }).pipe(
+      catchError(() => of({}))
+    );
   }
 
   syncEmployeePermissions(id: number, permissions: string[]): Observable<any> {
@@ -551,11 +559,17 @@ export class ApiService {
   }
 
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/users`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/users`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<User>(res)),
+      catchError(() => of([]))
+    );
   }
 
   getRoles(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/roles`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/roles`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<any>(res)),
+      catchError(() => of([]))
+    );
   }
 
   assignRole(email: string, role: string): Observable<any> {
@@ -568,7 +582,9 @@ export class ApiService {
 
   // ── Settings ─────────────────────────────────────────────────────────
   getSettings(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/settings`, { headers: this.getHeaders() });
+    return this.http.get(`${this.apiUrl}/settings`, { headers: this.getHeaders() }).pipe(
+      catchError(() => of({}))
+    );
   }
 
   updateSettings(payload: any): Observable<any> {
@@ -577,7 +593,10 @@ export class ApiService {
 
   // ── Notifications ────────────────────────────────────────────────────
   getNotifications(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/notifications`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/notifications`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<any>(res)),
+      catchError(() => of([]))
+    );
   }
 
   markNotificationAsRead(id: number): Observable<any> {
@@ -594,7 +613,10 @@ export class ApiService {
 
   // ── Maintenance Reports ──────────────────────────────────────────────
   getMaintenanceReports(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/maintenance-reports`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/maintenance-reports`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<any>(res)),
+      catchError(() => of([]))
+    );
   }
 
   createMaintenanceReport(payload: any): Observable<any> {
@@ -603,11 +625,17 @@ export class ApiService {
 
   // ── Conversations ────────────────────────────────────────────────────
   getConversations(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/conversations`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/conversations`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<any>(res)),
+      catchError(() => of([]))
+    );
   }
 
   getConversationMessages(id: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/conversations/${id}/messages`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/conversations/${id}/messages`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<any>(res)),
+      catchError(() => of([]))
+    );
   }
 
   sendMessage(id: number, message: string): Observable<any> {
@@ -624,7 +652,10 @@ export class ApiService {
 
   // ── Reviews & Messages & Activity Logs ───────────────────────────────
   getReviews(): Observable<Review[]> {
-    return this.http.get<Review[]>(`${this.apiUrl}/reviews`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/reviews`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<Review>(res)),
+      catchError(() => of([]))
+    );
   }
 
   getPendingReviews(): Observable<Review[]> {
@@ -658,7 +689,10 @@ export class ApiService {
   }
 
   getMessages(): Observable<ContactMessage[]> {
-    return this.http.get<ContactMessage[]>(`${this.apiUrl}/contacts`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/contacts`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<ContactMessage>(res)),
+      catchError(() => of([]))
+    );
   }
 
   readMessage(id: number): Observable<any> {
@@ -681,11 +715,16 @@ export class ApiService {
   }
 
   getDashboardStats(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/dashboard/stats`, { headers: this.getHeaders() });
+    return this.http.get(`${this.apiUrl}/dashboard/stats`, { headers: this.getHeaders() }).pipe(
+      catchError(() => of({}))
+    );
   }
 
   getActivityLogs(): Observable<ActivityLog[]> {
-    return this.http.get<ActivityLog[]>(`${this.apiUrl}/activity-logs`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/activity-logs`, { headers: this.getHeaders() }).pipe(
+      map(res => this.extractArray<ActivityLog>(res)),
+      catchError(() => of([]))
+    );
   }
 
   addActivity(actionOrRole: string, description?: string): Observable<any> {
@@ -693,6 +732,8 @@ export class ApiService {
   }
 
   getAppDownloadInfo(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/app-download`);
+    return this.http.get(`${this.apiUrl}/app-download`).pipe(
+      catchError(() => of({}))
+    );
   }
 }
