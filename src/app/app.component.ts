@@ -24,35 +24,35 @@ export class AppComponent {
 
   // computed check to determine if the public layout should be rendered
   public isDashboardRoute = computed(() => {
-    const url = this.currentUrl() || '';
-    const routerUrl = this.router.url || '';
-    const path = (typeof window !== 'undefined' && window.location) ? (window.location.pathname + window.location.hash + window.location.search) : '';
+    const url = (this.currentUrl() || '').toLowerCase();
+    const routerUrl = (this.router.url || '').toLowerCase();
+    const path = (typeof window !== 'undefined' && window.location ? (window.location.pathname + window.location.hash + window.location.search) : '').toLowerCase();
     
-    return url.toLowerCase().includes('dashboard') || 
-           routerUrl.toLowerCase().includes('dashboard') || 
-           path.toLowerCase().includes('dashboard');
+    return url.includes('dashboard') || 
+           routerUrl.includes('dashboard') || 
+           path.includes('dashboard');
   });
 
   constructor() {
     if (typeof window !== 'undefined') {
-      this.currentUrl.set(window.location.pathname + window.location.search);
+      const initialPath = window.location.pathname + window.location.search + window.location.hash;
+      this.currentUrl.set(initialPath);
       setTimeout(() => {
         this.isInitialLoading.set(false);
-      }, 350);
+      }, 300);
     } else {
       this.isInitialLoading.set(false);
     }
 
-    // Monitor route changes immediately on NavigationStart & NavigationEnd
-    this.router.events.subscribe((event: any) => {
-      if (event && (event.url || event.urlAfterRedirects)) {
-        this.currentUrl.set(event.urlAfterRedirects || event.url);
-      }
-      if (event instanceof NavigationEnd) {
-        this.isMobileMenuOpen.set(false);
-        if (typeof window !== 'undefined') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    // Monitor route changes strictly on NavigationEnd to guarantee correct URL state
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      const targetUrl = event.urlAfterRedirects || event.url;
+      this.currentUrl.set(targetUrl);
+      this.isMobileMenuOpen.set(false);
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }
