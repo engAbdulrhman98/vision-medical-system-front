@@ -105,86 +105,134 @@
         </form>
       </div>
 
-      <!-- Quick Demo Accounts Panel -->
+      <!-- Quick Demo Accounts Panel (10 Distinct Roles) -->
       <div class="mt-8 bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
         <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
           <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
             <i class="fa-solid fa-users-gear text-emerald-500 text-sm"></i>
-            <span>{{ getLocale() === 'ar' ? 'حسابات التجربة وتسهيل الدخول المباشر' : 'Demo Accounts (1-Click Login)' }}</span>
+            <span>{{ getLocale() === 'ar' ? '10 حسابات مفعلة بمختلف الأدوار والصلاحيات (الدخول بنقرة واحدة)' : '10 Demo Accounts by Role (1-Click Login)' }}</span>
           </h3>
-          <span class="text-[10px] text-slate-500 font-semibold">{{ getLocale() === 'ar' ? 'انقر على أي حساب للدخول فوراً' : 'Click any account to sign in' }}</span>
+          <span class="text-[10px] text-slate-500 font-semibold">{{ getLocale() === 'ar' ? 'انقر على أي حساب لتجربته فوراً' : 'Click any account to sign in' }}</span>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2.5 text-[11px]">
           <!-- 1. CEO / General Manager -->
           <button (click)="fillCredentials('ceo@example.com', 'password')"
-                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-3 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 shrink-0 group-hover:scale-110 transition">
-              <i class="fa-solid fa-crown text-sm"></i>
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-crown text-xs"></i>
             </div>
             <div class="overflow-hidden">
-              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? 'د. خالد (المدير العام CEO)' : 'CEO (General Manager)' }}</span>
-              <span class="text-slate-400 text-[10px] block font-mono">ceo&#64;example.com</span>
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '👑 د. خالد (المدير العام CEO)' : 'CEO (General Manager)' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">ceo&#64;example.com</span>
             </div>
           </button>
 
-          <!-- 2. Operations Manager -->
-          <button (click)="fillCredentials('operations@example.com', 'password')"
-                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-3 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0 group-hover:scale-110 transition">
-              <i class="fa-solid fa-gears text-sm"></i>
-            </div>
-            <div class="overflow-hidden">
-              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? 'م. طارق (مدير الصيانة والعمليات)' : 'Operations Manager' }}</span>
-              <span class="text-slate-400 text-[10px] block font-mono">operations&#64;example.com</span>
-            </div>
-          </button>
-
-          <!-- 3. Accountant -->
-          <button (click)="fillCredentials('accountant@example.com', 'password')"
-                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-3 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-110 transition">
-              <i class="fa-solid fa-calculator text-sm"></i>
-            </div>
-            <div class="overflow-hidden">
-              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? 'أ. محمود (المحاسب المالي)' : 'Financial Accountant' }}</span>
-              <span class="text-slate-400 text-[10px] block font-mono">accountant&#64;example.com</span>
-            </div>
-          </button>
-
-          <!-- 4. Sales / Inventory Manager -->
-          <button (click)="fillCredentials('inventory@example.com', 'password')"
-                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-3 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-110 transition">
-              <i class="fa-solid fa-boxes-stacked text-sm"></i>
-            </div>
-            <div class="overflow-hidden">
-              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? 'أ. رانيا (المستودع والمبيعات)' : 'Sales & Inventory' }}</span>
-              <span class="text-slate-400 text-[10px] block font-mono">inventory&#64;example.com</span>
-            </div>
-          </button>
-
-          <!-- 5. Field Service Engineer -->
-          <button (click)="fillCredentials('engineer@example.com', 'password')"
-                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-3 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 shrink-0 group-hover:scale-110 transition">
-              <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
-            </div>
-            <div class="overflow-hidden">
-              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? 'م. أسامة (مهندس صيانة ميدانية)' : 'Field Service Engineer' }}</span>
-              <span class="text-slate-400 text-[10px] block font-mono">engineer&#64;example.com</span>
-            </div>
-          </button>
-
-          <!-- 6. Super Admin -->
+          <!-- 2. System Administrator -->
           <button (click)="fillCredentials('admin@vision-medical.com', 'admin123')"
-                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-3 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shrink-0 group-hover:scale-110 transition">
-              <i class="fa-solid fa-user-shield text-sm"></i>
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-user-shield text-xs"></i>
             </div>
             <div class="overflow-hidden">
-              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? 'م. أحمد (مدير النظام Admin)' : 'System Administrator' }}</span>
-              <span class="text-slate-400 text-[10px] block font-mono">admin&#64;vision-medical.com</span>
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '🛡️ م. أحمد (مدير النظام Admin)' : 'System Administrator' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">admin&#64;vision-medical.com</span>
+            </div>
+          </button>
+
+          <!-- 3. Operations Manager -->
+          <button (click)="fillCredentials('operations@example.com', 'password')"
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-boxes-stacked text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '📊 م. طارق (مدير الصيانة والعمليات)' : 'Operations Manager' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">operations&#64;example.com</span>
+            </div>
+          </button>
+
+          <!-- 4. Senior Accountant -->
+          <button (click)="fillCredentials('accountant@example.com', 'password')"
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '💰 أ. محمود (المحاسب المالي)' : 'Financial Accountant' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">accountant&#64;example.com</span>
+            </div>
+          </button>
+
+          <!-- 5. Sales & Customer Manager -->
+          <button (click)="fillCredentials('inventory@example.com', 'password')"
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-users text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '💼 أ. رانيا (المبيعات والعملاء)' : 'Sales Representative' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">inventory&#64;example.com</span>
+            </div>
+          </button>
+
+          <!-- 6. Outdoor Field Service Engineer -->
+          <button (click)="fillCredentials('engineer@example.com', 'password')"
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-screwdriver-wrench text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '👷‍♂️ م. أسامة (مهندس صيانة ميدانية)' : 'Field Service Engineer' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">engineer&#64;example.com</span>
+            </div>
+          </button>
+
+          <!-- 7. Indoor Workshop Engineer -->
+          <button (click)="fillCredentials('tech@example.com', 'password')"
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-microchip text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '🔬 م. حسام (فني الورشة المركزية)' : 'Indoor Workshop Engineer' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">tech&#64;example.com</span>
+            </div>
+          </button>
+
+          <!-- 8. Key Accounts Sales Representative -->
+          <button (click)="fillCredentials('kareem.sales@vision-medical.com', 'password')"
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-user-tie text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '🤝 أ. كريم (مندوب كبار العملاء)' : 'Key Accounts Sales Rep' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">kareem.sales&#64;vision-medical.com</span>
+            </div>
+          </button>
+
+          <!-- 9. Billing & Invoices Accountant -->
+          <button (click)="fillCredentials('sara.accountant@vision-medical.com', 'password')"
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-receipt text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '📑 أ. سارة (محاسبة الفواتير والتحصيل)' : 'Billing & Invoices Accountant' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">sara.accountant&#64;vision-medical.com</span>
+            </div>
+          </button>
+
+          <!-- 10. Specialized Devices Engineer -->
+          <button (click)="fillCredentials('yasser.engineer@vision-medical.com', 'password')"
+                  class="bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 p-2.5 rounded-2xl text-start transition cursor-pointer group flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-110 transition">
+              <i class="fa-solid fa-laptop-medical text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <span class="text-white font-bold block truncate group-hover:text-emerald-400 transition">{{ getLocale() === 'ar' ? '🩺 م. ياسر (مهندس أجهزة تخدير وسونار)' : 'Specialized Equipment Engineer' }}</span>
+              <span class="text-slate-400 text-[9px] block font-mono">yasser.engineer&#64;vision-medical.com</span>
             </div>
           </button>
         </div>
