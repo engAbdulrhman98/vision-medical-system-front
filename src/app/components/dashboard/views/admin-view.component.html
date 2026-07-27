@@ -164,52 +164,114 @@
 
 @if (activeSubTab() === 'reviews') {
   <!-- Pending Reviews Moderation Panel -->
-  <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs">
-    <div class="flex items-center justify-between mb-5 border-b border-slate-50 pb-3">
-      <h3 class="font-bold text-slate-950 text-base flex items-center gap-2">
-        <i class="fa-solid fa-star-half-stroke text-amber-500"></i>
-        <span>{{ langService.t('new_pending_reviews') }}</span>
+  <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs animate-fade-in-up space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+      <h3 class="font-bold text-slate-950 text-base flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center border border-amber-500/20">
+          <i class="fa-solid fa-star-half-stroke text-sm"></i>
+        </div>
+        <div>
+          <span>{{ langService.t('new_pending_reviews') }}</span>
+          <span class="text-xs font-semibold text-slate-400 block mt-0.5">
+            {{ langService.currentLang() === 'ar' ? 'مراجعة وتدقيق التقييمات المقدمة من العملاء قبل النشر' : 'Moderate and approve client product reviews before publication' }}
+          </span>
+        </div>
       </h3>
+
+      <span class="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-extrabold px-3 py-1.5 rounded-xl">
+        {{ pendingReviews().length }} {{ langService.currentLang() === 'ar' ? 'تقييم معلق' : 'Pending Reviews' }}
+      </span>
     </div>
 
     @if (pendingReviews().length === 0) {
-      <div class="text-center py-16 text-slate-400 text-sm">
+      <div class="text-center py-16 text-slate-400 text-sm bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
         <i class="fa-regular fa-comment-dots text-4xl mb-3 block text-slate-300"></i>
         {{ langService.t('no_pending_reviews') }}
       </div>
     } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up">
-        @for (rev of pendingReviews(); track rev.id) {
-          <div class="bg-slate-50 border border-slate-150 p-5 rounded-2xl space-y-3 flex flex-col justify-between">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <div>
-                  <span class="font-bold text-slate-900 text-sm block">{{ rev.reviewer_name }}</span>
-                  <span class="text-xs text-slate-400 block mt-0.5">
-                    {{ langService.currentLang() === 'ar' ? 'على المنتج: ' : 'On Product: ' }}
-                    <span class="font-semibold text-emerald-600">{{ rev.product_name[getLocale()] }}</span>
+      <!-- Scrollable Table Container -->
+      <div class="overflow-x-auto max-h-[550px] overflow-y-auto rounded-xl border border-slate-200/80 shadow-xs scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50">
+        <table class="w-full text-right rtl:text-right ltr:text-left text-xs text-slate-700 border-collapse">
+          <!-- Table Header -->
+          <thead class="bg-slate-900 text-slate-200 font-bold sticky top-0 z-10 shadow-xs uppercase tracking-wider text-[11px]">
+            <tr>
+              <th scope="col" class="py-3.5 px-4 font-extrabold">
+                {{ langService.currentLang() === 'ar' ? 'صاحب التقييم' : 'Reviewer' }}
+              </th>
+              <th scope="col" class="py-3.5 px-4 font-extrabold">
+                {{ langService.currentLang() === 'ar' ? 'المنتج المستهدف' : 'Target Product' }}
+              </th>
+              <th scope="col" class="py-3.5 px-4 font-extrabold">
+                {{ langService.currentLang() === 'ar' ? 'التقييم (النجوم)' : 'Rating' }}
+              </th>
+              <th scope="col" class="py-3.5 px-4 font-extrabold">
+                {{ langService.currentLang() === 'ar' ? 'محتوى ونُص التقييم' : 'Review Comment' }}
+              </th>
+              <th scope="col" class="py-3.5 px-4 font-extrabold text-center">
+                {{ langService.currentLang() === 'ar' ? 'الإجراءات والاعتماد' : 'Actions & Moderation' }}
+              </th>
+            </tr>
+          </thead>
+
+          <!-- Table Body -->
+          <tbody class="divide-y divide-slate-150 bg-white">
+            @for (rev of pendingReviews(); track rev.id) {
+              <tr class="hover:bg-amber-50/30 transition-colors duration-150">
+                
+                <!-- Reviewer Info -->
+                <td class="py-3.5 px-4 align-top">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-200">
+                      {{ rev.reviewer_name ? rev.reviewer_name.substring(0, 1).toUpperCase() : 'U' }}
+                    </div>
+                    <span class="font-bold text-slate-900 text-xs block truncate max-w-[160px]">{{ rev.reviewer_name }}</span>
+                  </div>
+                </td>
+
+                <!-- Target Product -->
+                <td class="py-3.5 px-4 align-top">
+                  <span class="inline-block bg-slate-100 text-emerald-700 border border-emerald-200/60 text-[10px] font-bold px-2.5 py-1 rounded-lg truncate max-w-[180px]">
+                    {{ rev.product_name[getLocale()] }}
                   </span>
-                </div>
-                <div class="flex items-center gap-0.5 text-amber-400 shrink-0">
-                  @for (star of [1,2,3,4,5]; track star) {
-                    <i class="fa-star text-[10px]" [ngClass]="star <= rev.rating ? 'fa-solid' : 'fa-regular'"></i>
-                  }
-                </div>
-              </div>
-              <p class="text-xs text-slate-600 leading-relaxed">{{ rev.comment }}</p>
-            </div>
-            
-            <!-- Action buttons -->
-            <div class="flex items-center gap-2 pt-3 border-t border-slate-200/50 mt-3 shrink-0">
-              <button (click)="handleApproveReview(rev.id)" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-[10px] px-4 py-2 rounded-lg shadow-xs transition cursor-pointer border-0">
-                {{ langService.t('approve_and_publish') }}
-              </button>
-              <button (click)="handleDeleteReview(rev.id)" class="bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-700 font-bold text-[10px] px-4 py-2 rounded-lg transition cursor-pointer border-0">
-                {{ langService.t('delete') }}
-              </button>
-            </div>
-          </div>
-        }
+                </td>
+
+                <!-- Rating Stars -->
+                <td class="py-3.5 px-4 align-top whitespace-nowrap">
+                  <div class="flex items-center gap-0.5 text-amber-400 bg-amber-50/60 border border-amber-200/50 px-2 py-1 rounded-md inline-flex">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <i class="fa-star text-[10px]" [ngClass]="star <= rev.rating ? 'fa-solid' : 'fa-regular text-slate-300'"></i>
+                    }
+                    <span class="text-[10px] font-bold text-slate-700 ms-1 font-mono">({{ rev.rating }}/5)</span>
+                  </div>
+                </td>
+
+                <!-- Comment Content -->
+                <td class="py-3.5 px-4 align-top max-w-xs md:max-w-md">
+                  <p class="text-slate-700 leading-relaxed font-sans whitespace-pre-wrap text-xs bg-slate-50/70 p-2.5 rounded-xl border border-slate-200/60 max-h-28 overflow-y-auto scrollbar-thin">
+                    {{ rev.comment }}
+                  </p>
+                </td>
+
+                <!-- Action Buttons -->
+                <td class="py-3.5 px-4 align-top text-center whitespace-nowrap">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <button (click)="handleApproveReview(rev.id)" 
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-lg transition shadow-xs cursor-pointer border-0 flex items-center gap-1">
+                      <i class="fa-solid fa-circle-check text-[9px]"></i>
+                      <span>{{ langService.t('approve_and_publish') }}</span>
+                    </button>
+                    <button (click)="handleDeleteReview(rev.id)" 
+                            class="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 font-bold text-[10px] px-3.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1">
+                      <i class="fa-solid fa-trash text-[9px]"></i>
+                      <span>{{ langService.t('delete') }}</span>
+                    </button>
+                  </div>
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     }
   </div>
