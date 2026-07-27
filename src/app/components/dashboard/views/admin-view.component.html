@@ -217,46 +217,123 @@
 
 @if (activeSubTab() === 'messages') {
   <!-- Messages Panel -->
-  <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs animate-fade-in-up">
-    <h3 class="font-bold text-slate-950 text-base mb-5 border-b border-slate-50 pb-3 flex items-center gap-2">
-      <i class="fa-solid fa-envelope-open-text text-sky-500"></i>
-      <span>{{ langService.t('unread_messages') }}</span>
-    </h3>
+  <div class="bg-white border border-slate-150 rounded-2xl p-6 shadow-xs animate-fade-in-up space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+      <h3 class="font-bold text-slate-950 text-base flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-600 flex items-center justify-center border border-sky-500/20">
+          <i class="fa-solid fa-envelope-open-text text-sm"></i>
+        </div>
+        <div>
+          <span>{{ langService.t('unread_messages') }}</span>
+          <span class="text-xs font-semibold text-slate-400 block mt-0.5">
+            {{ langService.currentLang() === 'ar' ? 'إجمالي الرسائل الواردة من نموذج الاتصال بالموقع' : 'Total contact form messages received' }}
+          </span>
+        </div>
+      </h3>
+
+      <span class="bg-sky-50 text-sky-700 border border-sky-200 text-xs font-extrabold px-3 py-1.5 rounded-xl">
+        {{ messages().length }} {{ langService.currentLang() === 'ar' ? 'رسالة' : 'Messages' }}
+      </span>
+    </div>
 
     @if (messages().length === 0) {
-      <div class="text-center py-16 text-slate-400 text-sm">
+      <div class="text-center py-16 text-slate-400 text-sm bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
         <i class="fa-regular fa-envelope text-4xl mb-3 block text-slate-300"></i>
         {{ langService.t('no_unread_messages') }}
       </div>
     } @else {
-      <div class="space-y-4">
-        @for (msg of messages(); track msg.id) {
-          <div class="bg-slate-50 border border-slate-150 p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition hover:border-slate-350">
-            <div class="space-y-2 max-w-2xl">
-              <div class="flex items-center gap-3">
-                <span class="font-bold text-slate-900 text-sm block">{{ msg.name }}</span>
-                <span class="bg-sky-100/70 border border-sky-200/50 text-sky-800 text-[10px] px-2 py-0.5 rounded-md font-bold truncate max-w-[200px]">{{ msg.subject || langService.t('no_subject') }}</span>
-                @if (!msg.is_read) {
-                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-                }
-              </div>
-              <p class="text-xs text-slate-600 leading-relaxed font-sans">{{ msg.message }}</p>
-              <span class="text-[10px] text-slate-400 block font-semibold">{{ msg.created_at | date:'medium' }} • {{ msg.email }}</span>
-            </div>
-            
-            <!-- Actions -->
-            <div class="flex items-center gap-2 shrink-0">
-              @if (!msg.is_read) {
-                <button (click)="handleReadMessage(msg.id)" class="bg-sky-500 hover:bg-sky-600 text-white font-bold text-[10px] px-4 py-2 rounded-lg transition shadow-xs cursor-pointer border-0">
-                  {{ langService.currentLang() === 'ar' ? 'تعليم كمقروء' : 'Mark as Read' }}
-                </button>
-              }
-              <button (click)="handleDeleteMessage(msg.id)" class="bg-slate-200 hover:bg-rose-500 hover:text-white text-slate-700 font-bold text-[10px] px-4 py-2 rounded-lg transition cursor-pointer border-0">
-                {{ langService.t('delete') }}
-              </button>
-            </div>
-          </div>
-        }
+      <!-- Scrollable Table Container -->
+      <div class="overflow-x-auto max-h-[550px] overflow-y-auto rounded-xl border border-slate-200/80 shadow-xs scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50">
+        <table class="w-full text-right rtl:text-right ltr:text-left text-xs text-slate-700 border-collapse">
+          <!-- Table Header -->
+          <thead class="bg-slate-900 text-slate-200 font-bold sticky top-0 z-10 shadow-xs uppercase tracking-wider text-[11px]">
+            <tr>
+              <th scope="col" class="py-3.5 px-4 font-extrabold">
+                {{ langService.currentLang() === 'ar' ? 'الراسل وبيانات الاتصال' : 'Sender Info' }}
+              </th>
+              <th scope="col" class="py-3.5 px-4 font-extrabold">
+                {{ langService.currentLang() === 'ar' ? 'موضوع الرسالة' : 'Subject' }}
+              </th>
+              <th scope="col" class="py-3.5 px-4 font-extrabold">
+                {{ langService.currentLang() === 'ar' ? 'محتوى الرسالة' : 'Message Content' }}
+              </th>
+              <th scope="col" class="py-3.5 px-4 font-extrabold">
+                {{ langService.currentLang() === 'ar' ? 'التاريخ والوقت' : 'Date & Time' }}
+              </th>
+              <th scope="col" class="py-3.5 px-4 font-extrabold text-center">
+                {{ langService.currentLang() === 'ar' ? 'الإجراءات' : 'Actions' }}
+              </th>
+            </tr>
+          </thead>
+
+          <!-- Table Body -->
+          <tbody class="divide-y divide-slate-150 bg-white">
+            @for (msg of messages(); track msg.id) {
+              <tr class="hover:bg-sky-50/40 transition-colors duration-150" [ngClass]="{'bg-sky-50/20 font-semibold': !msg.is_read}">
+                
+                <!-- Sender Info -->
+                <td class="py-3.5 px-4 align-top">
+                  <div class="flex items-start gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200">
+                      {{ msg.name ? msg.name.substring(0, 1).toUpperCase() : 'U' }}
+                    </div>
+                    <div class="space-y-0.5 min-w-0">
+                      <span class="font-bold text-slate-900 block text-xs truncate max-w-[180px]">{{ msg.name }}</span>
+                      <a [href]="'mailto:' + msg.email" class="text-[10px] text-sky-600 hover:underline block truncate max-w-[180px]" dir="ltr">
+                        {{ msg.email }}
+                      </a>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Subject -->
+                <td class="py-3.5 px-4 align-top">
+                  <div class="flex items-center gap-1.5">
+                    @if (!msg.is_read) {
+                      <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0" title="غير مقروءة"></span>
+                    }
+                    <span class="inline-block bg-slate-100 text-slate-800 border border-slate-200 text-[10px] font-bold px-2.5 py-1 rounded-lg truncate max-w-[160px]">
+                      {{ msg.subject || langService.t('no_subject') }}
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Message Body -->
+                <td class="py-3.5 px-4 align-top max-w-xs md:max-w-md">
+                  <p class="text-slate-700 leading-relaxed font-sans whitespace-pre-wrap text-xs bg-slate-50/70 p-2.5 rounded-xl border border-slate-200/60 max-h-28 overflow-y-auto scrollbar-thin">
+                    {{ msg.message }}
+                  </p>
+                </td>
+
+                <!-- Date -->
+                <td class="py-3.5 px-4 align-top whitespace-nowrap">
+                  <span class="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-1 rounded-md border border-slate-200 inline-block">
+                    {{ msg.created_at | date:'medium' }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="py-3.5 px-4 align-top text-center whitespace-nowrap">
+                  <div class="flex items-center justify-center gap-1.5">
+                    @if (!msg.is_read) {
+                      <button (click)="handleReadMessage(msg.id)" 
+                              class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-3 py-1.5 rounded-lg transition shadow-xs cursor-pointer border-0 flex items-center gap-1">
+                        <i class="fa-solid fa-check text-[9px]"></i>
+                        <span>{{ langService.currentLang() === 'ar' ? 'مقروء' : 'Read' }}</span>
+                      </button>
+                    }
+                    <button (click)="handleDeleteMessage(msg.id)" 
+                            class="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 font-bold text-[10px] px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1">
+                      <i class="fa-solid fa-trash text-[9px]"></i>
+                      <span>{{ langService.t('delete') }}</span>
+                    </button>
+                  </div>
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     }
   </div>
