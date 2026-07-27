@@ -22,15 +22,15 @@ export class AppComponent {
   public currentUrl = signal<string>(typeof window !== 'undefined' ? window.location.pathname : '');
   public isInitialLoading = signal<boolean>(true);
 
-  // computed check to determine if the public layout should be rendered
+  // computed check to determine if the dashboard standalone layout should be rendered
   public isDashboardRoute = computed(() => {
     const url = (this.currentUrl() || '').toLowerCase();
     const routerUrl = (this.router.url || '').toLowerCase();
-    const path = (typeof window !== 'undefined' && window.location ? (window.location.pathname + window.location.hash + window.location.search) : '').toLowerCase();
+    const href = (typeof window !== 'undefined' && window.location ? (window.location.href + window.location.pathname) : '').toLowerCase();
     
     return url.includes('dashboard') || 
            routerUrl.includes('dashboard') || 
-           path.includes('dashboard');
+           href.includes('dashboard');
   });
 
   constructor() {
