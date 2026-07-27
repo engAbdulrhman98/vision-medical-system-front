@@ -25,6 +25,11 @@ export class LoginComponent {
   // Statuses
   public errorMessage = signal<string | null>(null);
   public isLoading = signal<boolean>(false);
+  public showMoreAccounts = signal<boolean>(false);
+
+  public toggleShowMoreAccounts() {
+    this.showMoreAccounts.update(val => !val);
+  }
 
   public fillCredentials(emailStr: string, passwordStr: string) {
     this.email = emailStr;
