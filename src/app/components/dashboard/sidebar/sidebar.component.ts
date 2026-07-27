@@ -84,7 +84,7 @@ export interface NavigateTabEvent {
           <div class="space-y-1">
             <div class="px-2.5 py-1 flex items-center justify-between">
               <span class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest">
-                {{ langService.currentLang() === 'ar' ? 'التواصل والربط الداخلي' : 'STAFF CHAT & MESSAGING' }}
+                {{ langService.currentLang() === 'ar' ? 'محادثات الموظفين' : 'STAFF CONVERSATIONS' }}
               </span>
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             </div>
@@ -97,7 +97,7 @@ export interface NavigateTabEvent {
                 <div class="flex items-center gap-3">
                   <i class="fa-solid fa-comments text-sm w-5 text-center transition-transform group-hover:scale-110"
                      [ngClass]="isActive(getEffectiveRole(), 'chat') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
-                  <span>{{ langService.currentLang() === 'ar' ? '💬 محادثات الموظفين والتواصل' : 'Staff Chat & Messaging' }}</span>
+                  <span>{{ langService.currentLang() === 'ar' ? '💬 محادثات الموظفين' : 'Staff Conversations' }}</span>
                 </div>
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               </button>

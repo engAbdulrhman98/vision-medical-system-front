@@ -18,7 +18,7 @@
               {{ langService.currentLang() === 'ar' ? 'محادثات الموظفين' : 'Staff Conversations' }}
             </h2>
             <span class="text-[10px] font-semibold text-emerald-400 block">
-              {{ langService.currentLang() === 'ar' ? 'التواصل والربط الداخلي' : 'Internal Communication' }}
+              {{ langService.currentLang() === 'ar' ? 'المحادثات والرسائل المباشرة' : 'Direct Conversations' }}
             </span>
           </div>
         </div>
@@ -115,6 +115,8 @@
         <div class="flex items-center gap-3">
           <!-- Back button for mobile view -->
           <button (click)="backToList()" 
+                  [title]="langService.currentLang() === 'ar' ? 'العودة للقائمة' : 'Back to conversations'"
+                  [attr.aria-label]="langService.currentLang() === 'ar' ? 'العودة للقائمة' : 'Back to conversations'"
                   class="md:hidden w-8 h-8 flex items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:text-white transition border-0 cursor-pointer">
             <i class="fa-solid" [ngClass]="langService.currentLang() === 'ar' ? 'fa-arrow-right' : 'fa-arrow-left'"></i>
           </button>
