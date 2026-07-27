@@ -5,28 +5,34 @@ import { guestGuard } from './guards/guest.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent)
-  },
-  {
-    path: 'store',
-    loadComponent: () => import('./components/store/store.component').then(m => m.StoreComponent)
-  },
-  {
-    path: 'product/:slug',
-    loadComponent: () => import('./components/product/product.component').then(m => m.ProductComponent)
-  },
-  {
-    path: 'about',
-    loadComponent: () => import('./components/about/about.component').then(m => m.AboutComponent)
-  },
-  {
-    path: 'contact',
-    loadComponent: () => import('./components/contact/contact.component').then(m => m.ContactComponent)
-  },
-  {
-    path: 'login',
-    loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent),
-    canActivate: [guestGuard]
+    loadComponent: () => import('./layouts/public-layout/public-layout.component').then(m => m.PublicLayoutComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent)
+      },
+      {
+        path: 'store',
+        loadComponent: () => import('./components/store/store.component').then(m => m.StoreComponent)
+      },
+      {
+        path: 'product/:slug',
+        loadComponent: () => import('./components/product/product.component').then(m => m.ProductComponent)
+      },
+      {
+        path: 'about',
+        loadComponent: () => import('./components/about/about.component').then(m => m.AboutComponent)
+      },
+      {
+        path: 'contact',
+        loadComponent: () => import('./components/contact/contact.component').then(m => m.ContactComponent)
+      },
+      {
+        path: 'login',
+        loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent),
+        canActivate: [guestGuard]
+      }
+    ]
   },
   {
     path: 'dashboard',
@@ -38,4 +44,3 @@ export const routes: Routes = [
     redirectTo: ''
   }
 ];
-
