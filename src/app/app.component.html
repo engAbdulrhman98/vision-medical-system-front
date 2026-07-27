@@ -1,2 +1,6 @@
-<router-outlet></router-outlet>
-<app-toast-container />
+@if (isInitialLoading()) {
+  <app-loading />
+} @else {
+  <router-outlet></router-outlet>
+  <app-toast-container />
+}

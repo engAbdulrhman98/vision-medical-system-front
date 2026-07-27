@@ -1,0 +1,35 @@
+<!-- STANDALONE INITIAL LOADING SCREEN -->
+<div class="fixed inset-0 bg-slate-950 z-[999999] flex flex-col items-center justify-center space-y-6 select-none font-sans text-white animate-fade-in">
+  
+  <!-- Radial Glow Background -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent pointer-events-none"></div>
+  
+  <!-- Glowing Spinner Ring with Logo -->
+  <div class="relative flex items-center justify-center">
+    <!-- Outer Pulsing Glow -->
+    <div class="w-24 h-24 rounded-full bg-emerald-500/10 absolute animate-ping"></div>
+    
+    <!-- Rotating Ring -->
+    <div class="w-24 h-24 rounded-full border-4 border-slate-800 border-t-emerald-500 animate-spin shadow-2xl"></div>
+    
+    <!-- Vision Medical Center Logo -->
+    <img src="/images/logo.png" alt="Vision Medical" class="h-12 w-12 object-contain absolute animate-pulse">
+  </div>
+
+  <!-- Branded Typography & Subtitle -->
+  <div class="text-center space-y-2 relative">
+    <div class="flex items-baseline justify-center gap-1.5 text-xl font-black tracking-wide">
+      <span class="text-slate-400">فيجن</span>
+      <span class="text-emerald-400">ميدكال</span>
+      <span class="text-[10px] text-slate-500 font-mono ms-1">SYSTEM</span>
+    </div>
+    
+    <div class="flex items-center justify-center gap-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+      <p class="text-slate-400 text-xs font-semibold">
+        {{ langService.currentLang() === 'ar' ? 'جاري تحميل الواجهة واستعادة البيانات...' : 'Loading system data & interface...' }}
+      </p>
+    </div>
+  </div>
+
+</div>
