@@ -255,9 +255,11 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.apiService.startConversation([user.id]).subscribe({
       next: (res: any) => {
-        const conv = res.conversation || res.data || res;
+        const conv = res.conversation?.data || res.conversation || res.data || res;
         this.loadConversations();
-        this.selectConversation(conv);
+        if (conv && conv.id) {
+          this.selectConversation(conv);
+        }
       },
       error: (err) => console.error('Failed to start chat', err)
     });

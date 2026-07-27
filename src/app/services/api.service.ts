@@ -651,11 +651,11 @@ export class ApiService {
   }
 
   sendMessage(id: number, message: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/conversations/${id}/messages`, { message }, { headers: this.getHeaders() });
+    return this.http.post(`${this.apiUrl}/conversations/${id}/messages`, { message, body: message }, { headers: this.getHeaders() });
   }
 
   startConversation(userIds: number[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/conversations`, { user_ids: userIds }, { headers: this.getHeaders() });
+    return this.http.post(`${this.apiUrl}/conversations`, { user_ids: userIds, participant_ids: userIds }, { headers: this.getHeaders() });
   }
 
   markConversationAsRead(id: number): Observable<any> {
