@@ -80,6 +80,30 @@ export interface NavigateTabEvent {
             </span>
           </button>
 
+          <!-- GENERAL COMMUNICATION & STAFF CHAT (متاح لجميع الأدوار) -->
+          <div class="space-y-1">
+            <div class="px-2.5 py-1 flex items-center justify-between">
+              <span class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest">
+                {{ langService.currentLang() === 'ar' ? 'التواصل والربط الداخلي' : 'STAFF CHAT & MESSAGING' }}
+              </span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            
+            <nav class="space-y-1">
+              <!-- Staff Chat Button (Always available for ALL roles) -->
+              <button (click)="onNavigate(getEffectiveRole(), 'chat')"
+                class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
+                [ngClass]="isActive(getEffectiveRole(), 'chat') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
+                <div class="flex items-center gap-3">
+                  <i class="fa-solid fa-comments text-sm w-5 text-center transition-transform group-hover:scale-110"
+                     [ngClass]="isActive(getEffectiveRole(), 'chat') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
+                  <span>{{ langService.currentLang() === 'ar' ? '💬 محادثات الموظفين والتواصل' : 'Staff Chat & Messaging' }}</span>
+                </div>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              </button>
+            </nav>
+          </div>
+
           <!-- 1. SALES & FIELD ENGINEERING (المبيعات والصيانة الميدانية) -->
           @if (isShowAllButtons() || getEffectiveRole() === 'admin' || getEffectiveRole() === 'seller' || getEffectiveRole() === 'engineer') {
             <div class="space-y-1">
@@ -91,17 +115,6 @@ export interface NavigateTabEvent {
               </div>
               
               <nav class="space-y-1">
-                <!-- Staff Chat Button (General for all roles) -->
-                <button (click)="onNavigate(getEffectiveRole(), 'chat')"
-                  class="w-full group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-0 bg-transparent text-start cursor-pointer font-sans"
-                  [ngClass]="isActive(getEffectiveRole(), 'chat') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'">
-                  <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-comments text-sm w-5 text-center transition-transform group-hover:scale-110"
-                       [ngClass]="isActive(getEffectiveRole(), 'chat') ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'"></i>
-                    <span>{{ langService.currentLang() === 'ar' ? '💬 محادثات الموظفين والتواصل' : 'Staff Chat & Communication' }}</span>
-                  </div>
-                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                </button>
 
                 <!-- Clients List -->
                 @if (hasPermission('view_clients')) {
