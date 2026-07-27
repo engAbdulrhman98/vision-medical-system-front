@@ -19,41 +19,42 @@ export class AppComponent {
 
   // States
   public isMobileMenuOpen = signal<boolean>(false);
-  public currentUrl = signal<string>(typeof window !== 'undefined' ? window.location.pathname : '');
-  public isInitialLoading = signal<boolean>(true);
+  public currentUrl = signal<string>(typeof window !== 'undefined' ? (window.location.pathname + window.location.search + window.location.hash) : '');
+  public isInitialLoading = signal<boolean>(false);
 
   // computed check to determine if the dashboard standalone layout should be rendered
   public isDashboardRoute = computed(() => {
+    if (typeof window !== 'undefined' && window.location) {
+      const path = (window.location.pathname || '').toLowerCase();
+      const href = (window.location.href || '').toLowerCase();
+      if (path.includes('dashboard') || href.includes('dashboard')) {
+        return true;
+      }
+    }
     const url = (this.currentUrl() || '').toLowerCase();
     const routerUrl = (this.router.url || '').toLowerCase();
-    const href = (typeof window !== 'undefined' && window.location ? (window.location.href + window.location.pathname) : '').toLowerCase();
-    
-    return url.includes('dashboard') || 
-           routerUrl.includes('dashboard') || 
-           href.includes('dashboard');
+    return url.includes('dashboard') || routerUrl.includes('dashboard');
   });
 
   constructor() {
     if (typeof window !== 'undefined') {
       const initialPath = window.location.pathname + window.location.search + window.location.hash;
       this.currentUrl.set(initialPath);
-      setTimeout(() => {
-        this.isInitialLoading.set(false);
-      }, 200);
     }
 
-    // Monitor route changes strictly on NavigationEnd to guarantee correct URL state
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      const targetUrl = event.urlAfterRedirects || event.url;
-      this.currentUrl.set(targetUrl);
-      this.isMobileMenuOpen.set(false);
-      if (this.isInitialLoading()) {
-        this.isInitialLoading.set(false);
+    // Monitor router events immediately to keep URL state in sync on refresh and navigation
+    this.router.events.subscribe((event) => {
+      if (typeof window !== 'undefined' && window.location) {
+        const path = window.location.pathname + window.location.search + window.location.hash;
+        if (path) this.currentUrl.set(path);
       }
-      if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (event instanceof NavigationEnd) {
+        const targetUrl = event.urlAfterRedirects || event.url;
+        this.currentUrl.set(targetUrl);
+        this.isMobileMenuOpen.set(false);
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
     });
   }
