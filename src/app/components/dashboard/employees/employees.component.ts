@@ -54,7 +54,24 @@ export class EmployeesComponent implements OnInit {
   public newRoleDescriptionAr = '';
   public isCreatingRole = signal(false);
 
+  public isAdmin(): boolean {
+    if (typeof window === 'undefined') return false;
+    const userStr = localStorage.getItem('vm_logged_user');
+    if (!userStr) return false;
+    try {
+      const user = JSON.parse(userStr);
+      const role = (user.role || '').toLowerCase();
+      return role === 'admin';
+    } catch {
+      return false;
+    }
+  }
+
   public openCreateRoleModal() {
+    if (!this.isAdmin()) {
+      this.errorMessage.set(this.lang === 'ar' ? 'عذراً! مدير النظام (Admin) فقط هو المصرح له بإنشاء أدوار وظيفية جديدة.' : 'Sorry! Only Admin can create new roles.');
+      return;
+    }
     this.newRoleName = '';
     this.newRoleDescriptionAr = '';
     this.showCreateRoleModal.set(true);
@@ -203,6 +220,10 @@ export class EmployeesComponent implements OnInit {
   }
 
   public openCreateForm() {
+    if (!this.isAdmin()) {
+      this.errorMessage.set(this.lang === 'ar' ? 'عذراً! مدير النظام (Admin) فقط هو المصرح له بإنشاء حسابات الموظفين الجديدة.' : 'Sorry! Only Admin can create employee accounts.');
+      return;
+    }
     this.editingEmployee.set(null);
     this.formName = '';
     this.formEmail = '';

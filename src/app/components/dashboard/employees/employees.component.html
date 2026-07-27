@@ -22,11 +22,13 @@
       </div>
     </div>
     <div class="flex items-center gap-2 shrink-0 flex-wrap">
-      <button (click)="openCreateRoleModal()"
-              class="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer transition">
-        <i class="fa-solid fa-shield-cat text-indigo-600"></i>
-        <span>{{ lang === 'ar' ? 'إضافة دور وظيفي جديد' : 'Add New Role' }}</span>
-      </button>
+      @if (isAdmin()) {
+        <button (click)="openCreateRoleModal()"
+                class="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer transition">
+          <i class="fa-solid fa-shield-cat text-indigo-600"></i>
+          <span>{{ lang === 'ar' ? 'إضافة دور وظيفي جديد' : 'Add New Role' }}</span>
+        </button>
+      }
 
       <button (click)="exportEmployeesToCSV()"
               class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 cursor-pointer transition">
@@ -34,11 +36,13 @@
         <span>{{ lang === 'ar' ? 'تصدير إكسيل' : 'Export Excel' }}</span>
       </button>
 
-      <button (click)="openCreateForm()"
-              class="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer shadow-sm transition">
-        <i class="fa-solid fa-user-plus"></i>
-        {{ lang === 'ar' ? 'إضافة موظف جديد' : 'Add Employee' }}
-      </button>
+      @if (isAdmin()) {
+        <button (click)="openCreateForm()"
+                class="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer shadow-sm transition">
+          <i class="fa-solid fa-user-plus"></i>
+          {{ lang === 'ar' ? 'إضافة موظف جديد' : 'Add Employee' }}
+        </button>
+      }
     </div>
   </div>
 
