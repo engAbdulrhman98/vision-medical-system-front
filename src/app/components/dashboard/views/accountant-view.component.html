@@ -1,53 +1,54 @@
 <!-- Accountant Dashboard -->
 <div class="space-y-6 animate-fade-in-up">
 
-  <!-- KPI Summary Cards (Quotations & Overall) -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 bg-sky-50 rounded-xl flex items-center justify-center">
-          <i class="fa-solid fa-file-invoice text-sky-600"></i>
+  <!-- KPI Summary Cards (Quotations & Overall) - Hidden on Chat View -->
+  @if (activeSubTab() !== 'chat') {
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 bg-sky-50 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-file-invoice text-sky-600"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'إجمالي العروض' : 'Total Quotations' }}</span>
         </div>
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'إجمالي العروض' : 'Total Quotations' }}</span>
+        <span class="text-2xl font-black text-slate-900">{{ quotations().length }}</span>
       </div>
-      <span class="text-2xl font-black text-slate-900">{{ quotations().length }}</span>
-    </div>
-    <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
-          <i class="fa-solid fa-clock text-amber-600"></i>
+      <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-clock text-amber-600"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'عروض قيد الانتظار' : 'Pending Quotations' }}</span>
         </div>
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'عروض قيد الانتظار' : 'Pending Quotations' }}</span>
+        <span class="text-2xl font-black text-slate-900">{{ getPendingCount() }}</span>
       </div>
-      <span class="text-2xl font-black text-slate-900">{{ getPendingCount() }}</span>
-    </div>
-    <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
-          <i class="fa-solid fa-receipt text-emerald-600"></i>
+      <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-receipt text-emerald-600"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'الفواتير النشطة' : 'Total Invoices' }}</span>
         </div>
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'الفواتير النشطة' : 'Total Invoices' }}</span>
+        <span class="text-2xl font-black text-slate-900">{{ invoices().length }}</span>
       </div>
-      <span class="text-2xl font-black text-slate-900">{{ invoices().length }}</span>
-    </div>
-    <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center">
-          <i class="fa-solid fa-percent text-violet-600"></i>
+      <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-percent text-violet-600"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'نسبة نجاح العروض' : 'Quotation Success' }}</span>
         </div>
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">{{ langService.currentLang() === 'ar' ? 'نسبة نجاح العروض' : 'Quotation Success' }}</span>
+        <span class="text-2xl font-black text-slate-900">{{ getQuotationSuccessRate() }}%</span>
       </div>
-      <span class="text-2xl font-black text-slate-900">{{ getQuotationSuccessRate() }}%</span>
     </div>
-  </div>
 
-
-  <!-- Success Banner -->
-  @if (showSuccessMsg()) {
-    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-xs font-bold flex items-center gap-2">
-      <i class="fa-solid fa-circle-check text-emerald-600"></i>
-      <span>{{ showSuccessMsg() }}</span>
-    </div>
+    <!-- Success Banner -->
+    @if (showSuccessMsg()) {
+      <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-xs font-bold flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+        <span>{{ showSuccessMsg() }}</span>
+      </div>
+    }
   }
 
   @if (activeSubTab() === 'chat') {
