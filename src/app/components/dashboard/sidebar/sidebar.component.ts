@@ -13,7 +13,7 @@ export interface NavigateTabEvent {
   standalone: true,
   imports: [CommonModule, RouterLink],
   host: {
-    'class': 'shrink-0 flex flex-col z-30 md:w-72 relative self-stretch h-full min-h-full'
+    'class': 'shrink-0 flex flex-col z-30 md:w-72 relative self-stretch h-full min-h-full bg-slate-900 border-e border-slate-800/80'
   },
   templateUrl: './sidebar.component.html',
 })
