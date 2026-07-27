@@ -78,13 +78,22 @@
                 <i class="fa-solid fa-lock"></i>
               </span>
               <input 
-                type="password" 
+                [type]="showPassword() ? 'text' : 'password'" 
                 name="password" 
                 [(ngModel)]="password" 
                 required 
-                class="w-full bg-slate-950/80 border border-slate-800 text-white rounded-xl py-4 ps-11 pe-4 text-sm focus:border-emerald-500 focus:outline-none transition placeholder-slate-600"
+                class="w-full bg-slate-950/80 border border-slate-800 text-white rounded-xl py-4 ps-11 pe-12 text-sm focus:border-emerald-500 focus:outline-none transition placeholder-slate-600"
                 [placeholder]="getLocale() === 'ar' ? '••••••••' : '••••••••'"
               />
+              <button 
+                type="button" 
+                (click)="toggleShowPassword()" 
+                [title]="getLocale() === 'ar' ? 'إظهار/إخفاء كلمة المرور' : 'Toggle Password Visibility'"
+                [attr.aria-label]="getLocale() === 'ar' ? 'إظهار/إخفاء كلمة المرور' : 'Toggle Password Visibility'"
+                class="absolute inset-y-0 end-0 flex items-center pe-4 text-slate-500 hover:text-slate-300 transition cursor-pointer border-0 bg-transparent"
+              >
+                <i class="fa-solid" [ngClass]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
             </div>
           </div>
 
