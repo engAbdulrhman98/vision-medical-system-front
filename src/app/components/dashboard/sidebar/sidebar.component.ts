@@ -13,7 +13,7 @@ export interface NavigateTabEvent {
   standalone: true,
   imports: [CommonModule, RouterLink],
   host: {
-    'class': 'shrink-0 flex flex-col z-30 md:w-72 relative'
+    'class': 'shrink-0 flex flex-col z-30 md:w-72 relative self-stretch h-full min-h-full'
   },
   template: `
     <!-- Mobile Sidebar Overlay -->
@@ -26,7 +26,7 @@ export interface NavigateTabEvent {
 
     <!-- Sidebar Navigation Drawer -->
     <aside 
-      class="bg-slate-900 text-slate-300 flex flex-col justify-between shadow-2xl border-slate-800/80 z-50 transition-all duration-300 select-none fixed top-0 bottom-0 w-72 h-screen md:sticky md:top-0 md:h-screen"
+      class="bg-slate-900 text-slate-300 flex flex-col justify-between shadow-2xl border-slate-800/80 z-50 transition-all duration-300 select-none fixed top-0 bottom-0 w-72 h-screen md:sticky md:top-0 md:h-screen md:min-h-full"
       [ngClass]="{
         'translate-x-0': isSidebarOpen(),
         'rtl:right-0 ltr:left-0': true,
