@@ -337,7 +337,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const groupsMap: { [key: string]: any[] } = {};
     for (const notif of list) {
       let type = 'system';
-      if (notif.task_id && notif.maintenance_report_id) {
+      if (notif.type === 'quotation_request' || notif.type === 'quotation_updated' || (notif.data && notif.data.quotation_id)) {
+        type = 'sales';
+      } else if (notif.type === 'invoice_requested' || notif.type === 'invoice_issued' || (notif.data && notif.data.invoice_request_id)) {
+        type = 'financial';
+      } else if (notif.task_id && notif.maintenance_report_id) {
         type = 'products';
       } else if (notif.task_id) {
         type = 'system';
