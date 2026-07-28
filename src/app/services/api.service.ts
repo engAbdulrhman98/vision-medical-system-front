@@ -429,7 +429,9 @@ export class ApiService {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
     if (status) params = params.set('status', status);
-    return this.http.get<Quotation[]>(`${this.apiUrl}/quotations`, { headers: this.getHeaders(), params });
+    return this.http.get<any>(`${this.apiUrl}/quotations`, { headers: this.getHeaders(), params }).pipe(
+      map((res: any) => Array.isArray(res) ? res : (res?.data || []))
+    );
   }
 
   createQuotation(payload: any): Observable<any> {
@@ -449,7 +451,9 @@ export class ApiService {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
     if (status) params = params.set('status', status);
-    return this.http.get<Invoice[]>(`${this.apiUrl}/invoices`, { headers: this.getHeaders(), params });
+    return this.http.get<any>(`${this.apiUrl}/invoices`, { headers: this.getHeaders(), params }).pipe(
+      map((res: any) => Array.isArray(res) ? res : (res?.data || []))
+    );
   }
 
   createInvoice(payload: any): Observable<any> {

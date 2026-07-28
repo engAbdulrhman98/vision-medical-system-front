@@ -70,7 +70,10 @@ export class AccountantViewComponent {
   public loadQuotations() {
     this.apiService.getQuotations(this.searchText || undefined, this.selectedStatus || undefined)
       .subscribe({
-        next: data => this.quotations.set(data || []),
+        next: (res: any) => {
+          const list = Array.isArray(res) ? res : (res?.data || []);
+          this.quotations.set(list);
+        },
         error: () => {}
       });
   }
@@ -78,7 +81,10 @@ export class AccountantViewComponent {
   public loadInvoices() {
     this.apiService.getInvoices(this.invoiceSearchText || undefined, this.invoiceSelectedStatus || undefined)
       .subscribe({
-        next: data => this.invoices.set(data || []),
+        next: (res: any) => {
+          const list = Array.isArray(res) ? res : (res?.data || []);
+          this.invoices.set(list);
+        },
         error: () => {}
       });
   }
