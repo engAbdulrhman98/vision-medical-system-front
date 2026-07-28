@@ -373,11 +373,20 @@ export class AdminViewComponent {
       'edit products': { ar: 'تعديل أسعار وبيانات المنتجات', en: 'Edit Products' },
       'delete products': { ar: 'إزالة منتج طبي من الكتالوج', en: 'Delete Products' },
 
+      'view clients': { ar: 'عرض سجل العملاء والمستشفيات والعيادات', en: 'View Clients Directory' },
+      'create clients': { ar: 'إضافة وتسجيل عميل / مستشفى جديد', en: 'Create Clients' },
+      'edit clients': { ar: 'تعديل بيانات وفروع العملاء ومسؤولي التواصل', en: 'Edit Clients' },
+      'delete clients': { ar: 'حذف سجل عميل من النظام', en: 'Delete Clients' },
+      'view external_tasks': { ar: 'عرض تكليفات الصيانة الخارجية والزيارات الميدانية', en: 'View External Maintenance Visits' },
+
       'view quotations': { ar: 'عرض عروض الأسعار الصادرة', en: 'View Quotations' },
       'create quotations': { ar: 'إنشاء وإصدار عرض سعر للعميل', en: 'Create Quotations' },
+      'create_quotation': { ar: 'طلب إنشاء عرض سعر وإرساله للمحاسب', en: 'Request Quotation' },
       'edit quotations': { ar: 'تعديل بنود وتفاصيل عرض السعر', en: 'Edit Quotations' },
       'delete quotations': { ar: 'حذف وإلغاء عرض سعر معتمد', en: 'Delete Quotations' },
 
+      'view invoices': { ar: 'عرض الفواتير والتحصيل الميداني', en: 'View Invoices' },
+      'view invoice_requests': { ar: 'عرض طلبات الفواتير والاعتماد', en: 'View Invoice Requests' },
       'view financials': { ar: 'عرض تقارير الحسابات والتحصيلات', en: 'View Financials' },
       'manage financials': { ar: 'إدارة المعاملات والمدفوعات والمراجعات', en: 'Manage Financials' },
 
