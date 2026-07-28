@@ -87,7 +87,7 @@
       </div>
 
       <!-- 1. SALES & FIELD ENGINEERING (المبيعات والصيانة الميدانية) -->
-      @if (isShowAllButtons() || getEffectiveRole() === 'admin' || getEffectiveRole() === 'seller' || getEffectiveRole() === 'engineer') {
+      @if (isShowAllButtons() || getEffectiveRole() === 'admin' || getEffectiveRole() === 'ceo' || getEffectiveRole() === 'seller' || getEffectiveRole() === 'engineer' || getEffectiveRole() === 'accountant' || getEffectiveRole() === 'manager') {
         <div class="space-y-1">
           <div class="px-2.5 py-1 flex items-center justify-between">
             <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">

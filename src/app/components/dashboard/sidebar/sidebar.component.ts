@@ -126,11 +126,16 @@ export class SidebarComponent {
 
     const perms: string[] = user.permissions || [];
     if (perms.length > 0) {
-      if (perms.includes('*') || perms.includes(permission)) return true;
+      const spacePerm = permission.replace(/_/g, ' ');
+      const underscorePerm = permission.replace(/\s+/g, '_');
+      if (perms.includes('*') || perms.includes(permission) || perms.includes(spacePerm) || perms.includes(underscorePerm)) {
+        return true;
+      }
     }
 
     // Strict role-based default visibility rules for standard permissions
-    switch (permission) {
+    const norm = permission.replace(/\s+/g, '_');
+    switch (norm) {
       case 'view_clients':
       case 'create_clients':
       case 'view_tasks':
@@ -138,16 +143,16 @@ export class SidebarComponent {
       case 'view_quotations':
       case 'create_quotation':
       case 'view_invoices':
-        return effectiveRole === 'seller' || effectiveRole === 'engineer';
+        return effectiveRole === 'seller' || effectiveRole === 'engineer' || effectiveRole === 'accountant' || effectiveRole === 'manager';
       case 'view_invoice_requests':
       case 'view_financial_reports':
-        return effectiveRole === 'accountant';
+        return effectiveRole === 'accountant' || effectiveRole === 'manager';
       case 'view_products':
       case 'view_categories':
       case 'view_brands':
       case 'view_maintenance_tasks':
       case 'manage_areas':
-        return effectiveRole === 'manager';
+        return effectiveRole === 'manager' || effectiveRole === 'engineer';
       default:
         return false;
     }
