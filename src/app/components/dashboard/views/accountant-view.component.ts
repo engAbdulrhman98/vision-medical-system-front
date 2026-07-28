@@ -101,6 +101,12 @@ export class AccountantViewComponent {
       alert(this.getLocale() === 'ar' ? 'يرجى اختيار عميل!' : 'Please select a client!');
       return;
     }
+
+    // Auto-add typed item if user filled the item input but didn't press '+' button before saving
+    if (this.newItem.name && this.newItem.name.trim() !== '') {
+      this.addItem();
+    }
+
     if (this.newQuotation.items.length === 0) {
       alert(this.getLocale() === 'ar' ? 'يرجى إضافة بند واحد على الأقل عرض السعر!' : 'Please add at least one item to the quotation!');
       return;
