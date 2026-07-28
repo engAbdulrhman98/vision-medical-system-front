@@ -41,7 +41,7 @@ export class AdminViewComponent {
   public systemRoles = signal<any[]>([]);
   public users = signal<any[]>([]);
   public selectedRoleIndex = signal<number>(0);
-  public expandedGroups = signal<number[]>([]);
+  public expandedGroups = signal<number[]>([1, 2, 3, 4, 5, 6]);
 
   public toggleGroup(groupId: number) {
     const current = this.expandedGroups();
