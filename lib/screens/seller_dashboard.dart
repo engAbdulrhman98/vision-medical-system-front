@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vision_medical_system_app/services/db_helper.dart';
+import 'shared_tasks_tab.dart';
 
 class SellerDashboard extends StatefulWidget {
   final String language;
@@ -101,7 +102,7 @@ class _SellerDashboardState extends State<SellerDashboard> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _loadSellerData();
   }
 
@@ -396,6 +397,7 @@ class _SellerDashboardState extends State<SellerDashboard> with SingleTickerProv
                   Tab(text: t('whatsapp'), icon: const Icon(Icons.chat_bubble_rounded, size: 18)),
                   Tab(text: t('daily'), icon: const Icon(Icons.today_rounded, size: 18)),
                   Tab(text: t('external'), icon: const Icon(Icons.directions_car_rounded, size: 18)),
+                  Tab(text: widget.language == 'ar' ? 'المهام الإدارية' : 'Admin Tasks', icon: const Icon(Icons.assignment_outlined, size: 18)),
                 ],
               ),
             ),
@@ -412,6 +414,13 @@ class _SellerDashboardState extends State<SellerDashboard> with SingleTickerProv
                   _buildWhatsAppTab(),
                   _buildDailyTasksTab(),
                   _buildExternalTasksTab(),
+                  SharedTasksTab(
+                    language: widget.language,
+                    token: widget.token,
+                    backendUrl: widget.backendUrl,
+                    userRole: 'seller',
+                    accentColor: const Color(0xFF0891B2),
+                  ),
                 ],
               ),
       ),

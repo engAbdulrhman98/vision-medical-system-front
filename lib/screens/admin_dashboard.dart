@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:vision_medical_system_app/services/db_helper.dart';
+import 'shared_tasks_tab.dart';
 
 class AdminDashboard extends StatefulWidget {
   final String language;
@@ -136,7 +137,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _loadDashboardData();
   }
 
@@ -575,6 +576,7 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                   Tab(text: t('messages'), icon: const Icon(Icons.mail_rounded, size: 18)),
                   Tab(text: t('permissions'), icon: const Icon(Icons.admin_panel_settings_rounded, size: 18)),
                   Tab(text: t('settings'), icon: const Icon(Icons.settings_rounded, size: 18)),
+                  Tab(text: widget.language == 'ar' ? 'المهام' : 'Tasks', icon: const Icon(Icons.assignment_outlined, size: 18)),
                 ],
               ),
             ),
@@ -590,6 +592,13 @@ class _AdminDashboardState extends State<AdminDashboard> with SingleTickerProvid
                   _buildMessagesTab(),
                   _buildPermissionsTab(),
                   _buildSettingsTab(),
+                  SharedTasksTab(
+                    language: widget.language,
+                    token: widget.token,
+                    backendUrl: widget.backendUrl,
+                    userRole: 'admin',
+                    accentColor: const Color(0xFF0F5132),
+                  ),
                 ],
               ),
       ),

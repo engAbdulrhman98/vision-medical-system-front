@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:vision_medical_system_app/services/db_helper.dart';
+import 'shared_tasks_tab.dart';
 
 class CollectorDashboard extends StatefulWidget {
   final String language;
@@ -138,7 +139,7 @@ class _CollectorDashboardState extends State<CollectorDashboard>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _loadData();
   }
 
@@ -645,6 +646,7 @@ class _CollectorDashboardState extends State<CollectorDashboard>
               Tab(icon: const Icon(Icons.receipt_long_outlined, size: 18), text: t('invoices')),
               Tab(icon: const Icon(Icons.people_outline, size: 18), text: t('clients')),
               Tab(icon: const Icon(Icons.inbox_outlined, size: 18), text: t('requests')),
+              Tab(icon: const Icon(Icons.assignment_outlined, size: 18), text: widget.language == 'ar' ? 'المهام' : 'Tasks'),
             ],
           ),
         ),
@@ -667,6 +669,13 @@ class _CollectorDashboardState extends State<CollectorDashboard>
                     _buildInvoicesTab(),
                     _buildClientsTab(),
                     _buildRequestsTab(),
+                    SharedTasksTab(
+                      language: widget.language,
+                      token: widget.token,
+                      backendUrl: widget.backendUrl,
+                      userRole: 'collector',
+                      accentColor: const Color(0xFF0F766E),
+                    ),
                   ],
                 ),
         ),

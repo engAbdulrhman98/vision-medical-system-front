@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vision_medical_system_app/services/db_helper.dart';
+import 'shared_tasks_tab.dart';
 
 class EngineerDashboard extends StatefulWidget {
   final String language;
@@ -146,7 +147,7 @@ class _EngineerDashboardState extends State<EngineerDashboard> with SingleTicker
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _loadAllEngineerData();
   }
 
@@ -807,6 +808,7 @@ class _EngineerDashboardState extends State<EngineerDashboard> with SingleTicker
                       Tab(text: t('tab_quotes'), icon: const Icon(Icons.request_quote_rounded, size: 18)),
                       Tab(text: t('tab_invoices'), icon: const Icon(Icons.receipt_long_rounded, size: 18)),
                       Tab(text: t('tab_reports'), icon: const Icon(Icons.description_rounded, size: 18)),
+                      Tab(text: widget.language == 'ar' ? 'مهامي' : 'My Tasks', icon: const Icon(Icons.assignment_outlined, size: 18)),
                     ],
                   ),
                 ],
@@ -825,6 +827,13 @@ class _EngineerDashboardState extends State<EngineerDashboard> with SingleTicker
                         _buildQuotesTab(),
                         _buildInvoicesTab(),
                         _buildReportsTab(),
+                        SharedTasksTab(
+                          language: widget.language,
+                          token: widget.token,
+                          backendUrl: widget.backendUrl,
+                          userRole: 'engineer',
+                          accentColor: const Color(0xFF0F766E),
+                        ),
                       ],
                     ),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:vision_medical_system_app/services/db_helper.dart';
+import 'shared_tasks_tab.dart';
 
 class ManagerDashboard extends StatefulWidget {
   final String language;
@@ -95,7 +96,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _loadManagerData();
   }
 
@@ -601,6 +602,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
                   Tab(text: t('brands'), icon: const Icon(Icons.verified_rounded, size: 18)),
                   Tab(text: t('areas'), icon: const Icon(Icons.map_rounded, size: 18)),
                   Tab(text: t('followup'), icon: const Icon(Icons.track_changes_rounded, size: 18)),
+                  Tab(text: widget.language == 'ar' ? 'المهام' : 'Tasks', icon: const Icon(Icons.assignment_outlined, size: 18)),
                 ],
               ),
             ),
@@ -616,6 +618,13 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
                   _buildBrandsTab(),
                   _buildAreasTab(),
                   _buildFollowupTab(),
+                  SharedTasksTab(
+                    language: widget.language,
+                    token: widget.token,
+                    backendUrl: widget.backendUrl,
+                    userRole: 'manager',
+                    accentColor: const Color(0xFF1E1B4B),
+                  ),
                 ],
               ),
       ),

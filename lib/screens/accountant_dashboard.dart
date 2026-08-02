@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:vision_medical_system_app/services/db_helper.dart';
+import 'shared_tasks_tab.dart';
 
 class AccountantDashboard extends StatefulWidget {
   final String language;
@@ -100,7 +101,7 @@ class _AccountantDashboardState extends State<AccountantDashboard> with SingleTi
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _loadAccountantData();
   }
 
@@ -423,6 +424,7 @@ class _AccountantDashboardState extends State<AccountantDashboard> with SingleTi
                   Tab(text: t('new_quote'), icon: const Icon(Icons.add_card_rounded, size: 18)),
                   Tab(text: t('invoices'), icon: const Icon(Icons.receipt_rounded, size: 18)),
                   Tab(text: t('reports'), icon: const Icon(Icons.pie_chart_rounded, size: 18)),
+                  Tab(text: widget.language == 'ar' ? 'المهام' : 'Tasks', icon: const Icon(Icons.assignment_outlined, size: 18)),
                 ],
               ),
             ),
@@ -438,6 +440,13 @@ class _AccountantDashboardState extends State<AccountantDashboard> with SingleTi
                   _buildCreateQuoteTab(),
                   _buildInvoicesTab(),
                   _buildReportsTab(),
+                  SharedTasksTab(
+                    language: widget.language,
+                    token: widget.token,
+                    backendUrl: widget.backendUrl,
+                    userRole: 'accountant',
+                    accentColor: const Color(0xFFD97706),
+                  ),
                 ],
               ),
       ),
