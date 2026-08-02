@@ -8,6 +8,7 @@ import 'manager_dashboard.dart';
 import 'accountant_dashboard.dart';
 import 'seller_dashboard.dart';
 import 'engineer_dashboard.dart';
+import 'collector_dashboard.dart';
 import 'notifications_screen.dart';
 import 'package:vision_medical_system_app/services/notification_service.dart';
 import 'package:vision_medical_system_app/services/db_helper.dart';
@@ -304,7 +305,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'collector':
         primaryColor = const Color(0xFF92400E);
         secondaryColor = const Color(0xFFB45309);
-        dashboardContent = AccountantDashboard(
+        dashboardContent = CollectorDashboard(
           language: _lang,
           token: widget.token,
           backendUrl: widget.backendUrl,
