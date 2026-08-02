@@ -174,7 +174,7 @@ class _SharedTasksTabState extends State<SharedTasksTab> {
 
   Map<String, dynamic> _parseTask(dynamic item) {
     final lang = widget.language;
-    String _loc(dynamic obj) {
+    String getLoc(dynamic obj) {
       if (obj is Map) return obj[lang] ?? obj['ar'] ?? obj['en'] ?? '';
       return obj?.toString() ?? '';
     }
@@ -199,12 +199,12 @@ class _SharedTasksTabState extends State<SharedTasksTab> {
 
     return {
       'id': item['id']?.toString() ?? '',
-      'title': _loc(item['title']).isNotEmpty ? _loc(item['title']) : (item['title']?.toString() ?? ''),
-      'description': item['description']?.toString() ?? '',
+      'title': getLoc(item['title']).isNotEmpty ? getLoc(item['title']) : (item['title']?.toString() ?? ''),
+      'description': getLoc(item['description']).isNotEmpty ? getLoc(item['description']) : (item['description']?.toString() ?? ''),
       'status': uiStatus,
       'priority': uiPriority,
-      'device': _loc(item['device_product_name']).isNotEmpty ? _loc(item['device_product_name']) : (item['device_product_name']?.toString() ?? ''),
-      'client': _loc(item['client_name']).isNotEmpty ? _loc(item['client_name']) : (item['client_name']?.toString() ?? ''),
+      'device': getLoc(item['device_product_name']).isNotEmpty ? getLoc(item['device_product_name']) : (item['device_product_name']?.toString() ?? ''),
+      'client': getLoc(item['client_name']).isNotEmpty ? getLoc(item['client_name']) : (item['client_name']?.toString() ?? ''),
       'scheduledAt': item['scheduled_at']?.toString().split(' ')[0] ?? '',
       'assignedTo': item['assigned_to']?.toString() ?? '',
     };
@@ -359,7 +359,7 @@ class _SharedTasksTabState extends State<SharedTasksTab> {
                       _fieldLabel(t('device')),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
-                        value: selDevice,
+                        initialValue: selDevice,
                         items: _devicesList.map((d) => DropdownMenuItem(value: d, child: Text(d, style: const TextStyle(fontSize: 13)))).toList(),
                         onChanged: (v) { if (v != null) setS(() => selDevice = v); },
                         decoration: _inputDec(''),
@@ -368,7 +368,7 @@ class _SharedTasksTabState extends State<SharedTasksTab> {
                       _fieldLabel(t('client')),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
-                        value: selClient,
+                        initialValue: selClient,
                         items: _clientsList.map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13)))).toList(),
                         onChanged: (v) { if (v != null) setS(() => selClient = v); },
                         decoration: _inputDec(''),
